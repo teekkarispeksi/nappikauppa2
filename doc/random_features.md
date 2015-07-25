@@ -1,0 +1,3 @@
+- Kerro paremmin missä istumapaikat on: Permanto -> Permanto Vasen, Permanto Oikea
+	- Nykyinen tietorakenne periaatteessa tukee jo tätä (section, seat), mutta tätä infoa ei tarvitsisi näyttää missään muualla kuin pääsylipussa, web-UI:ssa se vain sekottaa.
+	- Paikkojen hinnoittelu ei noudata näitä rajoja, mutta atm hinnat laitetaan per section
