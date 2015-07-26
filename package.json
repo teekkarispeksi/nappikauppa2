@@ -6,7 +6,13 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "connect-livereload": "^0.5.3",
     "debug": "~2.2.0",
     "express": "~4.13.1"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-livereload": "^3.8.0",
+    "tiny-lr": "^0.1.6"
   }
 }
