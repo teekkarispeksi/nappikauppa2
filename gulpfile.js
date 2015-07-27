@@ -3,6 +3,11 @@ var inject = require('gulp-inject');
 var less = require('gulp-less');
 var del = require('del');
 var runSequence = require('run-sequence');
+var browserify = require('browserify');
+var reactify = require('reactify');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
+var uglify = require('gulp-uglify');
 
 // from http://rhumaric.com/2014/01/livereload-magic-gulp-style/
 function startExpress() {
@@ -37,9 +42,22 @@ gulp.task('css', function () {
       .pipe(gulp.dest('./frontend/build/public/css/'));
 })
 
-gulp.task('js', function () {
-  return gulp.src('./frontend/src/js/*.js')
-      .pipe(gulp.dest('./frontend/build/public/js/'));
+gulp.task('js', function() {
+  return browserify('./frontend/src/js/App.jsx')
+  .transform(reactify)
+  .bundle()
+  .pipe(source('App.js'))
+  .pipe(gulp.dest('./frontend/build/public/js/'));
+})
+
+gulp.task('js:min', function() {
+  return browserify('./frontend/src/js/App.jsx')
+  .transform(reactify)
+  .bundle()
+  .pipe(source('App.js'))
+  .pipe(buffer())
+  .pipe(uglify())
+  .pipe(gulp.dest('./frontend/build/public/js/'));
 })
 
 gulp.task('index', function () {
@@ -59,8 +77,8 @@ gulp.task('build', function(cb) {
 gulp.task('start', function () {
   startExpress();
   startLivereload();
-  gulp.watch('frontend/src/css/*', ['css', 'index']);
-  gulp.watch('frontend/src/js/*', ['js', 'index']);
+  gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index']);
+  gulp.watch('frontend/src/js/**/*.{js,jsx}', ['js', 'index']);
   gulp.watch('frontend/src/index.html', ['index']);
   gulp.watch('frontend/build/**/*.{html,css,js}', notifyLivereload);
 });
