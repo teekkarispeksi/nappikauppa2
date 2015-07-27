@@ -1,0 +1,33 @@
+{
+  "name": "nappikauppa2",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "connect-livereload": "^0.5.3",
+    "debug": "~2.2.0",
+    "express": "~4.13.1",
+    "morgan": "^1.6.1",
+    "run-sequence": "^1.1.2"
+  },
+  "devDependencies": {
+    "browserify": "^11.0.0",
+    "del": "^1.2.0",
+    "gulp": "^3.9.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-inject": "^1.5.0",
+    "gulp-jshint": "^1.11.2",
+    "gulp-less": "^3.0.3",
+    "gulp-livereload": "^3.8.0",
+    "gulp-minify-css": "^1.2.0",
+    "gulp-react": "^3.0.1",
+    "gulp-uglify": "^1.2.0",
+    "react": "^0.13.3",
+    "reactify": "^1.1.1",
+    "tiny-lr": "^0.1.6",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
