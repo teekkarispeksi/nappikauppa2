@@ -10,9 +10,9 @@ app.use(logger('dev'));
 
 app.use(require('connect-livereload')());
 
-//app.use(express.static(path.join(__dirname, 'public')));
+app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));
 app.get('/', function(req, res) {
-	res.sendFile(__dirname + '/frontend/index.html');
+	res.sendFile(__dirname + '/frontend/build/index.html');
 });
 
 app.use('/api', api);

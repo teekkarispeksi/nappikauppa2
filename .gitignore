@@ -1,3 +1,6 @@
+#built css/js/html
+frontend/build
+
 # Logs
 logs
 *.log
