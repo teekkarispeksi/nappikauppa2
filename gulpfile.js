@@ -10,6 +10,8 @@ var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
 var jshint = require('gulp-jshint');
 var react = require('gulp-react'); // for jshint
+var concat = require('gulp-concat');
+var cssmin = require('gulp-minify-css');
 
 // from http://rhumaric.com/2014/01/livereload-magic-gulp-style/
 function startExpress() {
@@ -41,6 +43,15 @@ gulp.task('clean', function (cb) {
 gulp.task('css', function () {
   return gulp.src('./frontend/src/css/*.less')
       .pipe(less())
+      .pipe(concat('style.css'))
+      .pipe(gulp.dest('./frontend/build/public/css/'));
+})
+
+gulp.task('css:min', function () {
+  gulp.src('./frontend/src/css/*.less')
+      .pipe(less())
+      .pipe(concat('style.css'))
+      .pipe(cssmin())
       .pipe(gulp.dest('./frontend/build/public/css/'));
 })
 
