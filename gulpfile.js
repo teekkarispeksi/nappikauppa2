@@ -4,10 +4,12 @@ var less = require('gulp-less');
 var del = require('del');
 var runSequence = require('run-sequence');
 var browserify = require('browserify');
-var reactify = require('reactify');
+var reactify = require('reactify'); // for browserify
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
+var jshint = require('gulp-jshint');
+var react = require('gulp-react'); // for jshint
 
 // from http://rhumaric.com/2014/01/livereload-magic-gulp-style/
 function startExpress() {
@@ -42,7 +44,14 @@ gulp.task('css', function () {
       .pipe(gulp.dest('./frontend/build/public/css/'));
 })
 
-gulp.task('js', function() {
+gulp.task('lint', function() {
+  return gulp.src('frontend/src/**/*.{js,jsx}') // lint reactified JS
+  .pipe(react())
+  .pipe(jshint())
+  .pipe(jshint.reporter('default'));
+});
+
+gulp.task('js', ['lint'], function() {
   return browserify('./frontend/src/js/App.jsx')
   .transform(reactify)
   .bundle()
