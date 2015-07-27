@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var inject = require('gulp-inject');
 var less = require('gulp-less');
 var del = require('del');
+var runSequence = require('run-sequence');
 
 // from http://rhumaric.com/2014/01/livereload-magic-gulp-style/
 function startExpress() {
@@ -26,25 +27,33 @@ function notifyLivereload(event) {
   });
 }
 
-gulp.task('clean', function () {
-  del(['./frontend/build/'])
+gulp.task('clean', function (cb) {
+  return del(['./frontend/build/'], cb)
 })
 
 gulp.task('css', function () {
-  gulp.src('./frontend/src/css/*.less')
+  return gulp.src('./frontend/src/css/*.less')
       .pipe(less())
       .pipe(gulp.dest('./frontend/build/public/css/'));
 })
 
 gulp.task('js', function () {
-  gulp.src('./frontend/src/js/*.js')
+  return gulp.src('./frontend/src/js/*.js')
       .pipe(gulp.dest('./frontend/build/public/js/'));
 })
 
-gulp.task('index', ['css', 'js'], function () {
-  gulp.src('./frontend/src/index.html')
+gulp.task('index', function () {
+  return gulp.src('./frontend/src/index.html')
       .pipe(inject(gulp.src('./public/**/*.{css,js}', {read: false, cwd: './frontend/build/'})))
       .pipe(gulp.dest('./frontend/build/'));
+})
+
+gulp.task('build', function(cb) {
+  runSequence(
+    ['clean'],
+    ['css', 'js'],
+    ['index'],
+    cb);
 })
 
 gulp.task('start', function () {
@@ -56,4 +65,9 @@ gulp.task('start', function () {
   gulp.watch('frontend/build/**/*.{html,css,js}', notifyLivereload);
 });
 
-gulp.task('default', ['css', 'js', 'index', 'start']);
+gulp.task('default', function(cb) {
+  runSequence(
+    ['build'],
+    ['start'],
+    cb);
+})
