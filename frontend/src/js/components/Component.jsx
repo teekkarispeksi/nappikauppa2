@@ -1,5 +1,5 @@
 var React = require('react');
-var BackboneReact = require('backbone-react-component');
+
 var Show = require('../models/show.js');
 var Shows = require('../collections/shows.js');
 
