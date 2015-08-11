@@ -1,10 +1,26 @@
 var React = require('react');
+var BackboneReact = require('backbone-react-component');
+var Show = require('../models/show.js');
+var Shows = require('../collections/shows.js');
 
 var Component = React.createClass({
+  shows: new Shows(),
+
+  componentWillMount: function () {
+    this.shows.fetch({
+      success: function(collection, response, options) {
+        this.forceUpdate();
+      }.bind(this)
+    });
+  },
 
   render: function () {
     return (
-      <h1>React says hey!</h1>
+      <div>
+        {this.shows.map(function(show) {
+          return <a>{show.get('title')}</a>;
+        })}
+      </div>
     );
   }
 
