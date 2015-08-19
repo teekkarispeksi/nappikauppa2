@@ -9,10 +9,10 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/shows/', function(req, res) {
-  res.json(show.getAll());
+  show.getAll(function(data) { res.json(data) });
 });
 router.get('/shows/:showid', function(req, res) {
-  res.json(show.get(req.params.showid));
+  show.get(req.params.showid, function(data) { res.json(data) });
 });
 
 module.exports = router;

@@ -26,3 +26,6 @@ node_modules
 
 # Debug log from npm
 npm-debug.log
+
+# config
+config/config.js

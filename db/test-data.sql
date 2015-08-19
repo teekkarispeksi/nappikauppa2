@@ -1,0 +1,2 @@
+INSERT INTO `nk2_shows` (`id`, `title`, `venue_id`, `external_store_description`, `time`, `active`, `inactivateTime`, `description`, `customer_id`, `url`) VALUES
+(1, 'Ensi-ilta', 1, '', '2011-04-19 19:00:00', 1, '2011-04-18 12:00:00', 'Parhaat katsomopaikat ovat permannolla.<br><br>Paikalle kannattaa saapua hyvissä ajoin ruuhkan välttämiseksi. Osoite: Aleksanterin teatteri, Helsinki, Bulevardi 23-27 / Albertinkatu 32', 0, '');
