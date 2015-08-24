@@ -6,7 +6,7 @@ start transaction;
 drop table if exists nk2_discount_codes;
 create table nk2_discount_codes (
   `code` varchar(32) not null,
-  `eur` float(6,2) not null,
+  `eur` decimal(10,2) not null,
   `use_max` smallint(6) not null,
   `used` smallint(6) not null,
   `email` varchar(255) not null,
@@ -21,7 +21,7 @@ create table nk2_discount_groups (
   `id` smallint(6) not null auto_increment,
   `show_id` mediumint(9),
   `title` varchar(100) not null,
-  `eur` float(6,2) not null,
+  `eur` decimal(10,2) not null,
   `admin_only` boolean not null,
   `active` boolean not null,
   PRIMARY KEY  (`id`),
@@ -37,8 +37,8 @@ create table nk2_orders (
   `email` varchar(255) not null,
   `discount_code` varchar(32) not null,
   `time` datetime not null,
-  `price` float(6,2) not null,
-  `vm_pay_id` varchar(20) default NULL,
+  `price` decimal(10,2) not null,
+  `payment_id` varchar(20) default NULL,
   PRIMARY KEY  (`id`),
   foreign key (discount_code) references nk2_discount_codes (code)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
@@ -80,7 +80,7 @@ create table nk2_sections (
   `id` smallint(6) not null auto_increment,
   `section_static_id` smallint(6) not null,
   `show_id` smallint(6) not null,
-  `price` float(6,2) not null,
+  `price` decimal(10,2) not null,
   `active` boolean not null default '1',
   PRIMARY KEY  (`id`),
   foreign key (section_static_id) references nk2_sections_static (id),
@@ -125,7 +125,7 @@ create table nk2_tickets (
   `seat_id` int(11) unsigned not null,
   `discount_group_id` smallint(6),
   `hash` varchar(32) not null,
-  `price` float(6,2) not null,
+  `price` decimal(10,2) not null,
   `used_time` datetime default NULL,
   PRIMARY KEY  (`id`),
   foreign key (order_id) references nk2_orders (id),

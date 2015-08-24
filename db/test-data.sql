@@ -36,7 +36,7 @@ insert into nk2_seats_static (section_static_id, row, number, x_coord, y_coord, 
     (5, null, null, null, null, false);
 
 insert into nk2_shows (title, venue_id, time, active, inactivate_time, description) values
-    ('Ensi-ilta', 1, '2016-04-19 19:00:00', true, '2016-04-18 12:00:00', 'Hyviä paikkoja\ntule ajoissa paikalle\n<b>tarvitaan html-tuki</<b>'),
+    ('Ensi-ilta', 1, '2016-04-19 19:00:00', true, '2016-04-18 12:00:00', 'Hyviä paikkoja\ntule ajoissa paikalle\n<b>tarvitaan html-tuki</b>'),
     ('Turku', 2, '2016-04-21 19:00:00', true, '2016-04-20 12:00:00', 'Lorem ipsum');
 
 insert into nk2_sections (section_static_id, show_id, price, active) values
@@ -49,16 +49,17 @@ insert into nk2_sections (section_static_id, show_id, price, active) values
 
 insert into nk2_seats (section_id, seat_static_id, reserved_until, reserved_session_id, active) values
     (1, 1, null, null, true),
-    (1, 2, NOW(), 'xyz', true),
+    (1, 2, '2017-01-01', 'xyz', true),
     (2, 3, null, null, false),
     (3, 4, null, null, true),
+    (4, 5, null, null, true),
 
-    (4, 5, NOW(), 'abc', true),
-    (5, 6, NOW(), 'abc', true),
-    (6, 7, null, null, true);
+    (5, 6, '2017-01-01', 'abc', true),
+    (5, 7, null, null, true), -- comment this to make it sold out
+    (5, 8, '2017-01-01', 'abc', true);
 
 
-insert into nk2_orders (name, email, discount_code, time, price, vm_pay_id) values
+insert into nk2_orders (name, email, discount_code, time, price, payment_id) values
     ('Pekko I', 'pekko@example.com', null, '2015-03-13 12:47:05', 14.00, 'AASDASD'),
     ('Sponsoroitu', 'bar@example.com', 'admin-code', '2015-03-15 13:39:22', 0.00, 'WOODOO');
 
