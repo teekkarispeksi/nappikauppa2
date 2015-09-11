@@ -14,7 +14,7 @@ insert into nk2_venues (title, ticket_type, description) values
     ('Ulkopuolinen lipunmyynti', 'generic-tickets', ''),
     ('Aleksanterin teatteri', 'numbered-seats',  'Aleksanterin teatteri, Helsinki\nBulevardi 23-27 / Albertinkatu 32'),
     ('Gloria', 'generic-tickets', 'Gloria Kulttuuriareena, Helsinki, Pieni Roobertinkatu 12 \nKulkuyhteydet: raitiovaunu 6, bussit 14 ja 20'),
-    ('Vaasan kaupunginteatteri', 'numbered-seats', 'Vaasan kaupunginteatteri\nPitkÃ¤katu 53, Vaasa'),
+    ('Vaasan kaupunginteatteri', 'numbered-seats', 'Vaasan kaupunginteatteri\nPitkäkatu 53, Vaasa'),
     ('Lappeenrannan kaupunginteatteri', 'generic-tickets', 'Lappeenrannan kaupunginteatteri\nValtakatu 56'),
     ('Louhisali, Espoo', 'numbered-seats', 'Louhisali, Espoon kulttuurikeskus\nKulttuuriaukio 2, Espoo'),
     ('Sigyn-sali', 'generic-tickets', 'Sigyn-sali\nLinnankatu 60'),
@@ -531,16 +531,47 @@ insert into nk2_seats (number, row, section_id, x_coord, y_coord, bad_seat) valu
     (2, 20, 9, 334, 316, false);
 
 insert into nk2_shows (title, venue_id, time, active, inactivate_time, description) values
-    ('Ensi-ilta', 1, '2016-04-19 19:00:00', true, '2016-04-18 12:00:00', 'Hyviä paikkoja\ntule ajoissa paikalle\n<b>tarvitaan html-tuki</b>'),
-    ('Turku', 2, '2016-04-21 19:00:00', true, '2016-04-20 12:00:00', 'Lorem ipsum');
+    ('Helsinki I (Ensi-ilta)',    2, '2080-03-16 19:00:00', true, '2080-03-15 21:00:00', '<p>Näytös järjestetään Aleksanterin teatterissa, Albertinkatu 32. Teatteri perii eteispalvelumaksun.\r\n\r\n<p>Lippuja saa ostaa teatterin ovelta tuntia ennen näytöstä, niin kauan kuin niitä on jäljellä.'),
+    ('Helsinki II',               2, '2080-03-17 19:00:00', true, '2080-03-17 12:00:00', '<p>Näytös järjestetään Aleksanterin teatterissa, Albertinkatu 32. Teatteri perii eteispalvelumaksun.\r\n\r\n<p>Lippuja saa ostaa teatterin ovelta tuntia ennen näytöstä, niin kauan kuin niitä on jäljellä.'),
+    ('Helsinki III',              2, '2080-03-23 19:00:00', true, '2080-03-23 12:00:00', '<p>Näytös järjestetään Aleksanterin teatterissa, Albertinkatu 32. Teatteri perii eteispalvelumaksun.'),
+    ('Helsinki IV',               2, '2080-03-24 19:00:00', true, '2080-03-24 12:00:00', '<p>Näytös järjestetään Aleksanterin teatterissa, Albertinkatu 32. Teatteri perii eteispalvelumaksun.'),
+    ('Helsinki V (Alumninäytös)', 2, '2080-04-12 19:00:00', true, '2080-04-12 12:00:00', '<p>Alumninäytös on suunnattu erityisesti valmistuneille Teekkarispeksin ystäville, mutta myös opiskelijat ovat erittäin tervetulleita mukaan. Opiskelijahintaisia lippuja ei kuitenkaan valitettavasti ole saatavilla.\r\n\r\n<p>Näytös järjestetään Aleksanterin teatterissa, Albertinkatu 32. Teatteri perii eteispalvelumaksun.\r\n\r\n<p>Esitys kestää noin kolme tuntia väliajan kanssa.\r\n\r\n<div id="ad_alumni"><a href="https://alumninet.aalto.fi/Portal/Public/Default.aspx"><img src="/kauppa/custom/teekkarispeksi2015/img/alumninet_oranssi.png"></a></div>\r\n\r\n<style>#showinfo { display: none !important }</style>'),
+    ('Helsinki VI',               2, '2080-04-13 19:00:00', true, '2080-04-13 12:00:00', '<p>Näytös järjestetään Aleksanterin teatterissa, Albertinkatu 32. Teatteri perii eteispalvelumaksun.'),
+    ('Helsinki VII',              2, '2080-04-20 19:00:00', true, '2080-04-20 12:00:00', '<p>Näytös järjestetään Aleksanterin teatterissa, Albertinkatu 32. Teatteri perii eteispalvelumaksun.'),
+    ('Helsinki VIII',             2, '2080-04-21 19:00:00', true, '2080-04-21 12:00:00', '<p>Näytös järjestetään Aleksanterin teatterissa, Albertinkatu 32. Teatteri perii eteispalvelumaksun.'),
+    ('Vaasa, kaupunginteatteri',  4, '2080-03-30 19:00:00', true, '2080-03-30 16:00:00', '<p>Näytös järjestetään Vaasan Kaupunginteatterin Romeo-salissa. Teatteri perii eteispalvelumaksun.'),
+    ('Kuopio, kaupunginteatteri', 8, '2080-04-15 19:00:00', true, '2080-04-15 16:00:00', '<p>Näytös järjestetään Kuopion Kaupunginteatterin Maria-näyttämöllä, Niiralankatu 2.'),
+    ('Tampere, Hällä-teatteri',   1, '2080-03-20 18:00:00', true, '2080-03-20 18:00:00', '<p>Teekkarispeksi esiintyy Tampereella 20. maaliskuuta Hällä-näyttämöllä. Esitys alkaa kello 18:00. Liput aikuisille <b>20€</b>, opiskelijoille <b>16€</b>.</p>\r\n\r\n<p>Tampereen näytöksen lipunmyynnistä vastaa NääsPeksi.</p>\r\n<p><a href=\\"http://naaspeksi.net/qsot-event/teekkarispeksi-2015-supernova/teekkarispeksi15/\\" style=\\"font-size: 20px;\\">Osta lippuja Tampereen näytökseen</a><p>'),
+    ('Turku, Sigyn-sali',         7, '2080-04-01 18:00:00', true, '2080-04-01 15:00:00', '<p>Näytös järjestetään Sigyn-salissa, Linnankatu 60. Teatteri perii eteispalvelumaksun.');
 
 insert into nk2_prices (section_id, show_id, price, active) values
-    (1, 1, 20.00, true),
-    (2, 1, 18.00, true),
-    (3, 1, 14.00, true),
-    (4, 1, 14.00, false),
-
-    (5, 2, 14.00, true);
+    (1, 1, 18.00, true),
+    (2, 1, 20.00, true),
+    (3, 1, 18.00, true),
+    (4, 1, 18.00, true),
+    (5, 1, 18.00, true),
+    (6, 1, 18.00, true),
+    (7, 1, 14.00, true),
+    (8, 1, 14.00, true),
+    (9, 1, 14.00, true),
+    (1, 2, 18.00, true),
+    (2, 2, 20.00, true),
+    (3, 2, 18.00, true),
+    (4, 2, 18.00, true),
+    (5, 2, 18.00, true),
+    (6, 2, 18.00, true),
+    (7, 2, 14.00, true),
+    (8, 2, 14.00, true),
+    (9, 2, 14.00, true),
+    (1, 3, 18.00, true),
+    (2, 3, 20.00, true),
+    (3, 3, 18.00, true),
+    (4, 3, 18.00, true),
+    (5, 3, 18.00, true),
+    (6, 3, 18.00, true),
+    (7, 3, 14.00, true),
+    (8, 3, 14.00, true),
+    (9, 3, 14.00, true);
 
 insert into nk2_orders (name, email, discount_code, time, price, payment_id, reserved_until, reserved_session_id) values
     ('Pekko I', 'pekko@example.com', null, '2015-03-13 12:47:05', 14.00, 'AASDASD', null, null),
