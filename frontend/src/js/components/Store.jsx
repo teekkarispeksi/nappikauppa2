@@ -13,7 +13,7 @@ var Store = React.createClass({
   shows: new Shows(),
 
   getInitialState: function () {
-    return {page: "home", showid: this.props.showid, show: null};
+    return {page: "home", showid: this.props.showid, show: null, selectedSeats: []};
   },
 
   componentWillMount: function () {
