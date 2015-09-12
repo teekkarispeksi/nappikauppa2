@@ -12,7 +12,7 @@ var ShoppingCart = React.createClass({
         <ul>
           {this.props.selectedSeats.map(function(seat) {
             console.log(seat);
-            return <li key={seat.id}>{seat.sectionTitle}, rivi {seat.row}, paikka {seat.seatNumber}</li>;
+            return <li key={seat.id}>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}</li>;
           }.bind(this))}
         </ul>
       </div>
