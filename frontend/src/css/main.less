@@ -1,6 +1,33 @@
 @nice-blue: #5B83AD;
 @light-blue: @nice-blue + #111;
 
-body {
-  color: @light-blue;
+header {
+
+}
+
+main {
+  display: inline-block;
+
+  .shopping-stage {
+    border: 1px solid @nice-blue;
+    float: left;
+    display: inline-block;
+    vertical-align: top;
+    min-width: 10em;
+    height: 200px;
+    
+    margin: 5px;
+    padding: 0 5px;
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+  }
+}
+
+.seat {
+  &.selected {
+    font-weight: bold;
+  }
 }
