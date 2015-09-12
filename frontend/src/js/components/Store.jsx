@@ -11,7 +11,7 @@ var Store = React.createClass({
   shows: new Shows(),
 
   getInitialState: function () {
-    return {showid: this.props.showid, show: null};
+    return {page: "home", showid: this.props.showid, show: null};
   },
 
   componentWillMount: function () {
@@ -27,8 +27,12 @@ var Store = React.createClass({
   },
 
   onShowSelect: function (showid) {
-    this.setState({showid: showid, show: this.shows.get(showid)});
+    this.setState({page: "seats", showid: showid, show: this.shows.get(showid)});
     Router.navigate('show/'+showid, {trigger: false});
+  },
+
+  onSeatsSelected: function (seats) {
+    this.setState({page: "info", selectedSeats: seats.filter(function(seat) {return seat.selected; })});
   },
 
   helpText: (<div><span>
@@ -37,10 +41,19 @@ var Store = React.createClass({
   </span></div>),
 
   render: function () {
+    var pageEl;
+    if (this.state.page == "seats") {
+      pageEl = <SeatSelector onSeatsSelected={this.onSeatsSelected} show={this.state.show} />;
+    } else if (this.state.page == "info") {
+      pageEl = <span>Gimme your address!</span>;
+    } else {
+      pageEl = this.helpText;
+    }
+
     return (
       <div>
         <ShowSelector onShowSelect={this.onShowSelect} shows={this.shows} />
-        <div className="main-area">{(this.state.show) ? <SeatSelector show={this.state.show} /> : this.helpText}</div>
+        <div className="main-area">{pageEl}</div>
       </div>
     );
   }
