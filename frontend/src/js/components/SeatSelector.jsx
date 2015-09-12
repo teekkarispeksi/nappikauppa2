@@ -1,7 +1,7 @@
 var React = require('react');
 
 var Router = require('../router.js');
-var Seat = require('./seat.jsx');
+var Seat = require('./Seat.jsx');
 
 var seats = [
   {id: 1, sectionTitle: 'Permanto', row: '1', seatNumber: '1', selected: false},
