@@ -13,6 +13,7 @@ var react = require('gulp-react'); // for jshint
 var concat = require('gulp-concat');
 var cssmin = require('gulp-minify-css');
 var plumber = require('gulp-plumber');
+var notify = require('gulp-notify');
 
 // from http://rhumaric.com/2014/01/livereload-magic-gulp-style/
 function startExpress() {
@@ -68,6 +69,12 @@ gulp.task('js', ['lint'], function() {
   return browserify('./frontend/src/js/App.jsx')
   .transform(reactify)
   .bundle()
+  .on('error', function(err) {
+    notify.onError({
+      message: "<%= error.message %>"
+    }).apply(this, arguments);
+    this.emit('end');
+  })
   .pipe(source('App.js'))
   .pipe(gulp.dest('./frontend/build/public/js/'));
 })
