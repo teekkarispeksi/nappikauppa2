@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var show = require('./show.js');
+var venue = require('./venue.js');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -13,6 +14,10 @@ router.get('/shows/', function(req, res) {
 });
 router.get('/shows/:showid', function(req, res) {
   show.get(req.params.showid, function(data) { res.json(data) });
+});
+
+router.get('/venues/:venueid', function(req, res) {
+  venue.get(req.params.venueid, function(data) { res.json(data) });
 });
 
 module.exports = router;

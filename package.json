@@ -13,7 +13,8 @@
     "jquery": "^2.1.4",
     "morgan": "^1.6.1",
     "mysql": "2.8.0",
-    "run-sequence": "^1.1.2"
+    "run-sequence": "^1.1.2",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "browserify": "^11.0.0",
