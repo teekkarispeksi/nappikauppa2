@@ -6,25 +6,28 @@ header {
 }
 
 main {
-  margin: 2em;
-  padding: 1em;
-  border: 1px solid @nice-blue;
   display: inline-block;
-}
 
-.show-selector {
-  display: inline-block;
-  vertical-align: top;
-  width: 10em;
+  .shopping-stage {
+    border: 1px solid @nice-blue;
+    float: left;
+    display: inline-block;
+    vertical-align: top;
+    min-width: 10em;
+    height: 200px;
+    
+    margin: 5px;
+    padding: 0 5px;
 
-  ul {
-    list-style-type: none;
-    padding: 0;
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
   }
 }
 
-.main-area {
-  display: inline-block;
-  vertical-align: top;
-  width: 25em;
+.seat {
+  &.selected {
+    font-weight: bold;
+  }
 }
