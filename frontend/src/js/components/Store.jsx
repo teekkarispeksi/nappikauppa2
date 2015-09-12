@@ -20,7 +20,7 @@ var Store = React.createClass({
     this.shows.fetch({
       success: function(collection, response, options) {
         if(this.state.showid !== null) {
-          this.setState({show: this.shows.get(this.state.showid)});
+          this.setState({page: 'seats', show: this.shows.get(this.state.showid)});
         }
 
         this.forceUpdate();
