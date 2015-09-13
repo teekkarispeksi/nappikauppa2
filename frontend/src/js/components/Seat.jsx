@@ -2,13 +2,8 @@ var React = require('react');
 
 var Seat = React.createClass({
 
-  img_free: "/public/img/seats/"+"seat_free.gif",
-  img_reserved: "/public/img/seats/"+"seat_reserved.gif",
-  img_chosen: "/public/img/seats/"+"seat_chosen.gif",
-
   render: function () {
 
-    var url;
     var text;
     var onClick = this.props.onClick;
 
@@ -24,16 +19,16 @@ var Seat = React.createClass({
     }
 
     return (
-      <img src={url}
+      <a onClick={onClick}
+        className={"seat seat-"+this.props.status}
         key={this.props.seat.id}
         data-id={this.props.seat.id}
         style={{
-          position: "absolute",
           top: parseInt(this.props.seat.y) - 35, // TODO fix the offset in DB - this is Aleksanteri-specific
           left: parseInt(this.props.seat.x) - 12 // TODO fix the offset in DB - this is Aleksanteri-specific
         }}
-        title={text}
-        onClick={onClick} />
+        title={text}>
+      </a>
     );
   }
 
