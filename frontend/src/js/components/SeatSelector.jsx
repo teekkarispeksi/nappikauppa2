@@ -10,7 +10,7 @@ var SeatSelector = React.createClass({
   venue: new Venue(),
   chosenSeats: [],
 
-  componentWillMount: function () {
+  _initialize: function() {
     this.loading = true;
     this.venue.set("id", this.props.show.get("venue_id"));
     this.venue.fetch({
@@ -19,6 +19,16 @@ var SeatSelector = React.createClass({
         this.forceUpdate();
       }.bind(this)
     });
+  },
+
+  componentWillMount: function () {
+    this._initialize();
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    if(nextProps.show.get("id") !== this.props.show.get("id")) {
+      this._initialize();
+    }
   },
 
   render: function () {
