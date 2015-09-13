@@ -19,7 +19,7 @@ var Store = React.createClass({
   componentWillMount: function () {
     this.shows.fetch({
       success: function(collection, response, options) {
-        if(!this.state.showid) {
+        if(this.state.showid) {
           this.setState({page: 'seats', show: this.shows.get(this.state.showid)});
         }
 
