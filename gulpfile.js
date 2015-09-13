@@ -42,6 +42,11 @@ gulp.task('clean', function (cb) {
   return del(['./frontend/build/'], cb)
 })
 
+gulp.task('img', function () {
+  return gulp.src('./frontend/src/img/**/*.{jpg,gif,png}')
+  .pipe(gulp.dest('./frontend/build/public/img/'));
+})
+
 gulp.task('css', function () {
   return gulp.src('./frontend/src/css/*.less')
       .pipe(less())
@@ -98,7 +103,7 @@ gulp.task('index', function () {
 gulp.task('build', function(cb) {
   runSequence(
     ['clean'],
-    ['css', 'js'],
+    ['css', 'js', 'img'],
     ['index'],
     cb);
 })
@@ -108,8 +113,9 @@ gulp.task('start', function () {
   startLivereload();
   gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index']);
   gulp.watch('frontend/src/js/**/*.{js,jsx}', ['js', 'index']);
+  gulp.watch('frontend/src/img/**/*.{jpg,gif,png}', ['img']);
   gulp.watch('frontend/src/index.html', ['index']);
-  gulp.watch('frontend/build/**/*.{html,css,js}', notifyLivereload);
+  gulp.watch('frontend/build/**/*.{html,css,js,jpg,gif,png}', notifyLivereload);
 });
 
 gulp.task('default', function(cb) {

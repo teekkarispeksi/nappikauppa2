@@ -13,13 +13,13 @@ var Store = React.createClass({
   shows: new Shows(),
 
   getInitialState: function () {
-    return {page: "home", showid: this.props.showid, show: null};
+    return {page: "home", showid: this.props.showid, show: null, selectedSeats: []};
   },
 
   componentWillMount: function () {
     this.shows.fetch({
       success: function(collection, response, options) {
-        if(this.state.showid !== null) {
+        if(this.state.showid) {
           this.setState({page: 'seats', show: this.shows.get(this.state.showid)});
         }
 
@@ -38,8 +38,15 @@ var Store = React.createClass({
     Router.navigate('show/'+showid, {trigger: false});
   },
 
-  onSeatsSelected: function (seats) {
-    this.setState({selectedSeats: seats.filter(function(seat) {return seat.selected; })});
+  onSeatClicked: function (seat) {
+    var seats = this.state.selectedSeats;
+    var indx = seats.indexOf(seat);
+    if (indx < 0) {
+      seats.push(seat);
+    } else {
+      seats.splice(indx, 1);
+    }
+    this.setState({selectedSeats: seats});
   },
 
   helpText: (<div className="shopping-stage help-text">
@@ -55,7 +62,7 @@ var Store = React.createClass({
       seatSelectorElem = this.helpText;
     } else if(this.state.page == 'seats') {
       // for now everything is displayed when a show is selected - maybe be more gradual?
-      seatSelectorElem = <SeatSelector onSeatSelected={this.onSeatsSelected} show={this.state.show} />;
+      seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={this.state.selectedSeats} />;
       shoppingCartElem = <ShoppingCart selectedSeats={this.state.selectedSeats} />;
       contactsElem = <Contacts />;
     }

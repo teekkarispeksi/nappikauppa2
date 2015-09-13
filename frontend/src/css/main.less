@@ -5,6 +5,10 @@ header {
 
 }
 
+a {
+  cursor: pointer;
+}
+
 main {
   display: inline-block;
 
@@ -14,8 +18,8 @@ main {
     display: inline-block;
     vertical-align: top;
     min-width: 10em;
-    height: 200px;
-    
+    min-height: 200px;
+
     margin: 5px;
     padding: 0 5px;
 
@@ -26,8 +30,23 @@ main {
   }
 }
 
-.seat {
-  &.selected {
-    font-weight: bold;
+a.seat {
+  display: block;
+  position: absolute;
+  height: 7px;
+  width: 7px;
+  background-repeat: no-repeat;
+  padding: 0;
+  margin: 0;
+  border: 0;
+
+  &.seat-free {
+    background-image: url("/public/img/seats/seat_free.gif")
+  }
+  &.seat-reserved {
+    background-image: url("/public/img/seats/seat_reserved.gif")
+  }
+  &.seat-chosen {
+    background-image: url("/public/img/seats/seat_chosen.gif")
   }
 }
