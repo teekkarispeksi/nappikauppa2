@@ -1,4 +1,5 @@
 var React = require('react');
+var Backbone = require('backbone');
 
 var ShowSelector = require('./ShowSelector.jsx');
 var SeatSelector = require('./SeatSelector.jsx');
@@ -6,15 +7,17 @@ var ShoppingCart = require('./ShoppingCart.jsx');
 var Contacts = require('./Contacts.jsx');
 
 var Shows = require('../collections/shows.js');
+var Tickets = require('../collections/tickets.js');
 var Ticket = require('../models/ticket.js');
 
 var Router = require('../router.js');
 
 var Store = React.createClass({
   shows: new Shows(),
+  tickets: new Tickets(),
 
   getInitialState: function () {
-    return {page: "home", showid: this.props.showid, show: null, tickets: []};
+    return {page: "home", showid: this.props.showid, show: null};
   },
 
   componentWillMount: function () {
@@ -30,30 +33,31 @@ var Store = React.createClass({
   },
 
   onShowSelect: function (showid) {
+    tickets.reset();
     this.setState({
       page: 'seats',
       showid: showid,
-      show: this.shows.get(showid),
-      tickets: []
+      show: this.shows.get(showid)
     });
     Router.navigate('show/'+showid, {trigger: false});
   },
 
   onSeatClicked: function (seat) {
-    var tickets = this.state.tickets;
-    var indx = tickets.indexOf(seat);
-    var found = false;
-    for(var i = 0; i < tickets.length; ++i) {
-      if(tickets[i].get('seat') === seat) {
-        tickets.splice(i,1);
-        found = true;
-        break;
-      }
+    var ticket = this.tickets.findWhere({seat: seat});
+    if(ticket) {
+      this.tickets.remove(ticket);
+    } else {
+      this.tickets.add(new Ticket({seat: seat}));
     }
-    if(!found) {
-      tickets.push(new Ticket({seat: seat}));
-    }
-    this.setState({tickets: tickets});
+    this.forceUpdate();
+  },
+
+  onReserveTickets: function () {
+    Backbone.sync('create', this.tickets,
+      { url: "/api/show/" + this.state.showid + "/tickets/",
+        success: function() { console.log("wow");},
+        error: function() {console.log("gotta figure out something");}
+      });
   },
 
   helpText: (<div className="shopping-stage help-text">
@@ -69,9 +73,9 @@ var Store = React.createClass({
       seatSelectorElem = this.helpText;
     } else if(this.state.page == 'seats') {
       // for now everything is displayed when a show is selected - maybe be more gradual?
-      seats = this.state.tickets.map(function(ticket) { return ticket.get("seat"); });
+      seats = this.tickets.map(function(ticket) { return ticket.get("seat"); });
       seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={seats} />;
-      shoppingCartElem = <ShoppingCart tickets={this.state.tickets} />;
+      shoppingCartElem = <ShoppingCart tickets={this.tickets} onReserveTickets={this.onReserveTickets} />;
       contactsElem = <Contacts />;
     }
 
