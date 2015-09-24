@@ -6,6 +6,7 @@ var ShoppingCart = require('./ShoppingCart.jsx');
 var Contacts = require('./Contacts.jsx');
 
 var Shows = require('../collections/shows.js');
+var Ticket = require('../models/ticket.js');
 
 var Router = require('../router.js');
 
@@ -13,7 +14,7 @@ var Store = React.createClass({
   shows: new Shows(),
 
   getInitialState: function () {
-    return {page: "home", showid: this.props.showid, show: null, selectedSeats: []};
+    return {page: "home", showid: this.props.showid, show: null, tickets: []};
   },
 
   componentWillMount: function () {
@@ -33,20 +34,26 @@ var Store = React.createClass({
       page: 'seats',
       showid: showid,
       show: this.shows.get(showid),
-      selectedSeats: []
+      tickets: []
     });
     Router.navigate('show/'+showid, {trigger: false});
   },
 
   onSeatClicked: function (seat) {
-    var seats = this.state.selectedSeats;
-    var indx = seats.indexOf(seat);
-    if (indx < 0) {
-      seats.push(seat);
-    } else {
-      seats.splice(indx, 1);
+    var tickets = this.state.tickets;
+    var indx = tickets.indexOf(seat);
+    var found = false;
+    for(var i = 0; i < tickets.length; ++i) {
+      if(tickets[i].get('seat') === seat) {
+        tickets.splice(i,1);
+        found = true;
+        break;
+      }
     }
-    this.setState({selectedSeats: seats});
+    if(!found) {
+      tickets.push(new Ticket({seat: seat}));
+    }
+    this.setState({tickets: tickets});
   },
 
   helpText: (<div className="shopping-stage help-text">
@@ -62,8 +69,9 @@ var Store = React.createClass({
       seatSelectorElem = this.helpText;
     } else if(this.state.page == 'seats') {
       // for now everything is displayed when a show is selected - maybe be more gradual?
-      seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={this.state.selectedSeats} />;
-      shoppingCartElem = <ShoppingCart selectedSeats={this.state.selectedSeats} />;
+      seats = this.state.tickets.map(function(ticket) { return ticket.get("seat"); });
+      seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={seats} />;
+      shoppingCartElem = <ShoppingCart tickets={this.state.tickets} />;
       contactsElem = <Contacts />;
     }
 
