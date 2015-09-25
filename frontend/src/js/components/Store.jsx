@@ -43,6 +43,7 @@ var Store = React.createClass({
   },
 
   onSeatClicked: function (seat) {
+    this.setState({ page: 'seats' });
     var ticket = this.tickets.findWhere({seat: seat});
     if(ticket) {
       this.tickets.remove(ticket);
@@ -53,6 +54,7 @@ var Store = React.createClass({
   },
 
   onReserveTickets: function () {
+    this.setState({ page: 'contacts' });
     Backbone.sync('create', this.tickets,
       { url: "/api/shows/" + this.state.showid + "/reserveSeats/",
         success: function() { console.log("wow");},
@@ -69,14 +71,20 @@ var Store = React.createClass({
   render: function () {
     var seatSelectorElem, shoppingCartElem, contactsElem;
 
-    if(this.state.page == 'home') {
-      seatSelectorElem = this.helpText;
-    } else if(this.state.page == 'seats') {
-      // for now everything is displayed when a show is selected - maybe be more gradual?
-      seats = this.tickets.map(function(ticket) { return ticket.get("seat"); });
-      seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={seats} />;
-      shoppingCartElem = <ShoppingCart tickets={this.tickets} onReserveTickets={this.onReserveTickets} />;
-      contactsElem = <Contacts />;
+    switch(this.state.page) {
+      case 'home':
+        seatSelectorElem = this.helpText;
+        break;
+
+      // No breaks -> fallthrough-magic!
+      case 'payment': // TODO
+      case 'contacts':
+        contactsElem = <Contacts />;
+      case 'seats':
+        seats = this.tickets.map(function(ticket) { return ticket.get("seat"); });
+        seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={seats} />;
+        if(this.tickets.length > 0)
+          shoppingCartElem = <ShoppingCart tickets={this.tickets} onReserveTickets={this.onReserveTickets} />;
     }
 
     return (
