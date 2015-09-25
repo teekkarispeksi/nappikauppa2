@@ -7,6 +7,7 @@ var Seat = React.createClass({
   render: function () {
 
     var text;
+    var url;
     var onClick = this.props.onClick;
 
     if(this.props.status === "reserved") {

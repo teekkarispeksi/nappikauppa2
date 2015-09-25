@@ -34,9 +34,11 @@ var SeatSelector = React.createClass({
   },
 
   render: function () {
-    if(!this.props.show || this.loading) return (
-      <div className="shopping-stage seat-selector"></div>
-    );
+    if(!this.props.show || this.loading) {
+      return (
+        <div className="shopping-stage seat-selector"></div>
+      );
+    }
 
     var sections = _.values(this.venue.get("sections"));
     var allSeats = _.flatten(sections.map(function(section) {
