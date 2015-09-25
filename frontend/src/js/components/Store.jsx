@@ -84,7 +84,7 @@ var Store = React.createClass({
         seats = this.tickets.map(function(ticket) { return ticket.get("seat"); });
         seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={seats} />;
         if(this.tickets.length > 0)
-          shoppingCartElem = <ShoppingCart tickets={this.tickets} onReserveTickets={this.onReserveTickets} />;
+          shoppingCartElem = <ShoppingCart tickets={this.tickets} active={this.state.page=='seats'} onReserveTickets={this.onReserveTickets} />;
     }
 
     return (
