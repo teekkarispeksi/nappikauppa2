@@ -9,12 +9,14 @@ var Contacts = require('./Contacts.jsx');
 var Shows = require('../collections/shows.js');
 var Tickets = require('../collections/tickets.js');
 var Ticket = require('../models/ticket.js');
+var Order = require('../models/order.js');
 
 var Router = require('../router.js');
 
 var Store = React.createClass({
   shows: new Shows(),
   tickets: new Tickets(),
+  order: null,
 
   getInitialState: function () {
     return {page: "home", showid: this.props.showid, show: null};
@@ -34,6 +36,7 @@ var Store = React.createClass({
 
   onShowSelect: function (showid) {
     this.tickets.reset();
+    this.order = null;
     this.setState({
       page: 'seats',
       showid: showid,
@@ -54,9 +57,14 @@ var Store = React.createClass({
 
   onReserveTickets: function () {
     Backbone.sync('create', this.tickets,
-      { url: "/api/show/" + this.state.showid + "/tickets/",
+      {
+        url: "/api/show/" + this.state.showid + "/tickets/",
         success: function() { console.log("wow");},
-        error: function() {console.log("gotta figure out something");}
+        error: function() {
+          console.log("gotta implement API, pretending success now still");
+          this.order = new Order();
+          this.forceUpdate();
+        }.bind(this)
       });
   },
 
@@ -76,7 +84,7 @@ var Store = React.createClass({
       seats = this.tickets.map(function(ticket) { return ticket.get("seat"); });
       seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={seats} />;
       shoppingCartElem = <ShoppingCart tickets={this.tickets} onReserveTickets={this.onReserveTickets} />;
-      contactsElem = <Contacts />;
+      contactsElem = <Contacts order={this.order} />;
     }
 
     return (
