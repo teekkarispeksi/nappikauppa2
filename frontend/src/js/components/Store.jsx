@@ -54,7 +54,7 @@ var Store = React.createClass({
 
   onReserveTickets: function () {
     Backbone.sync('create', this.tickets,
-      { url: "/api/show/" + this.state.showid + "/tickets/",
+      { url: "/api/shows/" + this.state.showid + "/reserveSeats/",
         success: function() { console.log("wow");},
         error: function() {console.log("gotta figure out something");}
       });
