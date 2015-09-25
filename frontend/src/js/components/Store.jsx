@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var React = require('react');
 
@@ -14,14 +14,14 @@ var Router = require('../router.js');
 var Store = React.createClass({
   shows: new Shows(),
 
-  getInitialState: function () {
-    return {page: "home", showid: this.props.showid, show: null, selectedSeats: []};
+  getInitialState: function() {
+    return {page: 'home', showid: this.props.showid, show: null, selectedSeats: []};
   },
 
-  componentWillMount: function () {
+  componentWillMount: function() {
     this.shows.fetch({
       success: function(collection, response, options) {
-        if(this.state.showid) {
+        if (this.state.showid) {
           this.setState({page: 'seats', show: this.shows.get(this.state.showid)});
         }
 
@@ -30,17 +30,17 @@ var Store = React.createClass({
     });
   },
 
-  onShowSelect: function (showid) {
+  onShowSelect: function(showid) {
     this.setState({
       page: 'seats',
       showid: showid,
       show: this.shows.get(showid),
       selectedSeats: []
     });
-    Router.navigate('show/'+showid, {trigger: false});
+    Router.navigate('show/' + showid, {trigger: false});
   },
 
-  onSeatClicked: function (seat) {
+  onSeatClicked: function(seat) {
     var seats = this.state.selectedSeats;
     var indx = seats.indexOf(seat);
     if (indx < 0) {
@@ -51,18 +51,17 @@ var Store = React.createClass({
     this.setState({selectedSeats: seats});
   },
 
-  helpText: (<div className="shopping-stage help-text">
+  helpText: (<div className='shopping-stage help-text'>
     <h4>Tervetuloa katsomaan Suomen suurinta opiskelijamusikaalia!</h4>
     Mikäli koet ongelmia lippukaupan toiminnassa, voit ottaa yhteyttä lipunmyyntivastaavaan osoitteessa liput@teekkarispeksi.fi.
   </div>),
 
-
-  render: function () {
+  render: function() {
     var seatSelectorElem, shoppingCartElem, contactsElem;
 
-    if(this.state.page === 'home') {
+    if (this.state.page === 'home') {
       seatSelectorElem = this.helpText;
-    } else if(this.state.page === 'seats') {
+    } else if (this.state.page === 'seats') {
       // for now everything is displayed when a show is selected - maybe be more gradual?
       seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={this.state.selectedSeats} />;
       shoppingCartElem = <ShoppingCart selectedSeats={this.state.selectedSeats} />;

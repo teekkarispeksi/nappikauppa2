@@ -1,29 +1,29 @@
-"use strict";
+'use strict';
 
 var React = require('react');
 
 var Seat = React.createClass({
 
-  render: function () {
+  render: function() {
 
     var text;
     var url;
     var onClick = this.props.onClick;
 
-    if(this.props.status === "reserved") {
+    if (this.props.status === 'reserved') {
       url = this.img_reserved;
       onClick = null;
-      text = "This seat has been reserved.";
-    } else if(this.props.status === "chosen") {
+      text = 'This seat has been reserved.';
+    } else if (this.props.status === 'chosen') {
       url = this.img_chosen;
     } else {
       url = this.img_free;
-      text = "Row: " + this.props.seat.row + "\nNumber: " + this.props.seat.number;
+      text = 'Row: ' + this.props.seat.row + '\nNumber: ' + this.props.seat.number;
     }
 
     return (
       <a onClick={onClick}
-        className={"seat seat-"+this.props.status}
+        className={'seat seat-' + this.props.status}
         key={this.props.seat.id}
         data-id={this.props.seat.id}
         style={{

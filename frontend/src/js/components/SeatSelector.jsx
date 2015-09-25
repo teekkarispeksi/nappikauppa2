@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var React = require('react');
 var _ = require('underscore');
@@ -14,7 +14,7 @@ var SeatSelector = React.createClass({
 
   _initialize: function() {
     this.loading = true;
-    this.venue.set("id", this.props.show.get("venue_id"));
+    this.venue.set('id', this.props.show.get('venue_id'));
     this.venue.fetch({
       success: function(model, response, options) {
         this.loading = false;
@@ -23,24 +23,24 @@ var SeatSelector = React.createClass({
     });
   },
 
-  componentWillMount: function () {
+  componentWillMount: function() {
     this._initialize();
   },
 
   componentWillReceiveProps: function(nextProps) {
-    if(nextProps.show.get("id") !== this.props.show.get("id")) {
+    if (nextProps.show.get('id') !== this.props.show.get('id')) {
       this._initialize();
     }
   },
 
-  render: function () {
-    if(!this.props.show || this.loading) {
+  render: function() {
+    if (!this.props.show || this.loading) {
       return (
-        <div className="shopping-stage seat-selector"></div>
+        <div className='shopping-stage seat-selector'></div>
       );
     }
 
-    var sections = _.values(this.venue.get("sections"));
+    var sections = _.values(this.venue.get('sections'));
     var allSeats = _.flatten(sections.map(function(section) {
       return _.values(section.seats).map(function(seat) {
         seat.section_title = section.title;
@@ -50,14 +50,14 @@ var SeatSelector = React.createClass({
     }));
 
     return (
-      <div className="shopping-stage seat-selector">
+      <div className='shopping-stage seat-selector'>
         <h4>Valitse tästä paikkasi näytökseen <strong>{this.props.show.get('title')}</strong>!</h4>
-        <div style={{position: "relative"}}>
-          <img src="/public/img/venues/venue_1.png" />
+        <div style={{position: 'relative'}}>
+          <img src='/public/img/venues/venue_1.png' />
           {allSeats.map(function(seat) {
-            var status = "free";
+            var status = 'free';
             if (this.props.selectedSeats.indexOf(seat) >= 0) {
-              status = "chosen";
+              status = 'chosen';
             }
             return <Seat seat={seat} status={status} key={seat.id} onClick={this.props.onSeatClicked.bind(null, seat)} />;
           }.bind(this))}
