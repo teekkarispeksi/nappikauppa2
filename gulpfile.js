@@ -11,6 +11,8 @@ var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
 var jshint = require('gulp-jshint');
+var jscs = require('gulp-jscs');
+var stylish = require('gulp-jscs-stylish');
 var react = require('gulp-react'); // for jshint
 var concat = require('gulp-concat');
 var cssmin = require('gulp-minify-css');
@@ -67,9 +69,11 @@ gulp.task('css:min', function () {
 gulp.task('lint', function() {
   return gulp.src('frontend/src/**/*.{js,jsx}') // lint reactified JS
   .pipe(plumber())
+  .pipe(jscs())
   .pipe(react())
   .pipe(jshint())
-  .pipe(jshint.reporter('default'));
+  .pipe(stylish.combineWithHintResults())
+  .pipe(jshint.reporter('jshint-stylish'));
 });
 
 gulp.task('js', ['lint'], function() {
