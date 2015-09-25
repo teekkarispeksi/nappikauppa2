@@ -33,7 +33,7 @@ var Store = React.createClass({
   },
 
   onShowSelect: function (showid) {
-    tickets.reset();
+    this.tickets.reset();
     this.setState({
       page: 'seats',
       showid: showid,
