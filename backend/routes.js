@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var router = express.Router();
 
+var order = require('./order.js');
 var show = require('./show.js');
 var venue = require('./venue.js');
 
@@ -25,7 +26,7 @@ router.get('/shows/:showid/reservedSeats', function(req, res) {
 });
 
 router.post('/shows/:showid/reserveSeats', jsonParser, function(req, res) {
-  show.reserveSeats(req.params.showid, req.body, function(data) {
+  order.reserveSeats(req.params.showid, req.body, function(data) {
     if(data.error) {
         res.status(409);
     }
