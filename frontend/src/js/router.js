@@ -2,8 +2,8 @@ var Backbone = require('backbone');
 
 var Router = Backbone.Router.extend({
   routes: {
-    "show/:id" : "show",
-    "*url" : "default"
+    'show/:id': 'show',
+    '*url': 'default'
   }
 });
 

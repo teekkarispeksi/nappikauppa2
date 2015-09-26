@@ -2,9 +2,9 @@
 var Backbone = require('backbone');
 
 var Ticket = Backbone.Model.extend({
-  urlRoot : '/api/tickets',
+  urlRoot: '/api/tickets',
 
-  defaults : {
+  defaults: {
   }
 });
 

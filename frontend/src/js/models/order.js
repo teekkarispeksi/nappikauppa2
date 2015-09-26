@@ -2,9 +2,9 @@
 var Backbone = require('backbone');
 
 var Order = Backbone.Model.extend({
-  urlRoot : '/api/orders',
+  urlRoot: '/api/orders',
 
-  defaults : {
+  defaults: {
     name: '',
     email: ''
   }

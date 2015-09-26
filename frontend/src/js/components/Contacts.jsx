@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var React = require('react');
 var _ = require('underscore');
@@ -28,14 +28,14 @@ var Contacts = React.createClass({
     this.props.onSaveOrderInfo(_.clone(this.state));
   },
 
-  render: function () {
+  render: function() {
     var active = this.props.active;
     return (
-      <div className="shopping-stage contact-input">
+      <div className='shopping-stage contact-input'>
         <div><label>Nimi</label>        <input readOnly={!active} onChange={this.onValueChange.bind(null, 'name')}          value={this.state.name} /></div>
         <div><label>Sähköposti</label>  <input readOnly={!active} onChange={this.onValueChange.bind(null, 'email')}         value={this.state.email} /></div>
         <div><label>Alennuskoodi</label><input readOnly={!active} onChange={this.onValueChange.bind(null, 'discount_code')} value={this.state.discount_code} /></div>
-        <div>{active ? (<a  id="saveOrderInfo" onClick={this.onSave}>Tallenna ja siirry maksamaan</a>) : null}</div>
+        <div>{active ? (<a  id='saveOrderInfo' onClick={this.onSave}>Tallenna ja siirry maksamaan</a>) : null}</div>
       </div>
     );
   }

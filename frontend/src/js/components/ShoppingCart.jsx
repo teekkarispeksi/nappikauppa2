@@ -1,27 +1,27 @@
-"use strict";
+'use strict';
 
 var React = require('react');
 
 var ShoppingCart = React.createClass({
 
-  render: function () {
+  render: function() {
     var tickets = this.props.tickets;
-    if(!tickets) {
+    if (!tickets) {
       return (
-        <div className="shopping-stage shopping-cart"></div>
+        <div className='shopping-stage shopping-cart'></div>
       );
     }
 
     var reserveTicketsButton;
-    if(this.props.active) {
-      reserveTicketsButton = (<a id="reserveTickets" onClick={this.props.onReserveTickets}>Varaa liput</a>);
+    if (this.props.active) {
+      reserveTicketsButton = (<a id='reserveTickets' onClick={this.props.onReserveTickets}>Varaa liput</a>);
     }
 
     return (
-      <div className="shopping-stage shopping-cart">
+      <div className='shopping-stage shopping-cart'>
         <ul>
           {tickets.map(function(ticket) {
-            var seat = ticket.get("seat");
+            var seat = ticket.get('seat');
             return (
               <li key={seat.id}>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}</li>
             );
