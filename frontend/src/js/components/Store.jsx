@@ -1,3 +1,5 @@
+"use strict";
+
 var React = require('react');
 
 var ShowSelector = require('./ShowSelector.jsx');
@@ -58,9 +60,9 @@ var Store = React.createClass({
   render: function () {
     var seatSelectorElem, shoppingCartElem, contactsElem;
 
-    if(this.state.page == 'home') {
+    if(this.state.page === 'home') {
       seatSelectorElem = this.helpText;
-    } else if(this.state.page == 'seats') {
+    } else if(this.state.page === 'seats') {
       // for now everything is displayed when a show is selected - maybe be more gradual?
       seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={this.state.selectedSeats} />;
       shoppingCartElem = <ShoppingCart selectedSeats={this.state.selectedSeats} />;

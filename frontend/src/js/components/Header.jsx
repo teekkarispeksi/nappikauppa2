@@ -1,6 +1,6 @@
-var React = require('react');
+"use strict";
 
-var Router = require('../router.js');
+var React = require('react');
 
 var Header = React.createClass({
 
