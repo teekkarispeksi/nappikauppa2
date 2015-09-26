@@ -122,7 +122,6 @@ create table nk2_tickets (
   foreign key (order_id) references nk2_orders (id),
   foreign key (show_id) references nk2_shows (id),
   foreign key (seat_id) references nk2_seats (id),
-  foreign key (section_id) references nk2_sections (id),
   foreign key (discount_group_id) references nk2_discount_groups (id)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 

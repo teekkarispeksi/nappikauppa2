@@ -578,11 +578,11 @@ insert into nk2_orders (name, email, discount_code, time, price, payment_id, res
     ('Sponsoroitu', 'bar@example.com', 'admin-code', '2015-03-15 13:39:22', 0.00, 'WOODOO', null, null),
     (null, null, null, '2015-03-15 13:39:22', null, null, '2017-01-01', 'xyz');
 
-insert into nk2_tickets (order_id, show_id, seat_id, section_id, discount_group_id, hash, price, used_time) values
-    (1, 1, 2, null, null, '0123456789', 18.00, null),
-    (2, 1, 3, null, null, 'abcdef', 14.00, null),
-    (2, 1, 1, null, 2, 'free!', 0.00, null),
-    (3, 2, null, 5, null, 'unnumbered', 14.00, null);
+insert into nk2_tickets (order_id, show_id, seat_id, discount_group_id, hash, price, used_time) values
+    (1, 1, 2, null, '0123456789', 18.00, null),
+    (2, 1, 3, null, 'abcdef', 14.00, null),
+    (2, 1, 1, null, 'free!', 0.00, null),
+    (3, 2, null, 5, 'unnumbered', 14.00, null);
 
 
 commit;
