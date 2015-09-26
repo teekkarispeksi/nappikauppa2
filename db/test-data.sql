@@ -573,10 +573,10 @@ insert into nk2_prices (section_id, show_id, price, active) values
     (8, 3, 14.00, true),
     (9, 3, 14.00, true);
 
-insert into nk2_orders (name, email, discount_code, time, price, payment_id, reserved_until, reserved_session_id) values
-    ('Pekko I', 'pekko@example.com', null, '2015-03-13 12:47:05', 14.00, 'AASDASD', null, null),
-    ('Sponsoroitu', 'bar@example.com', 'admin-code', '2015-03-15 13:39:22', 0.00, 'WOODOO', null, null),
-    (null, null, null, '2015-03-15 13:39:22', null, null, '2017-01-01', 'xyz');
+insert into nk2_orders (name, email, discount_code, time, price, payment_id, reserved_until, reserved_session_id, status) values
+    ('Pekko I', 'pekko@example.com', null, '2015-03-13 12:47:05', 14.00, 'AASDASD', null, null, 'paid'),
+    ('Sponsoroitu', 'bar@example.com', 'admin-code', '2015-03-15 13:39:22', 0.00, 'WOODOO', null, null, 'paid'),
+    (null, null, null, '2015-03-15 13:39:22', null, null, '2017-01-01', 'xyz', 'seats-reserved');
 
 insert into nk2_tickets (order_id, show_id, seat_id, discount_group_id, hash, price, used_time) values
     (1, 1, 2, null, '0123456789', 18.00, null),
