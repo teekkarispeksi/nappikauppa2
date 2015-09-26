@@ -21,9 +21,9 @@ var ShoppingCart = React.createClass({
       <div className="shopping-stage shopping-cart">
         <ul>
           {tickets.map(function(ticket) {
-            console.log(ticket);
+            var seat = ticket.get("seat");
             return (
-              <li key={ticket.id}>{ticket.section_title}, {ticket.row_name} {ticket.row}, paikka {ticket.number}</li>
+              <li key={seat.id}>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}</li>
             );
           }.bind(this))}
         </ul>
