@@ -57,15 +57,15 @@ var Store = React.createClass({
   },
 
   onReserveTickets: function () {
-    this.setState({ page: 'contacts' });
     Backbone.sync('create', this.tickets,
       { url: "/api/shows/" + this.state.showid + "/reserveSeats/",
-        success: function() { console.log("wow");},
-        error: function() {
-          console.log("gotta implement API, pretending success now still");
-          this.order = new Order();
-          this.forceUpdate();
-        }.bind(this)
+        success: function(response) {
+          this.order = new Order({id: response.order_id});
+          this.setState({ page: 'contacts' }); // setState also forces update
+        }.bind(this),
+        error: function(model, response) {
+          console.log("seat reservation failed");
+        }
       });
   },
 
