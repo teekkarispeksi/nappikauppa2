@@ -25,7 +25,12 @@ router.get('/shows/:showid/reservedSeats', function(req, res) {
 });
 
 router.post('/shows/:showid/reserveSeats', jsonParser, function(req, res) {
-  show.reserveSeats(req.params.showid, req.body, function(data) { res.json(data) });
+  show.reserveSeats(req.params.showid, req.body, function(data) {
+    if(data.error) {
+        res.status(409);
+    }
+    res.json(data)
+  });
 });
 
 router.get('/venues/:venueid', function(req, res) {

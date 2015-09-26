@@ -36,6 +36,8 @@ var show = {
   },
 
   reserveSeats: function(show_id, seats, cb) {
+    // TODO first delete expired reservations
+
     db.beginTransaction(function(err) {
       if (err) throw err;
 
@@ -67,10 +69,17 @@ var show = {
         // Actually fire what we generated above
         db.query(query_start + insert_values.join(','),
           function(err, res) {
-            if(err) return db.rollback(function() { throw err; });
+            if(err) {
+              return db.rollback(function() {
+                cb({
+                  error: true,
+                  order_id: null
+                })
+              });
+            }
             db.commit();
             cb({
-              result: res,
+              error: null,
               order_id: order_id
             });
           });

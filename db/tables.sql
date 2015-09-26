@@ -118,6 +118,7 @@ create table nk2_tickets (
   `price` decimal(10,2) not null,
   `used_time` datetime default NULL,
   PRIMARY KEY  (`id`),
+  unique key seat_in_show (show_id, seat_id),
   foreign key (order_id) references nk2_orders (id),
   foreign key (show_id) references nk2_shows (id),
   foreign key (seat_id) references nk2_seats (id),
