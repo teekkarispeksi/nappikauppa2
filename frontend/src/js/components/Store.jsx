@@ -71,6 +71,23 @@ var Store = React.createClass({
       });
   },
 
+  onSaveOrderInfo: function(info) {
+    this.order.set('name', info.name);
+    this.order.set('email', info.email);
+    this.order.set('discount_code', info.discount_code);
+
+    Backbone.sync('patch', this.order,
+      {
+        success: function(response) {
+          this.setState({ page: 'payment'});
+        }.bind(this),
+        error: function(response) {
+          console.log('order info saving failed, continuing now anyways');
+          this.setState({ page: 'payment' });
+        }.bind(this)
+      });
+  },
+
   helpText: (<div className="shopping-stage help-text">
     <h4>Tervetuloa katsomaan Suomen suurinta opiskelijamusikaalia!</h4>
     Mikäli koet ongelmia lippukaupan toiminnassa, voit ottaa yhteyttä lipunmyyntivastaavaan osoitteessa liput@teekkarispeksi.fi.
@@ -88,7 +105,7 @@ var Store = React.createClass({
       // No breaks -> fallthrough-magic!
       case 'payment': // TODO
       case 'contacts':
-        contactsElem = <Contacts order={this.order} />;
+        contactsElem = <Contacts active={this.state.page==='contacts'} onSaveOrderInfo={this.onSaveOrderInfo} />;
       case 'seats':
         var seats = this.tickets.map(function(ticket) { return ticket.get("seat"); });
         seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={seats} />;
