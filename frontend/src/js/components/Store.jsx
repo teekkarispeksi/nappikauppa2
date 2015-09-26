@@ -1,3 +1,5 @@
+"use strict";
+
 var React = require('react');
 var Backbone = require('backbone');
 
@@ -88,10 +90,11 @@ var Store = React.createClass({
       case 'contacts':
         contactsElem = <Contacts order={this.order} />;
       case 'seats':
-        seats = this.tickets.map(function(ticket) { return ticket.get("seat"); });
+        var seats = this.tickets.map(function(ticket) { return ticket.get("seat"); });
         seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={seats} />;
-        if(this.tickets.length > 0)
-          shoppingCartElem = <ShoppingCart tickets={this.tickets} active={this.state.page=='seats'} onReserveTickets={this.onReserveTickets} />;
+        if(this.tickets.length > 0) {
+          shoppingCartElem = <ShoppingCart tickets={this.tickets} active={this.state.page==='seats'} onReserveTickets={this.onReserveTickets} />;
+        }
     }
 
     return (

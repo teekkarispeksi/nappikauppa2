@@ -1,3 +1,5 @@
+"use strict";
+
 var gulp = require('gulp');
 var inject = require('gulp-inject');
 var less = require('gulp-less');
@@ -14,6 +16,7 @@ var concat = require('gulp-concat');
 var cssmin = require('gulp-minify-css');
 var plumber = require('gulp-plumber');
 var notify = require('gulp-notify');
+var lr = require('tiny-lr')();
 
 // from http://rhumaric.com/2014/01/livereload-magic-gulp-style/
 function startExpress() {
@@ -22,7 +25,6 @@ function startExpress() {
 }
 
 function startLivereload() {
-  lr = require('tiny-lr')();
   lr.listen(35729);
 }
 
@@ -39,20 +41,20 @@ function notifyLivereload(event) {
 }
 
 gulp.task('clean', function (cb) {
-  return del(['./frontend/build/'], cb)
-})
+  return del(['./frontend/build/'], cb);
+});
 
 gulp.task('img', function () {
   return gulp.src('./frontend/src/img/**/*.{jpg,gif,png}')
   .pipe(gulp.dest('./frontend/build/public/img/'));
-})
+});
 
 gulp.task('css', function () {
   return gulp.src('./frontend/src/css/*.less')
       .pipe(less())
       .pipe(concat('style.css'))
       .pipe(gulp.dest('./frontend/build/public/css/'));
-})
+});
 
 gulp.task('css:min', function () {
   gulp.src('./frontend/src/css/*.less')
@@ -60,7 +62,7 @@ gulp.task('css:min', function () {
       .pipe(concat('style.css'))
       .pipe(cssmin())
       .pipe(gulp.dest('./frontend/build/public/css/'));
-})
+});
 
 gulp.task('lint', function() {
   return gulp.src('frontend/src/**/*.{js,jsx}') // lint reactified JS
@@ -82,7 +84,7 @@ gulp.task('js', ['lint'], function() {
   })
   .pipe(source('App.js'))
   .pipe(gulp.dest('./frontend/build/public/js/'));
-})
+});
 
 gulp.task('js:min', function() {
   return browserify('./frontend/src/js/App.jsx')
@@ -92,13 +94,13 @@ gulp.task('js:min', function() {
   .pipe(buffer())
   .pipe(uglify())
   .pipe(gulp.dest('./frontend/build/public/js/'));
-})
+});
 
 gulp.task('index', function () {
   return gulp.src('./frontend/src/index.html')
       .pipe(inject(gulp.src('./public/**/*.{css,js}', {read: false, cwd: './frontend/build/'})))
       .pipe(gulp.dest('./frontend/build/'));
-})
+});
 
 gulp.task('build', function(cb) {
   runSequence(
@@ -106,7 +108,7 @@ gulp.task('build', function(cb) {
     ['css', 'js', 'img'],
     ['index'],
     cb);
-})
+});
 
 gulp.task('start', function () {
   startExpress();
@@ -123,4 +125,4 @@ gulp.task('default', function(cb) {
     ['build'],
     ['start'],
     cb);
-})
+});
