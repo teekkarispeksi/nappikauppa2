@@ -1,18 +1,18 @@
-"use strict";
+'use strict';
 
 var React = require('react');
 
 var ShoppingCart = React.createClass({
 
-  render: function () {
-    if(!this.props.selectedSeats) {
+  render: function() {
+    if (!this.props.selectedSeats) {
       return (
-        <div className="shopping-stage shopping-cart"></div>
+        <div className='shopping-stage shopping-cart'></div>
       );
     }
 
     return (
-      <div className="shopping-stage shopping-cart">
+      <div className='shopping-stage shopping-cart'>
         <ul>
           {this.props.selectedSeats.map(function(seat) {
             console.log(seat);

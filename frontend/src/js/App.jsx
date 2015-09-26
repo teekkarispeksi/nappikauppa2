@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var React = require('react');
 var Backbone = require('backbone');
@@ -7,7 +7,6 @@ var Header = require('./components/Header.jsx');
 var Store = require('./components/Store.jsx');
 
 var Router = require('./router.js');
-
 
 React.render(<Header />, document.getElementsByTagName('header')[0]);
 

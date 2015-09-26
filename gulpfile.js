@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var gulp = require('gulp');
 var inject = require('gulp-inject');
@@ -11,6 +11,8 @@ var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
 var jshint = require('gulp-jshint');
+var jscs = require('gulp-jscs');
+var stylish = require('gulp-jscs-stylish');
 var react = require('gulp-react'); // for jshint
 var concat = require('gulp-concat');
 var cssmin = require('gulp-minify-css');
@@ -40,23 +42,23 @@ function notifyLivereload(event) {
   });
 }
 
-gulp.task('clean', function (cb) {
+gulp.task('clean', function(cb) {
   return del(['./frontend/build/'], cb);
 });
 
-gulp.task('img', function () {
+gulp.task('img', function() {
   return gulp.src('./frontend/src/img/**/*.{jpg,gif,png}')
   .pipe(gulp.dest('./frontend/build/public/img/'));
 });
 
-gulp.task('css', function () {
+gulp.task('css', function() {
   return gulp.src('./frontend/src/css/*.less')
       .pipe(less())
       .pipe(concat('style.css'))
       .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
-gulp.task('css:min', function () {
+gulp.task('css:min', function() {
   gulp.src('./frontend/src/css/*.less')
       .pipe(less())
       .pipe(concat('style.css'))
@@ -67,9 +69,11 @@ gulp.task('css:min', function () {
 gulp.task('lint', function() {
   return gulp.src('frontend/src/**/*.{js,jsx}') // lint reactified JS
   .pipe(plumber())
+  .pipe(jscs())
   .pipe(react())
   .pipe(jshint())
-  .pipe(jshint.reporter('default'));
+  .pipe(stylish.combineWithHintResults())
+  .pipe(jshint.reporter('jshint-stylish'));
 });
 
 gulp.task('js', ['lint'], function() {
@@ -78,7 +82,7 @@ gulp.task('js', ['lint'], function() {
   .bundle()
   .on('error', function(err) {
     notify.onError({
-      message: "<%= error.message %>"
+      message: '<%= error.message %>'
     }).apply(this, arguments);
     this.emit('end');
   })
@@ -96,7 +100,7 @@ gulp.task('js:min', function() {
   .pipe(gulp.dest('./frontend/build/public/js/'));
 });
 
-gulp.task('index', function () {
+gulp.task('index', function() {
   return gulp.src('./frontend/src/index.html')
       .pipe(inject(gulp.src('./public/**/*.{css,js}', {read: false, cwd: './frontend/build/'})))
       .pipe(gulp.dest('./frontend/build/'));
@@ -110,7 +114,7 @@ gulp.task('build', function(cb) {
     cb);
 });
 
-gulp.task('start', function () {
+gulp.task('start', function() {
   startExpress();
   startLivereload();
   gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index']);
