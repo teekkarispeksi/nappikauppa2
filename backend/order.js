@@ -9,7 +9,7 @@ var order = {
     db.beginTransaction(function(err) {
       if (err) throw err;
 
-      db.query('insert into nk2_orders (time) values (now())', function(err, res) {
+      db.query('insert into nk2_orders (time, status) values (now(), "seats-reserved")', function(err, res) {
         if(err) return db.rollback(function() { throw err; });
 
         var order_id = res.insertId;
@@ -52,6 +52,42 @@ var order = {
             });
           });
       });
+    });
+  },
+
+  createOrder: function(order_id, data, cb) {
+    db.query('update nk2_orders set \
+        name = :name, \
+        email = :email, \
+        discount_code = :discount_code, \
+        status = "payment-pending" \
+      where id = :id',
+      data,
+      function(err, res) {
+        if(err) throw err;
+        // TODO how we should really propagate these errors
+        if(res.changedRows != 1) {
+          return {
+            err: true,
+            errmsg: 'Should have updated one row, updated really ' + res.changedRows + ' rows'
+          }
+        }
+        cb(res);
+    });
+  },
+
+  paymentDone: function(order_id, cb) {
+    // TODO create ticket hash ids
+    // TODO verify payment
+
+    db.query('update nk2_orders set \
+        status = "paid" \
+      where id = :id',
+      {id: order_id},
+      function(err, res) {
+        if(err) throw err;
+
+        cb(res);
     });
   }
 }

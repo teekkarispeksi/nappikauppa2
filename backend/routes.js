@@ -34,6 +34,10 @@ router.post('/shows/:showid/reserveSeats', jsonParser, function(req, res) {
   });
 });
 
+router.patch('/orders/:orderid', jsonParser, function(req, res) {
+    order.createOrder(req.body.id, req.body, function(data) { res.json(data) });
+});
+
 router.get('/venues/:venueid', function(req, res) {
   venue.get(req.params.venueid, function(data) { res.json(data) });
 });
