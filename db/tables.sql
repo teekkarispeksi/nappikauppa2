@@ -113,7 +113,6 @@ create table nk2_tickets (
   `order_id` int(11) unsigned not null,
   `show_id` int(11) unsigned not null,
   `seat_id` int(11) unsigned,
-  `section_id` int(11) unsigned,
   `discount_group_id` smallint(6),
   `hash` varchar(32) not null,
   `price` decimal(10,2) not null,
