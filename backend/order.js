@@ -175,7 +175,7 @@ var order = {
 
   paymentDone: function(order_id, params, cb) {
     // TODO create ticket hash ids
-    // TODO actually verify payment http://docs.paytrail.com/fi/index-all.html#idm133371615840
+    // TODO actually verify payment http://docs.paytrail.com/fi/index-all.html#idm133371471696
 
     db.query('update nk2_orders set \
         status = "paid", \
