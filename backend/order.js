@@ -132,7 +132,7 @@ var order = {
           "amount": "1.00",
           "price": ticket.ticket_price,
           "vat": "0.00",
-          "discount": "0.00", // TODO from discount_group
+          "discount": "0.00", // No discounts here. Price includes everything.
           "type": "1"
         };
       });
