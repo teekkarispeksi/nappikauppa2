@@ -107,7 +107,7 @@ var order = {
         orders.reserved_until,\
         orders.reserved_session_id,\
         orders.status, \
-
+        \
         shows.title show_title \
       from nk2_orders orders \
       join nk2_tickets tickets on orders.id = tickets.order_id \
@@ -130,7 +130,7 @@ var order = {
     this.get(order_id, function(order) {
       var ticket_rows = _.map(order.tickets, function(ticket) {
         return {
-          "title": "Pääsylippu: " + config.title + " / " ticket.show_title,
+          "title": "Pääsylippu: " + config.title + " / " + ticket.show_title,
           "code": ticket.ticket_id,
           "amount": "1.00",
           "price": ticket.ticket_price,
