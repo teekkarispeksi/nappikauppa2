@@ -1,4 +1,6 @@
+var config = require('../config/config.js');
 var db = require('./db.js');
+var request = require('request');
 var _ = require('underscore');
 
 var order = {
@@ -76,14 +78,113 @@ var order = {
     });
   },
 
-  paymentDone: function(order_id, cb) {
+  get: function(order_id, cb) {
+    db.query('select \
+        tickets.id ticket_id,  \
+        tickets.show_id,\
+        tickets.seat_id,\
+        tickets.discount_group_id, \
+        tickets.hash, \
+        tickets.price ticket_price, \
+        tickets.used_time,\
+        \
+        orders.id order_id,\
+        orders.name,\
+        orders.email,\
+        orders.discount_code,\
+        orders.time,\
+        orders.price order_price,\
+        orders.payment_id,\
+        orders.reserved_until,\
+        orders.reserved_session_id,\
+        orders.status \
+      from nk2_orders orders \
+      join nk2_tickets tickets on orders.id = tickets.order_id \
+      where orders.id = :id',
+      { id: order_id },
+      function(err, rows) {
+        var first = rows[0];
+        var res = _.pick(first, ['order_id', 'name', 'email', 'discount_code', 'time', 'order_price', 'payment_id',
+          'reserved_until', 'reserved_session_id', 'status']);
+
+        res.tickets = _.map(rows, function(row) {
+          return _.pick(row, ['ticket_id', 'show_id', 'seat_id', 'discount_group_id', 'hash', 'ticket_price', 'used_time'])
+        })
+        cb(res);
+      });
+  },
+
+  preparePayment: function(order_id, cb) {
+    this.get(order_id, function(order) {
+      var ticket_rows = _.map(order.tickets, function(ticket) {
+        return {
+          "title": "Lippu", // TODO a better description, e.g. show name
+          "code": ticket.ticket_id,
+          "amount": "1.00",
+          "price": ticket.ticket_price,
+          "vat": "0.00",
+          "discount": "0.00", // TODO from discount_group
+          "type": "1"
+        };
+      });
+
+      var payment = {
+        "orderNumber": order_id,
+        "currency": "EUR",
+        "locale": "fi_FI",
+        "urlSet": {
+          "success": config.base_url + "/api/orders/" + order_id + "/success",
+          "failure": config.base_url + "/api/orders/" + order_id + "/failure",
+          "notification": config.base_url + "/api/orders/" + order_id + "/notification",
+        },
+        "orderDetails": {
+          "includeVat": "1",
+          "contact": {
+            "email": order.email,
+            "firstName": order.name,
+            "lastName": " ", // these one-space-only fields are required by Paytrail, must be non-empty
+            "address": {
+              "street": " ",
+              "postalCode": " ",
+              "postalOffice": " ",
+              "country": "FI"
+            }
+          },
+          "products": ticket_rows
+        }
+      };
+
+      request({
+        uri: 'https://payment.paytrail.com/api-payment/create',
+        method: 'POST',
+        json: true,
+        body: payment,
+        headers: {
+          'X-Verkkomaksut-Api-Version': '1'
+        },
+        auth: {
+          'user': config.paytrail.user,
+          'password': config.paytrail.password,
+          'sendImmediately': true
+        }
+      }, function(err, response, body) {
+        cb(body.url);
+      });
+    });
+  },
+
+  paymentDone: function(order_id, params, cb) {
     // TODO create ticket hash ids
-    // TODO verify payment
+    // TODO actually verify payment http://docs.paytrail.com/fi/index-all.html#idm133371615840
 
     db.query('update nk2_orders set \
-        status = "paid" \
-      where id = :id',
-      {id: order_id},
+        status = "paid", \
+        payment_id = :payment_id \
+      where id = :order_id',
+      {
+        order_id: order_id,
+        payment_id: params.paid
+      },
       function(err, res) {
         if(err) throw err;
 
