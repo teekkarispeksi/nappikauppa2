@@ -13,7 +13,7 @@
   "requireOperatorBeforeLineBreak": true,
   "requireCamelCaseOrUpperCaseIdentifiers": false,
   "maximumLineLength": {
-    "value": 160,
+    "value": 200,
     "allExcept": ["comments", "regex"]
   },
   "validateIndentation": 2,

@@ -1,24 +1,8 @@
 var db = require('./db.js');
-
-var shows = [
-  {
-    id: 0, // 1
-    title : 'Enskari', // 'Enskari'
-    date: '2015-03-01 19:00', // '2015-03-01 19:00'
-    status: 'ON_SALE', // INACTIVE, ON_SALE, SOLD_OUT, AT_DOORS_ONLY
-    location: 'Aleksanterin teatteri, Helsinki', // 'Aleksanterin teatteri, Helsinki'
-  },
-  {
-    id: 1, // 1
-    title : 'Toiskari', // 'Enskari'
-    date: '2015-03-02 19:00', // '2015-03-01 19:00'
-    status: 'ON_SALE', // INACTIVE, ON_SALE, SOLD_OUT, AT_DOORS_ONLY
-    location: 'Gloria, Helsinki', // 'Aleksanterin teatteri, Helsinki'
-  }
-];
+var order = require('./order.js');
+var _ = require('underscore');
 
 var show = {
-
 
   getAll: function (cb) {
     db.query('select * from nk2_shows', function(err, rows, fields) {
@@ -27,11 +11,30 @@ var show = {
   },
 
   get: function (show_id, cb) {
-    db.query('select * from nk2_shows where id=?',
-      [show_id],
+    db.query('select * from nk2_shows where id=:show_id',
+      {show_id:show_id},
       function(err, rows, fields) {
         cb(rows[0]);
       });
+  },
+
+  getReservedSeats: function(show_id, cb) {
+    order.checkExpired(function() {
+      db.query('select distinct seat_id \
+        from nk2_tickets tickets \
+        join nk2_orders orders on tickets.order_id = orders.id \
+        where show_id = :show_id \
+          and orders.status in ("seats-reserved", "payment-pending", "paid") \
+        order by seat_id',
+        {show_id: show_id},
+        function(err, res) {
+          if(err) throw err;
+
+          cb({
+            'reserved_seats': _.pluck(res, 'seat_id')
+          });
+      }); 
+    });
   }
 };
 

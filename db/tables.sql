@@ -41,6 +41,8 @@ create table nk2_orders (
   `payment_id` varchar(20) default NULL,
   `reserved_until` datetime,
   `reserved_session_id` varchar(32),
+  `status` ENUM('seats-reserved', 'payment-pending', 'paid', 'cancelled', 'expired') not null,
+  -- we might or might not want to actually delete cancelled/expired records
   PRIMARY KEY  (`id`),
   foreign key (discount_code) references nk2_discount_codes (code)
   on delete cascade
@@ -112,16 +114,15 @@ create table nk2_tickets (
   `order_id` int(11) unsigned not null,
   `show_id` int(11) unsigned not null,
   `seat_id` int(11) unsigned,
-  `section_id` int(11) unsigned,
   `discount_group_id` smallint(6),
   `hash` varchar(32) not null,
   `price` decimal(10,2) not null,
   `used_time` datetime default NULL,
   PRIMARY KEY  (`id`),
+  unique key seat_in_show (show_id, seat_id),
   foreign key (order_id) references nk2_orders (id),
   foreign key (show_id) references nk2_shows (id),
   foreign key (seat_id) references nk2_seats (id),
-  foreign key (section_id) references nk2_sections (id),
   foreign key (discount_group_id) references nk2_discount_groups (id)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
