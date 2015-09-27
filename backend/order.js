@@ -211,7 +211,7 @@ var order = {
     } else {
       console.log('ERRR');
       console.log('I calculated a hash of', verification_hash);
-      console.log('It should have been   ', params.return_authcode);
+      console.log('It should have been   ', params.RETURN_AUTHCODE);
       console.log('The string was',verification);
       // Something went terribly wrong
       // TODO: how to propagate these errors
