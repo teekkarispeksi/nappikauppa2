@@ -1,5 +1,6 @@
 var config = require('../config/config.js');
 var db = require('./db.js');
+var md5 = require('md5');
 var request = require('request');
 var _ = require('underscore');
 
@@ -183,21 +184,19 @@ var order = {
   },
 
   paymentDone: function(order_id, params, cb) {
-    // TODO actually verify payment http://docs.paytrail.com/fi/index-all.html#idm133371471696
-    var verification = [order_id, params.timestamp, params.paid, params.method, config.paytrail.password].join('|')
-    var verification_hash = 'TODO: md5 hash of verification'.toUpperCase()
+    var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|')
+    var verification_hash = md5(verification).toUpperCase();
 
-    if (verification_hash == params.return_authcode) {
-      db.startTransaction(function() {
+    if (verification_hash == params.RETURN_AUTHCODE) {
+      db.beginTransaction(function() {
         // TODO create ticket hash ids
-
         db.query('update nk2_orders set \
             status = "paid", \
             payment_id = :payment_id \
           where id = :order_id',
           {
             order_id: order_id,
-            payment_id: params.paid
+            payment_id: params.PAID
           },
           function(err, res) {
             if(err) {
@@ -210,6 +209,10 @@ var order = {
           });
       });
     } else {
+      console.log('ERRR');
+      console.log('I calculated a hash of', verification_hash);
+      console.log('It should have been   ', params.return_authcode);
+      console.log('The string was',verification);
       // Something went terribly wrong
       // TODO: how to propagate these errors
     }
