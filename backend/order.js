@@ -183,6 +183,23 @@ var order = {
     });
   },
 
+  paymentCancelled: function(order_id, params, cb) {
+    var verification = [order_id, params.TIMESTAMP, config.paytrail.password].join('|')
+    var verification_hash = md5(verification).toUpperCase();
+
+    if (verification_hash == params.RETURN_AUTHCODE) {
+      db.query('update nk2_orders set status = "cancelled" where id = :order_id',
+        { order_id: order_id },
+        function(err, res) {
+          if(err) throw err;
+          cb(res);
+        });
+    } else {
+      // Something went terribly wrong
+      // TODO: how to propagate these errors
+    }
+  },
+
   paymentDone: function(order_id, params, cb) {
     var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|')
     var verification_hash = md5(verification).toUpperCase();
