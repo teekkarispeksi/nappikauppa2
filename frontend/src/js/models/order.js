@@ -1,3 +1,4 @@
+'use strict';
 
 var Backbone = require('backbone');
 var $ = require('jquery');
@@ -13,9 +14,9 @@ var Order = Backbone.Model.extend({
   preparePayment: function() {
     // TODO: untested, I was offline when writing this, and connection is needed for paytrail
     $.post(this.urlRoot + '/' + this.get('id') + '/preparePayment',
-        function(res) {
-            window.location.href = res.url;
-        });
+      function(res) {
+        window.location.href = res.url;
+      });
   }
 });
 

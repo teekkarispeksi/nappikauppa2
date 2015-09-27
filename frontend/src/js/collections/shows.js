@@ -1,3 +1,5 @@
+'use strict';
+
 var Backbone = require('backbone');
 
 var Show = require('../models/show.js');

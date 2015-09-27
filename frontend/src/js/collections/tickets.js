@@ -1,3 +1,5 @@
+'use strict';
+
 var Backbone = require('backbone');
 
 var Ticket = require('../models/ticket.js');
