@@ -31,6 +31,11 @@ var Store = React.createClass({
   },
 
   componentWillMount: function() {
+    if (this.props.action) {
+      // clean the ok/fail hash in the url
+      window.history.pushState('', '', window.location.pathname);
+    }
+
     this.shows.fetch({
       success: function(collection, response, options) {
         if (this.state.showid) {
@@ -139,17 +144,27 @@ var Store = React.createClass({
     this.order.preparePayment();
   },
 
-  helpText: (<div className='shopping-stage help-text'>
-    <h4>Tervetuloa katsomaan Suomen suurinta opiskelijamusikaalia!</h4>
-    Mikäli koet ongelmia lippukaupan toiminnassa, voit ottaa yhteyttä lipunmyyntivastaavaan osoitteessa liput@teekkarispeksi.fi.
-  </div>),
+  helpText: function() {
+    var result;
+    if (this.props.action === 'ok') {
+      result = (<div className='result-ok'>Tilaus onnistui! TODO: Tulosta liput tästä.</div>);
+    } else if (this.props.action === 'fail') {
+      result = (<div className='result-fail'>Tilaus peruttiin onnistuneesti.</div>);
+    }
+
+    return (<div className='shopping-stage help-text'>
+      {result}
+      <h4>Tervetuloa katsomaan Suomen suurinta opiskelijamusikaalia!</h4>
+      Mikäli koet ongelmia lippukaupan toiminnassa, voit ottaa yhteyttä lipunmyyntivastaavaan osoitteessa liput@teekkarispeksi.fi.
+    </div>);
+  },
 
   render: function() {
     var seatSelectorElem, shoppingCartElem, contactsElem, finalConfirmationElem;
 
     switch (this.state.page) {
       case 'home':
-        seatSelectorElem = this.helpText;
+        seatSelectorElem = this.helpText();
         break;
 
       // No breaks -> fallthrough-magic!
