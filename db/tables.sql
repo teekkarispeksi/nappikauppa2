@@ -41,7 +41,8 @@ create table nk2_orders (
   `payment_id` varchar(20) default NULL,
   `reserved_until` datetime,
   `reserved_session_id` varchar(32),
-  `status` ENUM('seats-reserved', 'payment-pending', 'paid', 'cancelled') not null, -- we might or might not want to actually delete cancelled records
+  `status` ENUM('seats-reserved', 'payment-pending', 'paid', 'cancelled', 'expired') not null,
+  -- we might or might not want to actually delete cancelled/expired records
   PRIMARY KEY  (`id`),
   foreign key (discount_code) references nk2_discount_codes (code)
   on delete cascade

@@ -1,5 +1,6 @@
 module.exports = {
     base_url: 'http://localhost:3000',
+    expire_minutes: 15,
     db: {
         host: "localhost",
         user: "root",
