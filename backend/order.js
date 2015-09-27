@@ -185,19 +185,27 @@ var order = {
   paymentDone: function(order_id, params, cb) {
     // TODO create ticket hash ids
     // TODO actually verify payment http://docs.paytrail.com/fi/index-all.html#idm133371471696
-    db.query('update nk2_orders set \
-        status = "paid", \
-        payment_id = :payment_id \
-      where id = :order_id',
-      {
-        order_id: order_id,
-        payment_id: params.paid
-      },
-      function(err, res) {
-        if(err) throw err;
+    var verification = [order_id, params.timestamp, params.paid, params.method, config.paytrail.password].join('|')
+    var verification_hash = 'TODO: md5 hash of verification'.toUpperCase()
 
-        cb(res);
-    });
+    if (verification_hash == params.return_authcode) {
+      db.query('update nk2_orders set \
+          status = "paid", \
+          payment_id = :payment_id \
+        where id = :order_id',
+        {
+          order_id: order_id,
+          payment_id: params.paid
+        },
+        function(err, res) {
+          if(err) throw err;
+
+          cb(res);
+      });
+    } else {
+      // Something went terribly wrong
+      // TODO: how to propagate these errors
+    }
   }
 }
 
