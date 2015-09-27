@@ -23,7 +23,8 @@ var ShoppingCart = React.createClass({
           {tickets.map(function(ticket) {
             var seat = ticket.get('seat');
             return (
-              <li key={seat.id}>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}</li>
+              <li key={seat.id}>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}
+                <a className='removeSeat' onClick={this.props.onSeatClicked.bind(null, seat)}>[X]</a></li>
             );
           }.bind(this))}
         </ul>
