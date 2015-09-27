@@ -8,9 +8,9 @@ var order = {
 
   checkExpired: function(cb) {
     db.query('update nk2_orders \
-      set orders.status = "expired" \
-      where orders.status = "seats-reserved" \
-        and timestampdiff(minute, orders.time, now()) < :expire_minutes',
+      set status = "expired" \
+      where status = "seats-reserved" \
+        and timestampdiff(minute, time, now()) > :expire_minutes',
       { expire_minutes: config.expire_minutes },
       cb);
   },
