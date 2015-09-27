@@ -106,9 +106,12 @@ var order = {
         orders.payment_id,\
         orders.reserved_until,\
         orders.reserved_session_id,\
-        orders.status \
+        orders.status, \
+
+        shows.title show_title \
       from nk2_orders orders \
       join nk2_tickets tickets on orders.id = tickets.order_id \
+      join nk2_shows shows on tickets.show_id = shows.id \
       where orders.id = :id',
       { id: order_id },
       function(err, rows) {
@@ -117,7 +120,7 @@ var order = {
           'reserved_until', 'reserved_session_id', 'status']);
 
         res.tickets = _.map(rows, function(row) {
-          return _.pick(row, ['ticket_id', 'show_id', 'seat_id', 'discount_group_id', 'hash', 'ticket_price', 'used_time'])
+          return _.pick(row, ['ticket_id', 'show_id', 'show_title', 'seat_id', 'discount_group_id', 'hash', 'ticket_price', 'used_time'])
         })
         cb(res);
       });
@@ -127,7 +130,7 @@ var order = {
     this.get(order_id, function(order) {
       var ticket_rows = _.map(order.tickets, function(ticket) {
         return {
-          "title": "Lippu", // TODO a better description, e.g. show name
+          "title": "Pääsylippu: " + config.title + " / " ticket.show_title,
           "code": ticket.ticket_id,
           "amount": "1.00",
           "price": ticket.ticket_price,
@@ -183,24 +186,31 @@ var order = {
   },
 
   paymentDone: function(order_id, params, cb) {
-    // TODO create ticket hash ids
     // TODO actually verify payment http://docs.paytrail.com/fi/index-all.html#idm133371471696
     var verification = [order_id, params.timestamp, params.paid, params.method, config.paytrail.password].join('|')
     var verification_hash = 'TODO: md5 hash of verification'.toUpperCase()
 
     if (verification_hash == params.return_authcode) {
-      db.query('update nk2_orders set \
-          status = "paid", \
-          payment_id = :payment_id \
-        where id = :order_id',
-        {
-          order_id: order_id,
-          payment_id: params.paid
-        },
-        function(err, res) {
-          if(err) throw err;
+      db.startTransaction(function() {
+        // TODO create ticket hash ids
 
-          cb(res);
+        db.query('update nk2_orders set \
+            status = "paid", \
+            payment_id = :payment_id \
+          where id = :order_id',
+          {
+            order_id: order_id,
+            payment_id: params.paid
+          },
+          function(err, res) {
+            if(err) {
+              db.rollback();
+              throw err;
+            }
+
+            db.commit();
+            cb(res);
+          });
       });
     } else {
       // Something went terribly wrong
