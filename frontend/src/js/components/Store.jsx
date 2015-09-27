@@ -2,6 +2,8 @@
 
 var React = require('react');
 var Backbone = require('backbone');
+var $ = require('jquery');
+var _ = require('underscore');
 
 var ShowSelector = require('./ShowSelector.jsx');
 var SeatSelector = require('./SeatSelector.jsx');
@@ -11,6 +13,7 @@ var Contacts = require('./Contacts.jsx');
 var Shows = require('../collections/shows.js');
 var Tickets = require('../collections/tickets.js');
 var Ticket = require('../models/ticket.js');
+var Venue = require('../models/venue.js');
 var Order = require('../models/order.js');
 
 var Router = require('../router.js');
@@ -19,6 +22,8 @@ var Store = React.createClass({
   shows: new Shows(),
   tickets: new Tickets(),
   order: null,
+  venue: null,
+  seats: null,
 
   getInitialState: function() {
     return {page: 'home', showid: this.props.showid, show: null};
@@ -28,9 +33,33 @@ var Store = React.createClass({
     this.shows.fetch({
       success: function(collection, response, options) {
         if (this.state.showid) {
-          this.setState({page: 'seats', show: this.shows.get(this.state.showid)});
+          this.onShowSelect(this.state.showid);
         }
 
+        this.forceUpdate();
+      }.bind(this)
+    });
+  },
+
+  updateSeatStatus: function(showid) {
+    $.ajax({
+      url: '/api/shows/' + showid + '/reservedSeats',
+      success: function(response, status) {
+        var sections = _.values(this.venue.get('sections'));
+        this.seats = _.flatten(sections.map(function(section) {
+          return _.values(section.seats).map(function(seat) {
+            seat.section_title = section.title;
+            seat.row_name = section.row_name;
+            if (seat.is_bad) {
+              seat.status = 'bad';
+            } else if (_.indexOf(response.reserved_seats,seat.id) >= 0) {
+              seat.status = 'reserved';
+            } else {
+              seat.status = 'free';
+            }
+            return seat;
+          });
+        }));
         this.forceUpdate();
       }.bind(this)
     });
@@ -39,10 +68,25 @@ var Store = React.createClass({
   onShowSelect: function(showid) {
     this.tickets.reset();
     this.order = null;
+    this.seats = null;
+
+    var show = this.shows.get(showid);
+
+    if (!this.venue || this.venue.get('id') !== show.get('venue_id')) {
+      this.venue = new Venue({id: show.get('venue_id')});
+      this.venue.fetch({
+        success: function(model, response, options) {
+          this.updateSeatStatus(showid);
+        }.bind(this)
+      });
+    } else {
+      this.updateSeatStatus(showid);
+    }
+
     this.setState({
       page: 'seats',
       showid: showid,
-      show: this.shows.get(showid)
+      show: show
     });
     Router.navigate('show/' + showid, {trigger: false});
   },
@@ -52,8 +96,10 @@ var Store = React.createClass({
     var ticket = this.tickets.findWhere({seat: seat});
     if (ticket) {
       this.tickets.remove(ticket);
+      this.seats[_.indexOf(this.seats, ticket.get('seat'))].status = 'free';
     } else {
       this.tickets.add(new Ticket({seat: seat}));
+      this.seats[_.indexOf(this.seats, seat)].status = 'chosen';
     }
     this.forceUpdate();
   },
@@ -108,8 +154,7 @@ var Store = React.createClass({
         contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo} />;
         /* fall through */
       case 'seats':
-        var seats = this.tickets.map(function(ticket) { return ticket.get('seat'); });
-        seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} selectedSeats={seats} />;
+        seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} seats={this.seats} />;
         if (this.tickets.length > 0) {
           shoppingCartElem = <ShoppingCart tickets={this.tickets} active={this.state.page === 'seats'} onReserveTickets={this.onReserveTickets}
             onSeatClicked={this.onSeatClicked} />;
