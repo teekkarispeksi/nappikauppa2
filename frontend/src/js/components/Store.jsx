@@ -7,6 +7,7 @@ var ShowSelector = require('./ShowSelector.jsx');
 var SeatSelector = require('./SeatSelector.jsx');
 var ShoppingCart = require('./ShoppingCart.jsx');
 var Contacts = require('./Contacts.jsx');
+var FinalConfirmation = require('./FinalConfirmation.jsx');
 
 var Shows = require('../collections/shows.js');
 var Tickets = require('../collections/tickets.js');
@@ -82,10 +83,14 @@ var Store = React.createClass({
           this.setState({page: 'payment'});
         }.bind(this),
         error: function(response) {
-          console.log('order info saving failed, continuing now anyways');
+          console.log('order info saving failed, continuing now anyways'); // TODO
           this.setState({page: 'payment'});
         }.bind(this)
       });
+  },
+
+  onProceedToPayment: function() {
+    this.order.preparePayment();
   },
 
   helpText: (<div className='shopping-stage help-text'>
@@ -94,7 +99,7 @@ var Store = React.createClass({
   </div>),
 
   render: function() {
-    var seatSelectorElem, shoppingCartElem, contactsElem;
+    var seatSelectorElem, shoppingCartElem, contactsElem, finalConfirmationElem;
 
     switch (this.state.page) {
       case 'home':
@@ -102,7 +107,8 @@ var Store = React.createClass({
         break;
 
       // No breaks -> fallthrough-magic!
-      case 'payment': // TODO
+      case 'payment':
+        finalConfirmationElem = <FinalConfirmation tickets={this.tickets} onProceedToPayment={this.onProceedToPayment} />;
         /* fall through */
       case 'contacts':
         contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo} />;
@@ -121,6 +127,7 @@ var Store = React.createClass({
         {seatSelectorElem}
         {shoppingCartElem}
         {contactsElem}
+        {finalConfirmationElem}
       </div>
     );
   }

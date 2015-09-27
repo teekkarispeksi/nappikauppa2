@@ -38,7 +38,7 @@ router.patch('/orders/:orderid', jsonParser, function(req, res) {
     order.createOrder(req.body.id, req.body, function(data) { res.json(data) });
 });
 
-router.get('/orders/:orderid/preparePayment', function(req, res) {
+router.post('/orders/:orderid/preparePayment', function(req, res) {
     order.preparePayment(req.params.orderid, function(data) { res.json(data); })
 });
 

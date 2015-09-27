@@ -56,10 +56,7 @@ var order = {
                 });
               }
               db.commit();
-              cb({
-                error: null,
-                order_id: order_id
-              });
+              order.get(order_id, cb);
             });
         });
       });
@@ -78,12 +75,12 @@ var order = {
         if(err) throw err;
         // TODO how we should really propagate these errors
         if(res.changedRows != 1) {
-          return {
+          cb({
             err: true,
             errmsg: 'Should have updated one row, updated really ' + res.changedRows + ' rows'
-          }
+          });
         }
-        cb(res);
+        order.get(order_id, cb);
     });
   },
 
@@ -180,7 +177,7 @@ var order = {
           'sendImmediately': true
         }
       }, function(err, response, body) {
-        cb(body.url);
+        cb({ url: body.url });
       });
     });
   },
