@@ -1,4 +1,5 @@
 var db = require('./db.js');
+var order = require('./order.js');
 var _ = require('underscore');
 
 var show = {
@@ -18,23 +19,22 @@ var show = {
   },
 
   getReservedSeats: function(show_id, cb) {
-    // TODO: we might want to get rid of the time check if we have something that's deleting expired reservations often enough
-    db.query('select distinct seat_id \
-      from nk2_tickets tickets \
-      join nk2_orders orders on tickets.order_id = orders.id \
-      where show_id = :show_id \
-        and (orders.status in ("payment-pending", "paid") \
-          or (orders.status = "seats-reserved" and timestampdiff(minute, orders.time, now()) < 15) \
-        ) \
-      order by seat_id',
-      {show_id: show_id},
-      function(err, res) {
-        if(err) throw err;
+    order.checkExpired(function() {
+      db.query('select distinct seat_id \
+        from nk2_tickets tickets \
+        join nk2_orders orders on tickets.order_id = orders.id \
+        where show_id = :show_id \
+          and orders.status in ("seats-reserved", "payment-pending", "paid") \
+        order by seat_id',
+        {show_id: show_id},
+        function(err, res) {
+          if(err) throw err;
 
-        cb({
-          'reserved_seats': _.pluck(res, 'seat_id')
-        });
-      });
+          cb({
+            'reserved_seats': _.pluck(res, 'seat_id')
+          });
+      }); 
+    });
   }
 };
 

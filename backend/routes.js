@@ -38,6 +38,14 @@ router.patch('/orders/:orderid', jsonParser, function(req, res) {
     order.createOrder(req.body.id, req.body, function(data) { res.json(data) });
 });
 
+router.post('/orders/:orderid/preparePayment', function(req, res) {
+    order.preparePayment(req.params.orderid, function(data) { res.json(data); })
+});
+
+router.get('/orders/:orderid/success', function(req, res) {
+    order.paymentDone(req.params.orderid, req.query, function() { res.redirect('/#ok'); }); // TODO redirect somewhere
+})
+
 router.get('/venues/:venueid', function(req, res) {
   venue.get(req.params.venueid, function(data) { res.json(data) });
 });
