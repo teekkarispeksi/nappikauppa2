@@ -2,6 +2,7 @@
 
 var React = require('react');
 var _ = require('underscore');
+var $ = require('jquery');
 
 var Contacts = React.createClass({
   getInitialState: function() {
@@ -27,19 +28,28 @@ var Contacts = React.createClass({
 
   onSave: function() {
     var errors = [];
-    if(!this.state.name) {
+    if (!this.state.name) {
       errors.push('name');
     }
-    if(_.contains(this.state.email, '@')) {
+    if (!_.contains(this.state.email, '@')) {
       errors.push('email');
     }
-    // TODO: check discount code
+    if (this.state.discount_code && !this._checkDiscountCode(this.state.discount_code)) {
+      errors.push('discount_code');
+    }
 
-    if(errors) {
-      this.setState({errors: errors});
-    } else {
+    this.setState({errors: errors});
+    if (errors.length === 0) {
       this.props.onSaveOrderInfo(_.clone(this.state));
     }
+  },
+
+  _checkDiscountCode: function(discount_code) {
+    var req = $.ajax({
+      url: '/api/discountCode/' + discount_code,
+      async: false
+    });
+    return JSON.parse(req.responseText).ok === true;
   },
 
   render: function() {
