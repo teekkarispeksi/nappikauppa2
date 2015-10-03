@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react');
+var _ = require('underscore');
 
 var Seat = React.createClass({
 
@@ -10,6 +11,8 @@ var Seat = React.createClass({
     var url;
     var onClick = this.props.onClick;
 
+    var prices = _.values(_.mapObject(this.props.seat.prices, function(price) { return price.price; })).join('/');
+
     if (this.props.status === 'reserved') {
       url = this.img_reserved;
       onClick = null;
@@ -18,7 +21,7 @@ var Seat = React.createClass({
       url = this.img_chosen;
     } else {
       url = this.img_free;
-      text = 'Row: ' + this.props.seat.row + '\nNumber: ' + this.props.seat.number;
+      text = 'Row: ' + this.props.seat.row + '\nNumber: ' + this.props.seat.number + '\nHinta: ' + prices;
     }
 
     return (
