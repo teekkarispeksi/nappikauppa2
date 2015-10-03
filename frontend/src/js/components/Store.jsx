@@ -47,6 +47,10 @@ var Store = React.createClass({
     });
   },
 
+  getExpirationTime: function() {
+    return new Date(Date.now() + 15 * 60 * 1000);
+  },
+
   updateSeatStatus: function(showid) {
     $.ajax({
       url: '/api/shows/' + showid + '/reservedSeats',
@@ -98,7 +102,7 @@ var Store = React.createClass({
   },
 
   onSeatClicked: function(seat) {
-    this.setState({page: 'seats'});
+    this.setState({page: 'seats', reservationExpirationTime: null});
     var ticket = this.tickets.findWhere({seat: seat});
     if (ticket) {
       this.tickets.remove(ticket);
@@ -115,7 +119,7 @@ var Store = React.createClass({
       {url: '/api/shows/' + this.state.showid + '/reserveSeats/',
         success: function(response) {
           this.order = new Order({id: response.order_id});
-          this.setState({page: 'contacts'}); // setState also forces update
+          this.setState({page: 'contacts', reservationExpirationTime: this.getExpirationTime()});
         }.bind(this),
         error: function(model, response) {
           console.log('seat reservation failed');
@@ -178,8 +182,13 @@ var Store = React.createClass({
       case 'seats':
         seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} seats={this.seats} />;
         if (this.tickets.length > 0) {
-          shoppingCartElem = <ShoppingCart tickets={this.tickets} active={this.state.page === 'seats'} onReserveTickets={this.onReserveTickets}
-            onSeatClicked={this.onSeatClicked} />;
+          shoppingCartElem = <ShoppingCart
+            tickets={this.tickets}
+            active={this.state.page === 'seats'}
+            expirationTime={this.state.reservationExpirationTime}
+            onReserveTickets={this.onReserveTickets}
+            onSeatClicked={this.onSeatClicked}
+          />;
         }
     }
 
