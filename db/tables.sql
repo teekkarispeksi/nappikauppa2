@@ -128,7 +128,7 @@ create table nk2_tickets (
   `show_id` int(10) unsigned not null,
   `seat_id` int(10) unsigned,
   `discount_group_id` smallint(6),
-  `hash` varchar(32) not null,
+  `hash` varchar(36) not null,
   `price` decimal(10,2) not null,
   `used_time` datetime default NULL,
   PRIMARY KEY  (`id`),
