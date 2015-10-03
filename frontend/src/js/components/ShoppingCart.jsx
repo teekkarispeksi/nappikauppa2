@@ -29,7 +29,12 @@ var ShoppingCart = React.createClass({
         <ul>
           {tickets.map(function(ticket) {
             return (
-              <Ticket key={ticket.get('seat').id} ticket={ticket} onDiscountSelect={this.onDiscountSelect.bind(null,ticket)} onRemove={this.props.onSeatClicked} />
+              <Ticket
+                key={ticket.get('seat').id}
+                ticket={ticket}
+                active={this.props.active}
+                onDiscountSelect={this.onDiscountSelect.bind(null,ticket)}
+                onRemove={this.props.onSeatClicked} />
             );
           }.bind(this))}
         </ul>
