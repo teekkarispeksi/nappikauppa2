@@ -9,8 +9,7 @@ var _ = require('underscore');
 var order = {
 
   checkExpired: function(cb) {
-    db.query('update nk2_orders \
-      set status = "expired" \
+    db.query('delete from nk2_orders \
       where status = "seats-reserved" \
         and timestampdiff(minute, time, now()) > :expire_minutes',
       {expire_minutes: config.expire_minutes},
