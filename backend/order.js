@@ -2,6 +2,7 @@
 
 var config = require('../config/config.js');
 var db = require('./db.js');
+var mail = require('./mail.js');
 var md5 = require('md5');
 var request = require('request');
 var uuid = require('uuid');
@@ -240,9 +241,10 @@ var order = {
             }
 
             db.commit();
+            this.sendTickets(order_id);
             cb(res);
-          });
-      });
+          }.bind(this));
+      }.bind(this));
     } else {
       console.log('ERRR');
       console.log('I calculated a hash of', verification_hash);
@@ -251,6 +253,21 @@ var order = {
       // Something went terribly wrong
       // TODO: how to propagate these errors
     }
+  },
+
+  sendTickets: function(order_id) {
+    this.get(order_id, function(order) {
+      mail.sendMail({
+        from: config.email.from,
+        to: order.email,
+        subject: 'Lippu!',
+        text: 'hello there :)'
+      }, function(error, info){
+        if (error) {
+          console.log(error);
+        }
+      });
+    });
   }
 };
 
