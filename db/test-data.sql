@@ -29,6 +29,7 @@ insert into nk2_shows (title, venue_id, time, active, inactivate_time, descripti
     ('Turku, Sigyn-sali',         7, '2080-04-01 18:00:00', true, '2080-04-01 15:00:00', '<p>Näytös järjestetään Sigyn-salissa, Linnankatu 60. Teatteri perii eteispalvelumaksun.');
 
 insert into nk2_discount_groups (show_id, title, eur, admin_only, active) values
+    (null, 'Normaalilippu', 0, false, true),
     (null, 'Opiskelija', 4, false, true),
     (null, 'Ilmaislippu', 999, true, true),
     (1, 'Erikoislippu', 2, false, true),
