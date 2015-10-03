@@ -8,7 +8,8 @@ var Contacts = React.createClass({
     return {
       name: '',
       email: '',
-      discount_code: ''
+      discount_code: '',
+      errors: []
     };
   },
 
@@ -25,17 +26,54 @@ var Contacts = React.createClass({
   },
 
   onSave: function() {
-    this.props.onSaveOrderInfo(_.clone(this.state));
+    var errors = [];
+    if(!this.state.name) {
+      errors.push('name');
+    }
+    if(_.contains(this.state.email, '@')) {
+      errors.push('email');
+    }
+    // TODO: check discount code
+
+    if(errors) {
+      this.setState({errors: errors});
+    } else {
+      this.props.onSaveOrderInfo(_.clone(this.state));
+    }
   },
 
   render: function() {
     var active = this.props.active;
     return (
       <div className='shopping-stage contact-input'>
-        <div><label>Nimi</label>        <input readOnly={!active} onChange={this.onValueChange.bind(null, 'name')}          value={this.state.name} /></div>
-        <div><label>Sähköposti</label>  <input readOnly={!active} onChange={this.onValueChange.bind(null, 'email')}         value={this.state.email} /></div>
-        <div><label>Alennuskoodi</label><input readOnly={!active} onChange={this.onValueChange.bind(null, 'discount_code')} value={this.state.discount_code} /></div>
-        <div>{active ? (<a  id='saveOrderInfo' onClick={this.onSave}>Tallenna</a>) : null}</div>
+        <div>
+          <label>Nimi</label>
+          <input
+            className={ _.contains(this.state.errors, 'name') ? ('error') : ('') }
+            readOnly={!active}
+            onChange={this.onValueChange.bind(null, 'name')}
+            value={this.state.name} />
+        </div>
+
+        <div>
+          <label>Sähköposti</label>
+          <input
+            className={ _.contains(this.state.errors, 'email') ? ('error') : ('') }
+            readOnly={!active}
+            onChange={this.onValueChange.bind(null, 'email')}
+            value={this.state.email} />
+        </div>
+
+        <div>
+          <label>Alennuskoodi</label>
+          <input
+            className={ _.contains(this.state.errors, 'discount_code') ? ('error') : ('') }
+            readOnly={!active}
+            onChange={this.onValueChange.bind(null, 'discount_code')}
+            value={this.state.discount_code} />
+        </div>
+
+        <div>{active ? (<a id='saveOrderInfo' onClick={this.onSave}>Tallenna</a>) : null}</div>
       </div>
     );
   }
