@@ -2,7 +2,14 @@
 
 var React = require('react');
 
+var Ticket = require('./Ticket.jsx');
+
 var ShoppingCart = React.createClass({
+
+  onDiscountSelect: function(ticket, value) {
+    ticket.set('discount_group_id', value);
+    this.forceUpdate();
+  },
 
   render: function() {
     var tickets = this.props.tickets;
@@ -21,10 +28,8 @@ var ShoppingCart = React.createClass({
       <div className='shopping-stage shopping-cart'>
         <ul>
           {tickets.map(function(ticket) {
-            var seat = ticket.get('seat');
             return (
-              <li key={seat.id}>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}
-                <a className='removeSeat' onClick={this.props.onSeatClicked.bind(null, seat)}>[X]</a></li>
+              <Ticket key={ticket.get('seat').id} ticket={ticket} onDiscountSelect={this.onDiscountSelect.bind(null,ticket)} onRemove={this.props.onSeatClicked} />
             );
           }.bind(this))}
         </ul>
