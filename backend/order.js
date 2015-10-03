@@ -200,7 +200,7 @@ var order = {
     var verification_hash = md5(verification).toUpperCase();
 
     if (verification_hash === params.RETURN_AUTHCODE) {
-      db.query('update nk2_orders set status = "cancelled" where id = :order_id',
+      db.query('delete from nk2_orders where id = :order_id',
         {order_id: order_id},
         function(err, res) {
           if (err) {
