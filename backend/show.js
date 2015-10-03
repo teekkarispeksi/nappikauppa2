@@ -1,18 +1,20 @@
+'use strict';
+
 var db = require('./db.js');
 var order = require('./order.js');
 var _ = require('underscore');
 
 var show = {
 
-  getAll: function (cb) {
+  getAll: function(cb) {
     db.query('select * from nk2_shows', function(err, rows, fields) {
       cb(rows);
     });
   },
 
-  get: function (show_id, cb) {
+  get: function(show_id, cb) {
     db.query('select * from nk2_shows where id=:show_id',
-      {show_id:show_id},
+      {show_id: show_id},
       function(err, rows, fields) {
         cb(rows[0]);
       });
@@ -28,12 +30,14 @@ var show = {
         order by seat_id',
         {show_id: show_id},
         function(err, res) {
-          if(err) throw err;
+          if (err) {
+            throw err;
+          }
 
           cb({
             'reserved_seats': _.pluck(res, 'seat_id')
           });
-      }); 
+        });
     });
   }
 };

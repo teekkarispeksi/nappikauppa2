@@ -1,3 +1,5 @@
+'use strict';
+
 var config = require('../config/config.js');
 var db = require('./db.js');
 var md5 = require('md5');
@@ -11,17 +13,20 @@ var order = {
       set status = "expired" \
       where status = "seats-reserved" \
         and timestampdiff(minute, time, now()) > :expire_minutes',
-      { expire_minutes: config.expire_minutes },
+      {expire_minutes: config.expire_minutes},
       cb);
   },
 
   reserveSeats: function(show_id, seats, cb) {
     this.checkExpired(function() {
       db.beginTransaction(function(err) {
-        if (err) throw err;
-
+        if (err) {
+          throw err;
+        }
         db.query('insert into nk2_orders (time, status) values (now(), "seats-reserved")', function(err, res) {
-          if(err) return db.rollback(function() { throw err; });
+          if (err) {
+            return db.rollback(function() { throw err; });
+          }
 
           var order_id = res.insertId;
 
@@ -48,12 +53,12 @@ var order = {
           // Actually fire what we generated above
           db.query(query_start + insert_values.join(','),
             function(err, res) {
-              if(err) {
+              if (err) {
                 return db.rollback(function() {
                   cb({
                     error: true,
                     order_id: null
-                  })
+                  });
                 });
               }
               db.commit();
@@ -73,16 +78,18 @@ var order = {
       where id = :id',
       data,
       function(err, res) {
-        if(err) throw err;
+        if (err) {
+          throw err;
+        }
         // TODO how we should really propagate these errors
-        if(res.changedRows != 1) {
+        if (res.changedRows !== 1) {
           cb({
             err: true,
             errmsg: 'Should have updated one row, updated really ' + res.changedRows + ' rows'
           });
         }
         order.get(order_id, cb);
-    });
+      });
   },
 
   get: function(order_id, cb) {
@@ -111,15 +118,15 @@ var order = {
       join nk2_tickets tickets on orders.id = tickets.order_id \
       join nk2_shows shows on tickets.show_id = shows.id \
       where orders.id = :id',
-      { id: order_id },
+      {id: order_id},
       function(err, rows) {
         var first = rows[0];
         var res = _.pick(first, ['order_id', 'name', 'email', 'discount_code', 'time', 'order_price', 'payment_id',
           'reserved_until', 'reserved_session_id', 'status']);
 
         res.tickets = _.map(rows, function(row) {
-          return _.pick(row, ['ticket_id', 'show_id', 'show_title', 'seat_id', 'discount_group_id', 'hash', 'ticket_price', 'used_time'])
-        })
+          return _.pick(row, ['ticket_id', 'show_id', 'show_title', 'seat_id', 'discount_group_id', 'hash', 'ticket_price', 'used_time']);
+        });
         cb(res);
       });
   },
@@ -128,39 +135,39 @@ var order = {
     this.get(order_id, function(order) {
       var ticket_rows = _.map(order.tickets, function(ticket) {
         return {
-          "title": "Pääsylippu: " + config.title + " / " + ticket.show_title,
-          "code": ticket.ticket_id,
-          "amount": "1.00",
-          "price": ticket.ticket_price,
-          "vat": "0.00",
-          "discount": "0.00", // No discounts here. Price includes everything.
-          "type": "1"
+          'title': 'Pääsylippu: ' + config.title + ' / ' + ticket.show_title,
+          'code': ticket.ticket_id,
+          'amount': '1.00',
+          'price': ticket.ticket_price,
+          'vat': '0.00',
+          'discount': '0.00', // No discounts here. Price includes everything.
+          'type': '1'
         };
       });
 
       var payment = {
-        "orderNumber": order_id,
-        "currency": "EUR",
-        "locale": "fi_FI",
-        "urlSet": {
-          "success": config.base_url + "/api/orders/" + order_id + "/success",
-          "failure": config.base_url + "/api/orders/" + order_id + "/failure",
-          "notification": config.base_url + "/api/orders/" + order_id + "/notification",
+        'orderNumber': order_id,
+        'currency': 'EUR',
+        'locale': 'fi_FI',
+        'urlSet': {
+          'success': config.base_url + '/api/orders/' + order_id + '/success',
+          'failure': config.base_url + '/api/orders/' + order_id + '/failure',
+          'notification': config.base_url + '/api/orders/' + order_id + '/notification',
         },
-        "orderDetails": {
-          "includeVat": "1",
-          "contact": {
-            "email": order.email,
-            "firstName": order.name,
-            "lastName": " ", // these one-space-only fields are required by Paytrail, must be non-empty
-            "address": {
-              "street": " ",
-              "postalCode": " ",
-              "postalOffice": " ",
-              "country": "FI"
+        'orderDetails': {
+          'includeVat': '1',
+          'contact': {
+            'email': order.email,
+            'firstName': order.name,
+            'lastName': ' ', // these one-space-only fields are required by Paytrail, must be non-empty
+            'address': {
+              'street': ' ',
+              'postalCode': ' ',
+              'postalOffice': ' ',
+              'country': 'FI'
             }
           },
-          "products": ticket_rows
+          'products': ticket_rows
         }
       };
 
@@ -178,20 +185,22 @@ var order = {
           'sendImmediately': true
         }
       }, function(err, response, body) {
-        cb({ url: body.url });
+        cb({url: body.url});
       });
     });
   },
 
   paymentCancelled: function(order_id, params, cb) {
-    var verification = [order_id, params.TIMESTAMP, config.paytrail.password].join('|')
+    var verification = [order_id, params.TIMESTAMP, config.paytrail.password].join('|');
     var verification_hash = md5(verification).toUpperCase();
 
-    if (verification_hash == params.RETURN_AUTHCODE) {
+    if (verification_hash === params.RETURN_AUTHCODE) {
       db.query('update nk2_orders set status = "cancelled" where id = :order_id',
-        { order_id: order_id },
+        {order_id: order_id},
         function(err, res) {
-          if(err) throw err;
+          if (err) {
+            throw err;
+          }
           cb(res);
         });
     } else {
@@ -201,10 +210,10 @@ var order = {
   },
 
   paymentDone: function(order_id, params, cb) {
-    var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|')
+    var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
     var verification_hash = md5(verification).toUpperCase();
 
-    if (verification_hash == params.RETURN_AUTHCODE) {
+    if (verification_hash === params.RETURN_AUTHCODE) {
       db.beginTransaction(function() {
         // TODO create ticket hash ids
         db.query('update nk2_orders set \
@@ -216,7 +225,7 @@ var order = {
             payment_id: params.PAID
           },
           function(err, res) {
-            if(err) {
+            if (err) {
               db.rollback();
               throw err;
             }
@@ -234,6 +243,6 @@ var order = {
       // TODO: how to propagate these errors
     }
   }
-}
+};
 
 module.exports = order;

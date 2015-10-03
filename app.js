@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var express = require('express');
 var path = require('path');
@@ -14,7 +14,7 @@ app.use(require('connect-livereload')());
 
 app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));
 app.get('/', function(req, res) {
-	res.sendFile(__dirname + '/frontend/build/index.html');
+  res.sendFile(__dirname + '/frontend/build/index.html');
 });
 
 app.use('/api', api);
@@ -33,7 +33,7 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    res.send( {
+    res.send({
       message: err.message,
       error: err
     });
@@ -49,6 +49,5 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = app;

@@ -8,5 +8,6 @@
   "undef": true,
   "unused": false,
   "browserify": true,
-  "devel": true
+  "devel": true,
+  "multistr": true
 }

@@ -1,9 +1,11 @@
+'use strict';
+
 var db = require('./db.js');
 var _ = require('underscore');
 
 var venue = {
 
-  get: function (venue_id, cb) {
+  get: function(venue_id, cb) {
     db.query('SELECT \
       venue.id as venue_id, \
       venue.title as venue_title, \
@@ -25,10 +27,10 @@ var venue = {
     WHERE venue.id=:venue_id',
       {venue_id: venue_id},
       function(err, rows, fields) {
-        first = rows[0];
+        var first = rows[0];
         // convert the sql results into a json tree
         // begins with venue info
-        res = {
+        var res = {
           id: first.venue_id,
           title: first.venue_title,
           description: first.description,
@@ -40,7 +42,7 @@ var venue = {
         // so convert those lists into objects with section info
         res.sections = _.mapObject(res.sections, function(rows) {
           first = rows[0]; // rows is a list of seats
-          section = {
+          var section = {
             id: first.section_id,
             title: first.section_title,
             row_name: first.row_name,
@@ -49,8 +51,8 @@ var venue = {
 
           // if the theather has numbered seats, turn them into a dictionary
           // with indexBy and use mapObject to strip venue & section info
-          if(res.ticket_type === "numbered-seats") {
-            seats = _.indexBy(rows, function(row) { return row.seat_id;})
+          if (res.ticket_type === 'numbered-seats') {
+            var seats = _.indexBy(rows, function(row) { return row.seat_id;});
             seats = _.mapObject(seats, function(seat) {
               return {
                 id: seat.seat_id,
@@ -60,11 +62,11 @@ var venue = {
                 y: seat.y_coord,
                 is_bad: seat.bad_seat
               };
-            })
+            });
             section.seats = seats;
           }
           return section;
-        })
+        });
         cb(res);
       });
   }
