@@ -9,8 +9,7 @@ var _ = require('underscore');
 var order = {
 
   checkExpired: function(cb) {
-    db.query('update nk2_orders \
-      set status = "expired" \
+    db.query('delete from nk2_orders \
       where status = "seats-reserved" \
         and timestampdiff(minute, time, now()) > :expire_minutes',
       {expire_minutes: config.expire_minutes},
@@ -46,7 +45,7 @@ var order = {
               order_id: order_id,
               show_id: show_id,
               seat_id: e.seat.id,
-              discount_group_id: 0
+              discount_group_id: null
             });
           });
 
@@ -59,6 +58,7 @@ var order = {
                     error: true,
                     order_id: null
                   });
+                  throw err;
                 });
               }
               db.commit();
@@ -70,6 +70,11 @@ var order = {
   },
 
   createOrder: function(order_id, data, cb) {
+    // make falsy to be a real NULL
+    if (!data['discount_code']) {
+      data['discount_code'] = null;
+    }
+
     db.query('update nk2_orders set \
         name = :name, \
         email = :email, \
@@ -195,7 +200,7 @@ var order = {
     var verification_hash = md5(verification).toUpperCase();
 
     if (verification_hash === params.RETURN_AUTHCODE) {
-      db.query('update nk2_orders set status = "cancelled" where id = :order_id',
+      db.query('delete from nk2_orders where id = :order_id',
         {order_id: order_id},
         function(err, res) {
           if (err) {
