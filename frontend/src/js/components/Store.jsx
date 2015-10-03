@@ -19,6 +19,8 @@ var Order = require('../models/order.js');
 
 var Router = require('../router.js');
 
+var DISCOUNT_GROUP_DEFAULT = 1;
+
 var Store = React.createClass({
   shows: new Shows(),
   tickets: new Tickets(),
@@ -107,7 +109,7 @@ var Store = React.createClass({
       this.tickets.remove(ticket);
       this.seats[_.indexOf(this.seats, ticket.get('seat'))].status = 'free';
     } else {
-      this.tickets.add(new Ticket({seat: seat, discount_group_id: 1})); // NOTE: assumes discount group 1 is 'normal ticket'
+      this.tickets.add(new Ticket({seat: seat, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
       this.seats[_.indexOf(this.seats, seat)].status = 'chosen';
     }
     this.forceUpdate();
