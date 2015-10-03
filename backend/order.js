@@ -71,7 +71,7 @@ var order = {
     }); // pfft, that was a terrible callback-chain
   },
 
-  createOrder: function(order_id, data, cb) {
+  updateContact: function(order_id, data, cb) {
     // make falsy to be a real NULL
     if (!data['discount_code']) {
       data['discount_code'] = null;
@@ -80,8 +80,7 @@ var order = {
     db.query('update nk2_orders set \
         name = :name, \
         email = :email, \
-        discount_code = :discount_code, \
-        status = "payment-pending" \
+        discount_code = :discount_code \
       where id = :id',
       data,
       function(err, res) {
@@ -139,6 +138,9 @@ var order = {
   },
 
   preparePayment: function(order_id, cb) {
+    db.query('update nk2_orders set status = "payment-pending" where id=:order_id',
+      { order_id: order_id });
+
     this.get(order_id, function(order) {
       var ticket_rows = _.map(order.tickets, function(ticket) {
         return {

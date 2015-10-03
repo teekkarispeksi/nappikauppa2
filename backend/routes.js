@@ -37,7 +37,7 @@ router.post('/shows/:showid/reserveSeats', jsonParser, function(req, res) {
 });
 
 router.patch('/orders/:orderid', jsonParser, function(req, res) {
-  order.createOrder(req.body.id, req.body, function(data) { res.json(data); });
+  order.updateContact(req.body.id, req.body, function(data) { res.json(data); });
 });
 
 router.post('/orders/:orderid/preparePayment', function(req, res) {
