@@ -46,7 +46,7 @@ var order = {
               order_id: order_id,
               show_id: show_id,
               seat_id: e.seat.id,
-              discount_group_id: 0
+              discount_group_id: null
             });
           });
 
@@ -59,6 +59,7 @@ var order = {
                     error: true,
                     order_id: null
                   });
+                  throw err;
                 });
               }
               db.commit();
@@ -70,6 +71,11 @@ var order = {
   },
 
   createOrder: function(order_id, data, cb) {
+    // make falsy to be a real NULL
+    if (!data['discount_code']) {
+      data['discount_code'] = null;
+    }
+
     db.query('update nk2_orders set \
         name = :name, \
         email = :email, \
