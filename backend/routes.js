@@ -43,8 +43,12 @@ router.post('/orders/:orderid/preparePayment', function(req, res) {
 });
 
 router.get('/orders/:orderid/success', function(req, res) {
-    order.paymentDone(req.params.orderid, req.query, function() { res.redirect('/#ok'); }); // TODO redirect somewhere
-})
+    order.paymentDone(req.params.orderid, req.query, function() { res.redirect('/#ok'); });
+});
+
+router.get('/orders/:orderid/failure', function(req, res) {
+    order.paymentCancelled(req.params.orderid, req.query, function() { res.redirect('/#fail'); });
+});
 
 router.get('/venues/:venueid', function(req, res) {
   venue.get(req.params.venueid, function(data) { res.json(data) });
