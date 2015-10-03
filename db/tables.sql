@@ -12,7 +12,7 @@ create table nk2_discount_codes (
   `email` varchar(255) not null,
   `code_group` varchar(255) not null,
   PRIMARY KEY  (`code`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -26,7 +26,7 @@ create table nk2_discount_groups (
   `active` boolean not null,
   PRIMARY KEY  (`id`),
   foreign key (show_id) references nk2_show(id)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -46,7 +46,7 @@ create table nk2_orders (
   PRIMARY KEY  (`id`),
   foreign key (discount_code) references nk2_discount_codes (code)
   on delete cascade
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -61,7 +61,7 @@ create table nk2_seats (
   `bad_seat` boolean not null default '0',
   PRIMARY KEY  (`id`),
   foreign key (section_id) references nk2_sections (id)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -75,7 +75,7 @@ create table nk2_prices (
   PRIMARY KEY  (`id`),
   foreign key (section_id) references nk2_sections (id),
   foreign key (show_id) references nk2_shows (id)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -89,7 +89,7 @@ create table nk2_sections (
   `seat_count` int(11) default null,
   PRIMARY KEY  (`id`),
   foreign key (venue_id) references nk2_venues (id)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -104,7 +104,7 @@ create table nk2_shows (
   `description` mediumtext not null,
   PRIMARY KEY  (`id`),
   foreign key (venue_id) references nk2_venues (id)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -124,7 +124,7 @@ create table nk2_tickets (
   foreign key (show_id) references nk2_shows (id),
   foreign key (seat_id) references nk2_seats (id),
   foreign key (discount_group_id) references nk2_discount_groups (id)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -135,6 +135,6 @@ create table nk2_venues (
   `ticket_type` ENUM('numbered-seats', 'generic-tickets') not null,
   `description` varchar(255) not null,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 commit;
