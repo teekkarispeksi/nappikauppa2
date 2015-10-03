@@ -46,7 +46,7 @@ var order = {
               order_id: order_id,
               show_id: show_id,
               seat_id: e.seat.id,
-              discount_group_id: null,
+              discount_group_id: e.discount_group_id,
               hash: uuid.v4()
             });
           });

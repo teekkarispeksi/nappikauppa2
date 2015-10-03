@@ -51,7 +51,7 @@ create table nk2_shows (
 -- --------------------------------------------------------
 
 create table nk2_discount_groups (
-  `id` smallint(6) not null auto_increment,
+  `id` smallint(6) unsigned not null auto_increment,
   `show_id` int(10) unsigned,
   `title` varchar(100) not null,
   `eur` decimal(10,2) not null,
@@ -127,7 +127,7 @@ create table nk2_tickets (
   `order_id` int(10) unsigned not null,
   `show_id` int(10) unsigned not null,
   `seat_id` int(10) unsigned,
-  `discount_group_id` smallint(6),
+  `discount_group_id` smallint(6) unsigned not null,
   `hash` varchar(36) not null,
   `price` decimal(10,2) not null,
   `used_time` datetime default NULL,

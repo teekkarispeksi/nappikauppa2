@@ -19,6 +19,8 @@ var Order = require('../models/order.js');
 
 var Router = require('../router.js');
 
+var DISCOUNT_GROUP_DEFAULT = 1;
+
 var Store = React.createClass({
   shows: new Shows(),
   tickets: new Tickets(),
@@ -53,9 +55,12 @@ var Store = React.createClass({
       success: function(response, status) {
         var sections = _.values(this.venue.get('sections'));
         this.seats = _.flatten(sections.map(function(section) {
+          var prices = this.state.show.get('sections')[section.id].discount_groups;
           return _.values(section.seats).map(function(seat) {
+            seat.section_id = section.id;
             seat.section_title = section.title;
             seat.row_name = section.row_name;
+            seat.prices = prices;
             if (seat.is_bad) {
               seat.status = 'bad';
             } else if (_.indexOf(response.reserved_seats,seat.id) >= 0) {
@@ -65,7 +70,7 @@ var Store = React.createClass({
             }
             return seat;
           });
-        }));
+        }.bind(this)));
         this.forceUpdate();
       }.bind(this)
     });
@@ -104,7 +109,7 @@ var Store = React.createClass({
       this.tickets.remove(ticket);
       this.seats[_.indexOf(this.seats, ticket.get('seat'))].status = 'free';
     } else {
-      this.tickets.add(new Ticket({seat: seat}));
+      this.tickets.add(new Ticket({seat: seat, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
       this.seats[_.indexOf(this.seats, seat)].status = 'chosen';
     }
     this.forceUpdate();
