@@ -12,7 +12,7 @@ var FinalConfirmation = React.createClass({
         Mahdollinen alennuskoodi -z eur<br />
         Yhteensä xxx eur<br /><br />
 
-        <a id='proceedToPayment' onClick={this.props.onProceedToPayment}>Siirry maksamaan</a>
+        <a id='proceedToPayment' onClick={this.props.paymentBegun ? null : this.props.onProceedToPayment}>Siirry maksamaan</a>
       </div>
     );
   }
