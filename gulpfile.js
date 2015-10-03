@@ -106,6 +106,15 @@ gulp.task('index', function() {
       .pipe(gulp.dest('./frontend/build/'));
 });
 
+gulp.task('lint-backend', function() {
+  return gulp.src('backend/**/*.js') // lint reactified JS
+  .pipe(plumber())
+  .pipe(jscs())
+  .pipe(jshint())
+  .pipe(stylish.combineWithHintResults())
+  .pipe(jshint.reporter('jshint-stylish'));
+});
+
 gulp.task('build', function(cb) {
   runSequence(
     ['clean'],
@@ -126,6 +135,7 @@ gulp.task('start', function() {
 
 gulp.task('default', function(cb) {
   runSequence(
+    ['lint-backend'],
     ['build'],
     ['start'],
     cb);
