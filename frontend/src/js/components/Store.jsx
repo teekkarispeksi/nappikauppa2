@@ -27,7 +27,7 @@ var Store = React.createClass({
   seats: null,
 
   getInitialState: function() {
-    return {page: 'home', showid: this.props.showid, show: null};
+    return {page: 'home', showid: this.props.showid, show: null, paymentBegun: false};
   },
 
   componentWillMount: function() {
@@ -141,6 +141,7 @@ var Store = React.createClass({
   },
 
   onProceedToPayment: function() {
+    this.setState({paymentBegun: true});
     this.order.preparePayment();
   },
 
@@ -169,7 +170,7 @@ var Store = React.createClass({
 
       // No breaks -> fallthrough-magic!
       case 'payment':
-        finalConfirmationElem = <FinalConfirmation tickets={this.tickets} onProceedToPayment={this.onProceedToPayment} />;
+        finalConfirmationElem = <FinalConfirmation tickets={this.tickets} paymentBegun={this.state.paymentBegun} onProceedToPayment={this.onProceedToPayment} />;
         /* fall through */
       case 'contacts':
         contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo} />;
