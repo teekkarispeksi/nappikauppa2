@@ -11,7 +11,7 @@ var Seat = React.createClass({
     var url;
     var onClick = this.props.onClick;
 
-    var prices = _.values(_.mapObject(this.props.seat.prices, function(price) { return price.price; })).join('/');
+    var prices = _.pluck(this.props.seat.prices, 'price').join('/');
 
     if (this.props.status === 'reserved') {
       url = this.img_reserved;

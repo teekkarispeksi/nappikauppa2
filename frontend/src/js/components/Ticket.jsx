@@ -15,9 +15,9 @@ var Ticket = React.createClass({
       <li key={seat.id}>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}
         <a className='removeSeat' onClick={this.props.onRemove.bind(null, seat)}>[X]</a>
         <select disabled={!this.props.active} onChange={this.onChange} value={this.props.ticket.get('discount_group')}>
-          {_.values(_.mapObject(seat.prices, function(group, id) {
-            return (<option key={id} value={id}>{group.title} : {group.price}</option>);
-          }))}
+          {_.map(seat.prices, function(group) {
+            return (<option key={group.id} value={group.id}>{group.title} : {group.price}</option>);
+          })}
         </select>
       </li>
     );

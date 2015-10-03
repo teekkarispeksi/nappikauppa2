@@ -26,9 +26,9 @@ var show = {
           show.sections = _.mapObject(sections, function(sectionRows) {
             var basePrice = sectionRows[0].price;
             var section = {section_id: sectionRows[0].section_id};
-            var groups = _.indexBy(sectionRows, 'discount_group_id');
-            section.discount_groups = _.mapObject(groups, function(groupRow) {
+            section.discount_groups = _.map(sectionRows, function(groupRow) {
               return {
+                'id': groupRow.discount_group_id,
                 'title': groupRow.discount_group_title,
                 'price': basePrice - groupRow.discount_group_discount
               };
