@@ -142,12 +142,15 @@ var Store = React.createClass({
 
   onProceedToPayment: function() {
     this.setState({paymentBegun: true});
-    var store = this;
-    this.order.preparePayment(function(res) {
-      window.location.href = res.url;
-    }, function(res) {
-      store.setState({page: 'seats', paymentBegun: false});
-    });
+
+    $.post(this.order.urlRoot + '/' + this.order.get('id') + '/preparePayment',
+      function(res) {
+        if (res.err) {
+          this.setState({page: 'seats', paymentBegun: false});
+        } else {
+          window.location.href = res.url;
+        }
+      }.bind(this));
   },
 
   helpText: function() {

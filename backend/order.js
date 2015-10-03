@@ -138,7 +138,6 @@ var order = {
   },
 
   preparePayment: function(order_id, cb) {
-    var _this = this;
     db.query('update nk2_orders set status = "payment-pending" where id = :order_id',
       {order_id: order_id},
       function(err, res) {
@@ -147,7 +146,7 @@ var order = {
           return;
         }
 
-        _this.get(order_id, function(order) {
+        this.get(order_id, function(order) {
           var ticket_rows = _.map(order.tickets, function(ticket) {
             return {
               'title': 'Pääsylippu: ' + config.title + ' / ' + ticket.show_title,
@@ -203,7 +202,7 @@ var order = {
             cb({url: body.url});
           });
         });
-      });
+      }.bind(this));
   },
 
   paymentCancelled: function(order_id, params, cb) {
