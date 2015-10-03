@@ -4,6 +4,7 @@ var config = require('../config/config.js');
 var db = require('./db.js');
 var md5 = require('md5');
 var request = require('request');
+var uuid = require('uuid');
 var _ = require('underscore');
 
 var order = {
@@ -32,12 +33,12 @@ var order = {
           // Blargh. We want to do multiple inserts in a single query AND have one value resolved
           // within the query, so need to hack a bit
           var query_start = 'insert into nk2_tickets \
-            (order_id, show_id, seat_id, discount_group_id, price) \
+            (order_id, show_id, seat_id, discount_group_id, hash, price) \
             values ';
 
           // db.format() escapes everything properly
           var insert_values = seats.map(function(e) {
-            return db.format('(:order_id, :show_id, :seat_id, :discount_group_id, \
+            return db.format('(:order_id, :show_id, :seat_id, :discount_group_id, :hash, \
               (select price from nk2_prices \
                 where show_id = :show_id \
                   and section_id = (select section_id from nk2_seats where id = :seat_id)) \
@@ -45,7 +46,8 @@ var order = {
               order_id: order_id,
               show_id: show_id,
               seat_id: e.seat.id,
-              discount_group_id: null
+              discount_group_id: null,
+              hash: uuid.v4()
             });
           });
 
