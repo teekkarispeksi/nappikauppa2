@@ -138,65 +138,71 @@ var order = {
   },
 
   preparePayment: function(order_id, cb) {
-    db.query('update nk2_orders set status = "payment-pending" where id=:order_id',
-      {order_id: order_id});
+    db.query('update nk2_orders set status = "payment-pending" where id = :order_id',
+      {order_id: order_id},
+      function(err, res) {
+        if (err || res.changedRows !== 1) {
+          cb({err: true});
+          return;
+        }
 
-    this.get(order_id, function(order) {
-      var ticket_rows = _.map(order.tickets, function(ticket) {
-        return {
-          'title': 'Pääsylippu: ' + config.title + ' / ' + ticket.show_title,
-          'code': ticket.ticket_id,
-          'amount': '1.00',
-          'price': ticket.ticket_price,
-          'vat': '0.00',
-          'discount': '0.00', // No discounts here. Price includes everything.
-          'type': '1'
-        };
-      });
+        this.get(order_id, function(order) {
+          var ticket_rows = _.map(order.tickets, function(ticket) {
+            return {
+              'title': 'Pääsylippu: ' + config.title + ' / ' + ticket.show_title,
+              'code': ticket.ticket_id,
+              'amount': '1.00',
+              'price': ticket.ticket_price,
+              'vat': '0.00',
+              'discount': '0.00', // No discounts here. Price includes everything.
+              'type': '1'
+            };
+          });
 
-      var payment = {
-        'orderNumber': order_id,
-        'currency': 'EUR',
-        'locale': 'fi_FI',
-        'urlSet': {
-          'success': config.base_url + '/api/orders/' + order_id + '/success',
-          'failure': config.base_url + '/api/orders/' + order_id + '/failure',
-          'notification': config.base_url + '/api/orders/' + order_id + '/notification',
-        },
-        'orderDetails': {
-          'includeVat': '1',
-          'contact': {
-            'email': order.email,
-            'firstName': order.name,
-            'lastName': ' ', // these one-space-only fields are required by Paytrail, must be non-empty
-            'address': {
-              'street': ' ',
-              'postalCode': ' ',
-              'postalOffice': ' ',
-              'country': 'FI'
+          var payment = {
+            'orderNumber': order_id,
+            'currency': 'EUR',
+            'locale': 'fi_FI',
+            'urlSet': {
+              'success': config.base_url + '/api/orders/' + order_id + '/success',
+              'failure': config.base_url + '/api/orders/' + order_id + '/failure',
+              'notification': config.base_url + '/api/orders/' + order_id + '/notification',
+            },
+            'orderDetails': {
+              'includeVat': '1',
+              'contact': {
+                'email': order.email,
+                'firstName': order.name,
+                'lastName': ' ', // these one-space-only fields are required by Paytrail, must be non-empty
+                'address': {
+                  'street': ' ',
+                  'postalCode': ' ',
+                  'postalOffice': ' ',
+                  'country': 'FI'
+                }
+              },
+              'products': ticket_rows
             }
-          },
-          'products': ticket_rows
-        }
-      };
+          };
 
-      request({
-        uri: 'https://payment.paytrail.com/api-payment/create',
-        method: 'POST',
-        json: true,
-        body: payment,
-        headers: {
-          'X-Verkkomaksut-Api-Version': '1'
-        },
-        auth: {
-          'user': config.paytrail.user,
-          'password': config.paytrail.password,
-          'sendImmediately': true
-        }
-      }, function(err, response, body) {
-        cb({url: body.url});
-      });
-    });
+          request({
+            uri: 'https://payment.paytrail.com/api-payment/create',
+            method: 'POST',
+            json: true,
+            body: payment,
+            headers: {
+              'X-Verkkomaksut-Api-Version': '1'
+            },
+            auth: {
+              'user': config.paytrail.user,
+              'password': config.paytrail.password,
+              'sendImmediately': true
+            }
+          }, function(err, response, body) {
+            cb({url: body.url});
+          });
+        });
+      }.bind(this));
   },
 
   paymentCancelled: function(order_id, params, cb) {

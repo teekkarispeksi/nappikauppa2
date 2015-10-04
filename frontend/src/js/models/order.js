@@ -9,14 +9,6 @@ var Order = Backbone.Model.extend({
   defaults: {
     name: '',
     email: ''
-  },
-
-  preparePayment: function() {
-    // TODO: untested, I was offline when writing this, and connection is needed for paytrail
-    $.post(this.urlRoot + '/' + this.get('id') + '/preparePayment',
-      function(res) {
-        window.location.href = res.url;
-      });
   }
 });
 

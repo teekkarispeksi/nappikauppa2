@@ -147,7 +147,15 @@ var Store = React.createClass({
 
   onProceedToPayment: function() {
     this.setState({paymentBegun: true});
-    this.order.preparePayment();
+
+    $.post(this.order.urlRoot + '/' + this.order.get('id') + '/preparePayment',
+      function(res) {
+        if (res.err) {
+          this.setState({page: 'seats', paymentBegun: false});
+        } else {
+          window.location.href = res.url;
+        }
+      }.bind(this));
   },
 
   helpText: function() {
