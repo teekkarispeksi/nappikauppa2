@@ -30,8 +30,14 @@ var ShoppingCart = React.createClass({
     }
 
     var timer;
-    if (this.props.timeLeft) {
-      timer = (<span>{this.props.timeLeft.getMinutes()}:{this.props.timeLeft.getSeconds()}</span>);
+    if (this.props.reservationExpirationTime) {
+      var et = this.props.reservationExpirationTime;
+      var secs = et.getSeconds();
+      var mins = et.getMinutes();
+      mins = mins < 10 ? '0' + mins : mins;
+      secs = secs < 10 ? '0' + secs : secs;
+      var time = et.getHours() + ':' + mins + ':' + secs;
+      timer = (<span>Varauksesi on voimassa {time} asti</span>);
     }
 
     return (

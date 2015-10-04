@@ -52,25 +52,16 @@ var Store = React.createClass({
   },
 
   componentWillUnmount: function() {
-    clearInterval(this.timer);
+    clearTimeout(this.timer);
   },
 
-  getExpirationTime: function() {
-    return new Date(Date.now() + EXPIRATION_IN_MINUTES * 60 * 1000);
-  },
-
-  updateTimer: function() {
-    if (this.state.reservationExpirationTime < Date.now()) {
-      clearInterval(this.timer);
-      this.setState({page: 'seats', reservationExpirationTime: null, reservationHasExpired: true});
-    } else {
-      this.forceUpdate();
-    }
+  onTimeout: function() {
+    this.setState({page: 'seats', reservationExpirationTime: null, reservationHasExpired: true});
   },
 
   startTimer: function() {
-    this.timer = setInterval(this.updateTimer, 1000);
-    this.setState({reservationExpirationTime: this.getExpirationTime(), reservationHasExpired: false});
+    this.timer = setTimeout(this.onTimeout, EXPIRATION_IN_MINUTES * 60 * 1000);
+    this.setState({reservationExpirationTime: new Date(Date.now() + EXPIRATION_IN_MINUTES * 60 * 1000), reservationHasExpired: false});
   },
 
   updateSeatStatus: function(showid) {
@@ -171,7 +162,7 @@ var Store = React.createClass({
   },
 
   onProceedToPayment: function() {
-    clearInterval(this.timer);
+    clearTimeout(this.timer);
     this.setState({paymentBegun: true, reservationExpirationTime: null});
 
     $.post(this.order.urlRoot + '/' + this.order.get('id') + '/preparePayment',
@@ -217,14 +208,10 @@ var Store = React.createClass({
       case 'seats':
         seatSelectorElem = <SeatSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked} show={this.state.show} seats={this.seats} />;
         if (this.tickets.length > 0) {
-          var timeLeft = null;
-          if (this.state.reservationExpirationTime) {
-            timeLeft = new Date(this.state.reservationExpirationTime - Date.now());
-          }
           shoppingCartElem = <ShoppingCart
             tickets={this.tickets}
             active={this.state.page === 'seats'}
-            timeLeft={timeLeft}
+            reservationExpirationTime={this.state.reservationExpirationTime}
             reservationHasExpired={this.state.reservationHasExpired}
             onReserveTickets={this.onReserveTickets}
             onSeatClicked={this.onSeatClicked}
