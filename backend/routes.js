@@ -4,6 +4,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var router = express.Router();
 
+var discountCode = require('./discountCode.js');
 var order = require('./order.js');
 var show = require('./show.js');
 var venue = require('./venue.js');
@@ -13,6 +14,10 @@ var jsonParser = bodyParser.json();
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
+});
+
+router.get('/discountCode/:code', function(req, res) {
+  discountCode.check(req.params.code, function(data) { res.json(data); });
 });
 
 router.get('/shows/', function(req, res) {
@@ -37,7 +42,7 @@ router.post('/shows/:showid/reserveSeats', jsonParser, function(req, res) {
 });
 
 router.patch('/orders/:orderid', jsonParser, function(req, res) {
-  order.createOrder(req.body.id, req.body, function(data) { res.json(data); });
+  order.updateContact(req.body.id, req.body, function(data) { res.json(data); });
 });
 
 router.post('/orders/:orderid/preparePayment', function(req, res) {

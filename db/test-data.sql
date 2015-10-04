@@ -29,6 +29,7 @@ insert into nk2_shows (title, venue_id, time, active, inactivate_time, descripti
     ('Turku, Sigyn-sali',         7, '2080-04-01 18:00:00', true, '2080-04-01 15:00:00', '<p>Näytös järjestetään Sigyn-salissa, Linnankatu 60. Teatteri perii eteispalvelumaksun.');
 
 insert into nk2_discount_groups (show_id, title, eur, admin_only, active) values
+    (null, 'Normaalilippu', 0, false, true),
     (null, 'Opiskelija', 4, false, true),
     (null, 'Ilmaislippu', 999, true, true),
     (1, 'Erikoislippu', 2, false, true),
@@ -579,10 +580,10 @@ insert into nk2_orders (name, email, discount_code, time, price, payment_id, res
     (null, null, null, '2015-03-15 13:39:22', null, null, '2017-01-01', 'xyz', 'seats-reserved');
 
 insert into nk2_tickets (order_id, show_id, seat_id, discount_group_id, hash, price, used_time) values
-    (1, 1, 2, null, '0123456789', 18.00, null),
-    (2, 1, 3, null, 'abcdef', 14.00, null),
-    (2, 1, 1, null, 'free!', 0.00, null),
-    (3, 2, null, 4, 'unnumbered', 14.00, null);
+    (1, 1, 2, 1, '0123456789', 18.00, null),
+    (2, 1, 3, 2, 'abcdef', 14.00, null),
+    (2, 1, 1, 4, 'free!', 0.00, null),
+    (3, 2, 10, 1, 'unnumbered', 14.00, null);
 
 
 commit;

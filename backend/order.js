@@ -2,6 +2,7 @@
 
 var config = require('../config/config.js');
 var db = require('./db.js');
+var mail = require('./mail.js');
 var md5 = require('md5');
 var request = require('request');
 var uuid = require('uuid');
@@ -46,7 +47,7 @@ var order = {
               order_id: order_id,
               show_id: show_id,
               seat_id: e.seat.id,
-              discount_group_id: null,
+              discount_group_id: e.discount_group_id,
               hash: uuid.v4()
             });
           });
@@ -71,17 +72,16 @@ var order = {
     }); // pfft, that was a terrible callback-chain
   },
 
-  createOrder: function(order_id, data, cb) {
+  updateContact: function(order_id, data, cb) {
     // make falsy to be a real NULL
-    if (!data['discount_code']) {
-      data['discount_code'] = null;
+    if (!data.discount_code) {
+      data.discount_code = null;
     }
 
     db.query('update nk2_orders set \
         name = :name, \
         email = :email, \
-        discount_code = :discount_code, \
-        status = "payment-pending" \
+        discount_code = :discount_code \
       where id = :id',
       data,
       function(err, res) {
@@ -139,62 +139,71 @@ var order = {
   },
 
   preparePayment: function(order_id, cb) {
-    this.get(order_id, function(order) {
-      var ticket_rows = _.map(order.tickets, function(ticket) {
-        return {
-          'title': 'Pääsylippu: ' + config.title + ' / ' + ticket.show_title,
-          'code': ticket.ticket_id,
-          'amount': '1.00',
-          'price': ticket.ticket_price,
-          'vat': '0.00',
-          'discount': '0.00', // No discounts here. Price includes everything.
-          'type': '1'
-        };
-      });
+    db.query('update nk2_orders set status = "payment-pending" where id = :order_id',
+      {order_id: order_id},
+      function(err, res) {
+        if (err || res.changedRows !== 1) {
+          cb({err: true});
+          return;
+        }
 
-      var payment = {
-        'orderNumber': order_id,
-        'currency': 'EUR',
-        'locale': 'fi_FI',
-        'urlSet': {
-          'success': config.base_url + '/api/orders/' + order_id + '/success',
-          'failure': config.base_url + '/api/orders/' + order_id + '/failure',
-          'notification': config.base_url + '/api/orders/' + order_id + '/notification',
-        },
-        'orderDetails': {
-          'includeVat': '1',
-          'contact': {
-            'email': order.email,
-            'firstName': order.name,
-            'lastName': ' ', // these one-space-only fields are required by Paytrail, must be non-empty
-            'address': {
-              'street': ' ',
-              'postalCode': ' ',
-              'postalOffice': ' ',
-              'country': 'FI'
+        this.get(order_id, function(order) {
+          var ticket_rows = _.map(order.tickets, function(ticket) {
+            return {
+              'title': 'Pääsylippu: ' + config.title + ' / ' + ticket.show_title,
+              'code': ticket.ticket_id,
+              'amount': '1.00',
+              'price': ticket.ticket_price,
+              'vat': '0.00',
+              'discount': '0.00', // No discounts here. Price includes everything.
+              'type': '1'
+            };
+          });
+
+          var payment = {
+            'orderNumber': order_id,
+            'currency': 'EUR',
+            'locale': 'fi_FI',
+            'urlSet': {
+              'success': config.base_url + '/api/orders/' + order_id + '/success',
+              'failure': config.base_url + '/api/orders/' + order_id + '/failure',
+              'notification': config.base_url + '/api/orders/' + order_id + '/notification',
+            },
+            'orderDetails': {
+              'includeVat': '1',
+              'contact': {
+                'email': order.email,
+                'firstName': order.name,
+                'lastName': ' ', // these one-space-only fields are required by Paytrail, must be non-empty
+                'address': {
+                  'street': ' ',
+                  'postalCode': ' ',
+                  'postalOffice': ' ',
+                  'country': 'FI'
+                }
+              },
+              'products': ticket_rows
             }
-          },
-          'products': ticket_rows
-        }
-      };
+          };
 
-      request({
-        uri: 'https://payment.paytrail.com/api-payment/create',
-        method: 'POST',
-        json: true,
-        body: payment,
-        headers: {
-          'X-Verkkomaksut-Api-Version': '1'
-        },
-        auth: {
-          'user': config.paytrail.user,
-          'password': config.paytrail.password,
-          'sendImmediately': true
-        }
-      }, function(err, response, body) {
-        cb({url: body.url});
-      });
-    });
+          request({
+            uri: 'https://payment.paytrail.com/api-payment/create',
+            method: 'POST',
+            json: true,
+            body: payment,
+            headers: {
+              'X-Verkkomaksut-Api-Version': '1'
+            },
+            auth: {
+              'user': config.paytrail.user,
+              'password': config.paytrail.password,
+              'sendImmediately': true
+            }
+          }, function(err, response, body) {
+            cb({url: body.url});
+          });
+        });
+      }.bind(this));
   },
 
   paymentCancelled: function(order_id, params, cb) {
@@ -238,9 +247,10 @@ var order = {
             }
 
             db.commit();
+            this.sendTickets(order_id);
             cb(res);
-          });
-      });
+          }.bind(this));
+      }.bind(this));
     } else {
       console.log('ERRR');
       console.log('I calculated a hash of', verification_hash);
@@ -249,6 +259,21 @@ var order = {
       // Something went terribly wrong
       // TODO: how to propagate these errors
     }
+  },
+
+  sendTickets: function(order_id) {
+    this.get(order_id, function(order) {
+      mail.sendMail({
+        from: config.email.from,
+        to: order.email,
+        subject: 'Lippu!',
+        text: 'hello there :)'
+      }, function(error, info) {
+        if (error) {
+          console.log(error);
+        }
+      });
+    });
   }
 };
 

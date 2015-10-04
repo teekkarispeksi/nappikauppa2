@@ -21,6 +21,7 @@ var Router = require('../router.js');
 
 // TODO: get this from backend, as it should match as closely as possible to backend's timer
 var EXPIRATION_IN_MINUTES = 15;
+var DISCOUNT_GROUP_DEFAULT = 1;
 
 var Store = React.createClass({
   shows: new Shows(),
@@ -78,9 +79,12 @@ var Store = React.createClass({
       success: function(response, status) {
         var sections = _.values(this.venue.get('sections'));
         this.seats = _.flatten(sections.map(function(section) {
+          var prices = this.state.show.get('sections')[section.id].discount_groups;
           return _.values(section.seats).map(function(seat) {
+            seat.section_id = section.id;
             seat.section_title = section.title;
             seat.row_name = section.row_name;
+            seat.prices = prices;
             if (seat.is_bad) {
               seat.status = 'bad';
             } else if (_.indexOf(response.reserved_seats,seat.id) >= 0) {
@@ -90,7 +94,7 @@ var Store = React.createClass({
             }
             return seat;
           });
-        }));
+        }.bind(this)));
         this.forceUpdate();
       }.bind(this)
     });
@@ -129,7 +133,7 @@ var Store = React.createClass({
       this.tickets.remove(ticket);
       this.seats[_.indexOf(this.seats, ticket.get('seat'))].status = 'free';
     } else {
-      this.tickets.add(new Ticket({seat: seat}));
+      this.tickets.add(new Ticket({seat: seat, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
       this.seats[_.indexOf(this.seats, seat)].status = 'chosen';
     }
     this.forceUpdate();
@@ -169,7 +173,15 @@ var Store = React.createClass({
   onProceedToPayment: function() {
     clearInterval(this.timer);
     this.setState({paymentBegun: true, reservationExpirationTime: null});
-    this.order.preparePayment();
+
+    $.post(this.order.urlRoot + '/' + this.order.get('id') + '/preparePayment',
+      function(res) {
+        if (res.err) {
+          this.setState({page: 'seats', paymentBegun: false});
+        } else {
+          window.location.href = res.url;
+        }
+      }.bind(this));
   },
 
   helpText: function() {
