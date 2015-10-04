@@ -262,7 +262,7 @@ var order = {
         to: order.email,
         subject: 'Lippu!',
         text: 'hello there :)'
-      }, function(error, info){
+      }, function(error, info) {
         if (error) {
           console.log(error);
         }
