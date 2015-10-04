@@ -51,20 +51,29 @@ gulp.task('img', function() {
   .pipe(gulp.dest('./frontend/build/public/img/'));
 });
 
-gulp.task('css', function() {
-  return gulp.src('./frontend/src/css/*.less')
+gulp.task('css:store', function() {
+  return gulp.src(['./frontend/src/css/*.less', '!./frontend/src/css/admin*.less'])
       .pipe(less())
       .pipe(concat('style.css'))
       .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
+gulp.task('css:admin', function() {
+  return gulp.src('./frontend/src/css/admin*.less')
+      .pipe(less())
+      .pipe(concat('admin.css'))
+      .pipe(gulp.dest('./frontend/build/public/css/'));
+});
+
 gulp.task('css:min', function() {
-  gulp.src('./frontend/src/css/*.less')
+  gulp.src(['./frontend/src/css/*.less', '!./frontend/src/css/admin*.less'])
       .pipe(less())
       .pipe(concat('style.css'))
       .pipe(cssmin())
       .pipe(gulp.dest('./frontend/build/public/css/'));
 });
+
+gulp.task('css', ['css:store', 'css:admin']);
 
 gulp.task('lint', function() {
   return gulp.src('frontend/src/**/*.{js,jsx}') // lint reactified JS
@@ -76,7 +85,7 @@ gulp.task('lint', function() {
   .pipe(jshint.reporter('jshint-stylish'));
 });
 
-gulp.task('js', ['lint'], function() {
+gulp.task('js:store', ['lint'], function() {
   return browserify('./frontend/src/js/App.jsx')
   .transform(reactify)
   .bundle()
@@ -90,6 +99,22 @@ gulp.task('js', ['lint'], function() {
   .pipe(gulp.dest('./frontend/build/public/js/'));
 });
 
+gulp.task('js:admin', function() {
+  return browserify('./frontend/src/js-admin/AdminApp.jsx')
+  .transform(reactify)
+  .bundle()
+  .on('error', function(err) {
+    notify.onError({
+      message: '<%= error.message %>'
+    }).apply(this, arguments);
+    this.emit('end');
+  })
+  .pipe(source('adminApp.js'))
+  .pipe(gulp.dest('./frontend/build/public/js/'));
+});
+
+gulp.task('js', ['js:store', 'js:admin']);
+
 gulp.task('js:min', function() {
   return browserify('./frontend/src/js/App.jsx')
   .transform(reactify)
@@ -102,7 +127,13 @@ gulp.task('js:min', function() {
 
 gulp.task('index', function() {
   return gulp.src('./frontend/src/index.html')
-      .pipe(inject(gulp.src('./public/**/*.{css,js}', {read: false, cwd: './frontend/build/'})))
+      .pipe(inject(gulp.src(['./public/**/*.{css,js}', '!./public/**/admin*'], {read: false, cwd: './frontend/build/'})))
+      .pipe(gulp.dest('./frontend/build/'));
+});
+
+gulp.task('admin', function() {
+  return gulp.src('./frontend/src/admin.html')
+      .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: './frontend/build/'})))
       .pipe(gulp.dest('./frontend/build/'));
 });
 
@@ -119,17 +150,18 @@ gulp.task('build', function(cb) {
   runSequence(
     ['clean'],
     ['css', 'js', 'img'],
-    ['index'],
+    ['index', 'admin'],
     cb);
 });
 
 gulp.task('start', function() {
   startExpress();
   startLivereload();
-  gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index']);
-  gulp.watch('frontend/src/js/**/*.{js,jsx}', ['js', 'index']);
+  gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index', 'admin']);
+  gulp.watch('frontend/src/js*/**/*.{js,jsx}', ['js', 'index', 'admin']);
   gulp.watch('frontend/src/img/**/*.{jpg,gif,png}', ['img']);
   gulp.watch('frontend/src/index.html', ['index']);
+  gulp.watch('frontend/src/admin.html', ['admin']);
   gulp.watch('frontend/build/**/*.{html,css,js,jpg,gif,png}', notifyLivereload);
 });
 
