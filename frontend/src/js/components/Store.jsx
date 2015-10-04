@@ -112,7 +112,9 @@ var Store = React.createClass({
     this.setState({
       page: 'seats',
       showid: showid,
-      show: show
+      show: show,
+      reservationExpirationTime: null,
+      reservationHasExpired: null
     });
     Router.navigate('show/' + showid, {trigger: false});
   },
