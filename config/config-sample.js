@@ -18,5 +18,8 @@ module.exports = {
     paytrail: {
         user: '13466',
         password: '6pKF4jkv97zmqBJ3ZL8gUw5DfT2NMQ'
+    },
+    confluence_auth: {
+        url: 'http://localhost:3010/groups/'
     }
 }

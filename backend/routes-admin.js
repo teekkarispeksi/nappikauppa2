@@ -11,7 +11,6 @@ var venue = require('./venue.js');
 
 var jsonParser = bodyParser.json();
 
-// TODO all of these need auth
 router.get('/orders', function(req, res) {
   var responseFunc = function(data) { res.json(data); };
   if (req.query.showid) {
