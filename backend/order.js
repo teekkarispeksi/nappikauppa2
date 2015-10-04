@@ -138,6 +138,24 @@ var order = {
       });
   },
 
+  getAll: function(cb) {
+    db.query('select * from nk2_orders orders',
+      function(err, rows) {
+        cb(rows);
+      });
+  },
+
+  getAllForShow: function(showid, cb) {
+    db.query('select distinct orders.* \
+      from nk2_orders orders \
+        join nk2_tickets tickets on tickets.order_id = orders.id \
+      where tickets.show_id = :showid',
+      {showid: showid},
+      function(err, rows) {
+        cb(rows);
+      });
+  },
+
   preparePayment: function(order_id, cb) {
     db.query('update nk2_orders set status = "payment-pending" where id = :order_id',
       {order_id: order_id},
