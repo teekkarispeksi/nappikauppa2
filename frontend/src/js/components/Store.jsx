@@ -68,6 +68,7 @@ var Store = React.createClass({
 
   startTimer: function() {
     this.timer = setInterval(this.updateTimer, 1000);
+    this.setState({reservationExpirationTime: this.getExpirationTime(), reservationHasExpired: false});
   },
 
   updateSeatStatus: function(showid) {
@@ -121,7 +122,7 @@ var Store = React.createClass({
   },
 
   onSeatClicked: function(seat) {
-    this.setState({page: 'seats', reservationExpirationTime: null, reservationHasExpired: false});
+    this.setState({page: 'seats', reservationHasExpired: false});
     var ticket = this.tickets.findWhere({seat: seat});
     if (ticket) {
       this.tickets.remove(ticket);
@@ -139,7 +140,7 @@ var Store = React.createClass({
         success: function(response) {
           this.order = new Order({id: response.order_id});
           this.startTimer();
-          this.setState({page: 'contacts', reservationExpirationTime: this.getExpirationTime(), reservationHasExpired: false});
+          this.setState({page: 'contacts'});
         }.bind(this),
         error: function(model, response) {
           console.log('seat reservation failed');
@@ -201,7 +202,7 @@ var Store = React.createClass({
         contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo} />;
         /* fall through */
       case 'seats':
-        seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} seats={this.seats} />;
+        seatSelectorElem = <SeatSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked} show={this.state.show} seats={this.seats} />;
         if (this.tickets.length > 0) {
           var timeLeft = null;
           if (this.state.reservationExpirationTime) {

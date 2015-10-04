@@ -34,7 +34,7 @@ var ShoppingCart = React.createClass({
             var seat = ticket.get('seat');
             return (
               <li key={seat.id}>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}
-                <a className='removeSeat' onClick={this.props.onSeatClicked.bind(null, seat)}>[X]</a></li>
+                {this.props.active ? (<a className='removeSeat' onClick={this.props.onSeatClicked.bind(null, seat)}>[X]</a>) : null}</li>
             );
           }.bind(this))}
         </ul>

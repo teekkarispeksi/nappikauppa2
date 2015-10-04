@@ -19,7 +19,7 @@ var SeatSelector = React.createClass({
         <div style={{position: 'relative'}}>
           <img src='/public/img/venues/venue_1.png' />
           {this.props.seats.map(function(seat) {
-            return <Seat seat={seat} status={seat.status} key={seat.id} onClick={this.props.onSeatClicked.bind(null, seat)} />;
+            return <Seat seat={seat} status={seat.status} key={seat.id} onClick={this.props.active ? this.props.onSeatClicked.bind(null, seat) : null} />;
           }.bind(this))}
         </div>
       </div>
