@@ -30,8 +30,8 @@ var Seat = React.createClass({
         key={this.props.seat.id}
         data-id={this.props.seat.id}
         style={{
-          top: parseInt(this.props.seat.y) - 35, // TODO fix the offset in DB - this is Aleksanteri-specific
-          left: parseInt(this.props.seat.x) - 12 // TODO fix the offset in DB - this is Aleksanteri-specific
+          top: parseInt(this.props.seat.y),
+          left: parseInt(this.props.seat.x)
         }}
         title={text}>
       </a>
