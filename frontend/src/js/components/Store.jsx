@@ -19,6 +19,8 @@ var Order = require('../models/order.js');
 
 var Router = require('../router.js');
 
+var EXPIRATION_IN_MINUTES = 0.2;
+
 var Store = React.createClass({
   shows: new Shows(),
   tickets: new Tickets(),
@@ -47,8 +49,25 @@ var Store = React.createClass({
     });
   },
 
+  componentWillUnmount: function() {
+    clearInterval(this.timer);
+  },
+
   getExpirationTime: function() {
-    return new Date(Date.now() + 15 * 60 * 1000);
+    return new Date(Date.now() + EXPIRATION_IN_MINUTES * 60 * 1000);
+  },
+
+  updateTimer: function() {
+    if (this.state.reservationExpirationTime < Date.now()) {
+      clearInterval(this.timer);
+      this.setState({page: 'seats', reservationExpirationTime: null, reservationHasExpired: true});
+    } else {
+      this.forceUpdate();
+    }
+  },
+
+  startTimer: function() {
+    this.timer = setInterval(this.updateTimer, 1000);
   },
 
   updateSeatStatus: function(showid) {
@@ -102,7 +121,7 @@ var Store = React.createClass({
   },
 
   onSeatClicked: function(seat) {
-    this.setState({page: 'seats', reservationExpirationTime: null});
+    this.setState({page: 'seats', reservationExpirationTime: null, reservationHasExpired: false});
     var ticket = this.tickets.findWhere({seat: seat});
     if (ticket) {
       this.tickets.remove(ticket);
@@ -119,7 +138,8 @@ var Store = React.createClass({
       {url: '/api/shows/' + this.state.showid + '/reserveSeats/',
         success: function(response) {
           this.order = new Order({id: response.order_id});
-          this.setState({page: 'contacts', reservationExpirationTime: this.getExpirationTime()});
+          this.startTimer();
+          this.setState({page: 'contacts', reservationExpirationTime: this.getExpirationTime(), reservationHasExpired: false});
         }.bind(this),
         error: function(model, response) {
           console.log('seat reservation failed');
@@ -145,7 +165,8 @@ var Store = React.createClass({
   },
 
   onProceedToPayment: function() {
-    this.setState({paymentBegun: true});
+    clearInterval(this.timer);
+    this.setState({paymentBegun: true, reservationExpirationTime: null});
     this.order.preparePayment();
   },
 
@@ -182,10 +203,15 @@ var Store = React.createClass({
       case 'seats':
         seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} seats={this.seats} />;
         if (this.tickets.length > 0) {
+          var timeLeft = null;
+          if (this.state.reservationExpirationTime) {
+            timeLeft = new Date(this.state.reservationExpirationTime - Date.now());
+          }
           shoppingCartElem = <ShoppingCart
             tickets={this.tickets}
             active={this.state.page === 'seats'}
-            expirationTime={this.state.reservationExpirationTime}
+            timeLeft={timeLeft}
+            reservationHasExpired={this.state.reservationHasExpired}
             onReserveTickets={this.onReserveTickets}
             onSeatClicked={this.onSeatClicked}
           />;

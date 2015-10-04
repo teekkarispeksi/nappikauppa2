@@ -3,36 +3,6 @@
 var React = require('react');
 
 var ShoppingCart = React.createClass({
-  timer: null,
-  getInitialState: function() {
-    return {};
-  },
-
-  componentWillReceiveProps: function(newProps) {
-    if (newProps.expirationTime) {
-      this.setState({timeLeft: new Date(newProps.expirationTime - Date.now())});
-      this.startTimer();
-    } else {
-      clearInterval(this.timer);
-      this.setState({timeLeft: null});
-    }
-  },
-
-  componentWillMount: function() {
-    this.componentWillReceiveProps(this.props);
-  },
-
-  componentWillUnmount: function() {
-    clearInterval(this.timer);
-  },
-
-  updateTimer: function() {
-    this.setState({timeLeft: new Date(this.props.expirationTime - Date.now())});
-  },
-
-  startTimer: function() {
-    this.timer = setInterval(this.updateTimer, 1000);
-  },
 
   render: function() {
     var tickets = this.props.tickets;
@@ -42,15 +12,19 @@ var ShoppingCart = React.createClass({
       );
     }
 
+    var expirationText;
+    if (this.props.reservationHasExpired) {
+      expirationText = (<span>Varauksesi on rauennut.</span>);
+    }
+
     var reserveTicketsButton;
     if (this.props.active) {
       reserveTicketsButton = (<a id='reserveTickets' onClick={this.props.onReserveTickets}>Varaa liput</a>);
     }
 
     var timer;
-    if (this.state.timeLeft) {
-      var time = this.state.timeLeft;
-      timer = (<span>{time.getMinutes()}:{time.getSeconds()}</span>);
+    if (this.props.timeLeft) {
+      timer = (<span>{this.props.timeLeft.getMinutes()}:{this.props.timeLeft.getSeconds()}</span>);
     }
 
     return (
@@ -64,6 +38,7 @@ var ShoppingCart = React.createClass({
             );
           }.bind(this))}
         </ul>
+        {expirationText}
         {reserveTicketsButton}
         {timer}
       </div>
