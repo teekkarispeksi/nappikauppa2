@@ -19,7 +19,8 @@ var Order = require('../models/order.js');
 
 var Router = require('../router.js');
 
-var EXPIRATION_IN_MINUTES = 0.2;
+// TODO: get this from backend, as it should match as closely as possible to backend's timer
+var EXPIRATION_IN_MINUTES = 15;
 
 var Store = React.createClass({
   shows: new Shows(),
