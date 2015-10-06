@@ -11,9 +11,10 @@ var Ticket = React.createClass({
 
   render: function() {
     var seat = this.props.ticket.get('seat');
+    var remove = this.props.active ? (<a className='removeSeat' onClick={this.props.onRemove.bind(null, seat)}>[X]</a>) : null;
     return (
       <li key={seat.id}>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}
-        <a className='removeSeat' onClick={this.props.onRemove.bind(null, seat)}>[X]</a>
+        {remove}
         <select disabled={!this.props.active} onChange={this.onChange} value={this.props.ticket.get('discount_group')}>
           {_.map(seat.prices, function(group) {
             return (<option key={group.id} value={group.id}>{group.title} : {group.price}</option>);

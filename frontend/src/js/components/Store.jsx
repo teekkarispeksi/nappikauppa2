@@ -19,6 +19,8 @@ var Order = require('../models/order.js');
 
 var Router = require('../router.js');
 
+// TODO: get this from backend, as it should match as closely as possible to backend's timer
+var EXPIRATION_IN_MINUTES = 15;
 var DISCOUNT_GROUP_DEFAULT = 1;
 
 var Store = React.createClass({
@@ -47,6 +49,19 @@ var Store = React.createClass({
         this.forceUpdate();
       }.bind(this)
     });
+  },
+
+  componentWillUnmount: function() {
+    clearTimeout(this.timer);
+  },
+
+  onTimeout: function() {
+    this.setState({page: 'seats', reservationExpirationTime: null, reservationHasExpired: true});
+  },
+
+  startTimer: function() {
+    this.timer = setTimeout(this.onTimeout, EXPIRATION_IN_MINUTES * 60 * 1000);
+    this.setState({reservationExpirationTime: new Date(Date.now() + EXPIRATION_IN_MINUTES * 60 * 1000), reservationHasExpired: false});
   },
 
   updateSeatStatus: function(showid) {
@@ -97,13 +112,15 @@ var Store = React.createClass({
     this.setState({
       page: 'seats',
       showid: showid,
-      show: show
+      show: show,
+      reservationExpirationTime: null,
+      reservationHasExpired: null
     });
     Router.navigate('show/' + showid, {trigger: false});
   },
 
   onSeatClicked: function(seat) {
-    this.setState({page: 'seats'});
+    this.setState({page: 'seats', reservationHasExpired: false});
     var ticket = this.tickets.findWhere({seat: seat});
     if (ticket) {
       this.tickets.remove(ticket);
@@ -120,7 +137,8 @@ var Store = React.createClass({
       {url: '/api/shows/' + this.state.showid + '/reserveSeats/',
         success: function(response) {
           this.order = new Order({id: response.order_id});
-          this.setState({page: 'contacts'}); // setState also forces update
+          this.startTimer();
+          this.setState({page: 'contacts'});
         }.bind(this),
         error: function(model, response) {
           console.log('seat reservation failed');
@@ -146,7 +164,8 @@ var Store = React.createClass({
   },
 
   onProceedToPayment: function() {
-    this.setState({paymentBegun: true});
+    clearTimeout(this.timer);
+    this.setState({paymentBegun: true, reservationExpirationTime: null});
 
     $.post(this.order.urlRoot + '/' + this.order.get('id') + '/preparePayment',
       function(res) {
@@ -189,10 +208,16 @@ var Store = React.createClass({
         contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo} />;
         /* fall through */
       case 'seats':
-        seatSelectorElem = <SeatSelector onSeatClicked={this.onSeatClicked} show={this.state.show} seats={this.seats} />;
+        seatSelectorElem = <SeatSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked} show={this.state.show} seats={this.seats} />;
         if (this.tickets.length > 0) {
-          shoppingCartElem = <ShoppingCart tickets={this.tickets} active={this.state.page === 'seats'} onReserveTickets={this.onReserveTickets}
-            onSeatClicked={this.onSeatClicked} />;
+          shoppingCartElem = <ShoppingCart
+            tickets={this.tickets}
+            active={this.state.page === 'seats'}
+            reservationExpirationTime={this.state.reservationExpirationTime}
+            reservationHasExpired={this.state.reservationHasExpired}
+            onReserveTickets={this.onReserveTickets}
+            onSeatClicked={this.onSeatClicked}
+          />;
         }
     }
 
