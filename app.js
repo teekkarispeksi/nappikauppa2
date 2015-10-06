@@ -10,9 +10,9 @@ var api = require('./backend/routes');
 var adminApi = require('./backend/routes-admin');
 
 var basicAuth = auth.basic({
-    realm: "Nappikauppa v2 - use your speksi-intra account",
+    realm: 'Nappikauppa v2 - use your speksi-intra account',
   }, function(username, password, cb) {
-    confluenceAuth.auth(username, password, '2015', cb);
+    confluenceAuth.auth(username, password, 'lippukauppa-admin', cb);
   }
 );
 
