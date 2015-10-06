@@ -5,6 +5,7 @@ var path = require('path');
 var logger = require('morgan');
 var auth = require('http-auth');
 
+var config = require('./config/config.js');
 var confluenceAuth = require('./backend/confluenceAuth.js');
 var api = require('./backend/routes');
 var adminApi = require('./backend/routes-admin');
@@ -12,7 +13,7 @@ var adminApi = require('./backend/routes-admin');
 var basicAuth = auth.basic({
     realm: 'Nappikauppa v2 - use your speksi-intra account',
   }, function(username, password, cb) {
-    confluenceAuth.auth(username, password, 'lippukauppa-admin', cb);
+    confluenceAuth.auth(username, password, config.confluence_auth.groups.base, cb);
   }
 );
 
