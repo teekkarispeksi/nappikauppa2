@@ -3,20 +3,31 @@
 var express = require('express');
 var path = require('path');
 var logger = require('morgan');
+var auth = require('http-auth');
 
+var config = require('./config/config.js');
+var confluenceAuth = require('./backend/confluenceAuth.js');
 var api = require('./backend/routes');
 var adminApi = require('./backend/routes-admin');
+
+var basicAuth = auth.basic({
+    realm: 'Nappikauppa v2 - use your speksi-intra account',
+  }, function(username, password, cb) {
+    confluenceAuth.auth(username, password, config.confluence_auth.groups.base, cb);
+  }
+);
 
 var app = express();
 
 app.use(logger('dev'));
-
 app.use(require('connect-livereload')());
 
 app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/frontend/build/index.html');
 });
+
+app.all('/admin*', auth.connect(basicAuth));
 app.get('/admin/', function(req, res) {
   res.sendFile(__dirname + '/frontend/build/admin.html');
 });
