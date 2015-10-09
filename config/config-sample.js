@@ -1,5 +1,5 @@
 module.exports = {
-    base_url: 'http://localhost:3000',
+    base_url: 'http://127.0.0.1:3000',
     expire_minutes: 15,
     title: 'Teekkarispeksi 20xx',
     db: {
