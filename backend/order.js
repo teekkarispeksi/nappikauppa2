@@ -82,7 +82,11 @@ var order = {
     db.query('update nk2_orders set \
         name = :name, \
         email = :email, \
-        discount_code = :discount_code \
+        discount_code = :discount_code, \
+        price = (select if(sum(price) - ifnull(d.eur,0) >= 0, sum(price)-ifnull(d.eur,0), 0) \
+          from nk2_tickets t \
+          left join nk2_discount_codes d on d.code = :discount_code \
+          where t.order_id = :id) \
       where id = :id',
       data,
       function(err, res) {
