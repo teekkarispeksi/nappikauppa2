@@ -40,9 +40,10 @@ var order = {
           // db.format() escapes everything properly
           var insert_values = seats.map(function(e) {
             return db.format('(:order_id, :show_id, :seat_id, :discount_group_id, :hash, \
-              (select price from nk2_prices \
-                where show_id = :show_id \
-                  and section_id = (select section_id from nk2_seats where id = :seat_id)) \
+              (select if(p.price >= d.eur, p.price-d.eur, 0) from nk2_prices p \
+                join nk2_discount_groups d on d.id = :discount_group_id\
+                where p.show_id = :show_id \
+                  and p.section_id = (select section_id from nk2_seats where id = :seat_id)) \
             )', {
               order_id: order_id,
               show_id: show_id,
