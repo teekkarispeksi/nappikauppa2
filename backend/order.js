@@ -132,6 +132,7 @@ var order = {
       where orders.id = :id',
       {id: order_id},
       function(err, rows) {
+        console.log(err, rows);
         var first = rows[0];
         var res = _.pick(first, ['order_id', 'name', 'email', 'discount_code', 'time', 'order_price', 'payment_id',
           'reserved_until', 'reserved_session_id', 'status']);
@@ -174,6 +175,10 @@ var order = {
         }
 
         this.get(order_id, function(order) {
+          if (order.order_price < 0.65) {
+            cb({url: config.base_url + '/api/orders/' + order_id + '/success'});
+            return;
+          }
           var ticket_rows = _.map(order.tickets, function(ticket) {
             return {
               'title': 'Pääsylippu: ' + config.title + ' / ' + ticket.show_title,
