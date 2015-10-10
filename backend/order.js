@@ -176,7 +176,7 @@ var order = {
 
         this.get(order_id, function(order) {
           if (order.order_price < 0.65) {
-            cb({url: config.base_url + '/api/orders/' + order_id + '/success'});
+            this.paymentDone(order_id, {PAID: 'free'}, true, function(res) { res = {url: '/#ok'}; cb(res); });
             return;
           }
           var ticket_rows = _.map(order.tickets, function(ticket) {
@@ -245,7 +245,7 @@ var order = {
           }, function(err, response, body) {
             cb({url: body.url});
           });
-        });
+        }.bind(this));
       }.bind(this));
   },
 
@@ -268,11 +268,11 @@ var order = {
     }
   },
 
-  paymentDone: function(order_id, params, cb) {
+  paymentDone: function(order_id, params, skipVerification, cb) {
     var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
     var verification_hash = md5(verification).toUpperCase();
 
-    if (verification_hash === params.RETURN_AUTHCODE) {
+    if (skipVerification || (verification_hash === params.RETURN_AUTHCODE)) {
       db.beginTransaction(function() {
         // TODO create ticket hash ids
         db.query('update nk2_orders set \
