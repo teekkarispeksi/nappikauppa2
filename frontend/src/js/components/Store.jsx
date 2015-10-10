@@ -198,7 +198,7 @@ var Store = React.createClass({
 
       // No breaks -> fallthrough-magic!
       case 'payment':
-        finalConfirmationElem = <FinalConfirmation tickets={this.tickets} paymentBegun={this.state.paymentBegun} onProceedToPayment={this.onProceedToPayment} />;
+        finalConfirmationElem = <FinalConfirmation order={this.order} paymentBegun={this.state.paymentBegun} onProceedToPayment={this.onProceedToPayment} />;
         /* fall through */
       case 'contacts':
         contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo} />;
