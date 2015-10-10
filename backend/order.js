@@ -139,6 +139,9 @@ var order = {
         res.tickets = _.map(rows, function(row) {
           return _.pick(row, ['ticket_id', 'show_id', 'show_title', 'seat_id', 'discount_group_id', 'hash', 'ticket_price', 'used_time']);
         });
+
+        res.tickets_total_price = _.reduce(res.tickets, function(res, ticket) { return res + parseFloat(ticket.ticket_price);}, 0);
+
         cb(res);
       });
   },
@@ -182,6 +185,18 @@ var order = {
               'type': '1'
             };
           });
+          if (order.discount_code && (order.tickets_total_price - order.order_price) > 0) {
+            var discount_row = {
+              'title': 'Alennuskoodi: ' + order.discount_code,
+              'code': order.discount_code,
+              'amount': '1.00',
+              'price': -(order.tickets_total_price - order.order_price),
+              'vat': '0.00',
+              'discount': '0.00',
+              'type': '1'
+            };
+            ticket_rows.push(discount_row);
+          }
 
           var payment = {
             'orderNumber': order_id,

@@ -9,12 +9,9 @@ var FinalConfirmation = React.createClass({
     var numTickets = this.props.order.get('tickets').length;
     var finalPrice = this.props.order.get('order_price');
     var discountCode = this.props.order.get('discount_code');
-    var ticketTotal = finalPrice;
+    var ticketTotal = this.props.order.get('tickets_total_price');
     var discountedTotalEl = null;
     if (discountCode) {
-      ticketTotal = _.reduce(this.props.order.get('tickets'), function(memo, ticket) {
-        return memo + parseFloat(ticket.ticket_price);
-      }, 0);
       discountedTotalEl = (
         <span>
           Alennuskoodi {discountCode}: {ticketTotal - finalPrice} eur<br />
