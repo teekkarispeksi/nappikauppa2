@@ -20,10 +20,13 @@ var plumber = require('gulp-plumber');
 var notify = require('gulp-notify');
 var lr = require('tiny-lr')();
 
+var config = require('./config/config.js');
+
 // from http://rhumaric.com/2014/01/livereload-magic-gulp-style/
 function startExpress() {
   var app = require('./app.js');
-  app.listen(3000);
+  app.use(require('connect-livereload')());
+  app.listen(config.dev_port);
 }
 
 function startLivereload() {
