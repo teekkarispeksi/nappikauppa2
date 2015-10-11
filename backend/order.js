@@ -8,6 +8,9 @@ var request = require('request');
 var uuid = require('uuid');
 var _ = require('underscore');
 
+// Paytrail wants to charge something, so they don't support minimal payments
+var PAYTRAIL_MIN_PAYMENT = 0.65;
+
 var order = {
 
   checkExpired: function(cb) {
@@ -132,7 +135,6 @@ var order = {
       where orders.id = :id',
       {id: order_id},
       function(err, rows) {
-        console.log(err, rows);
         var first = rows[0];
         var res = _.pick(first, ['order_id', 'name', 'email', 'discount_code', 'time', 'order_price', 'payment_id',
           'reserved_until', 'reserved_session_id', 'status']);
@@ -175,7 +177,7 @@ var order = {
         }
 
         this.get(order_id, function(order) {
-          if (order.order_price < 0.65) {
+          if (order.order_price < PAYTRAIL_MIN_PAYMENT) {
             this.paymentDone(order_id, {PAID: 'free'}, true, function(res) { res = {url: '/#ok'}; cb(res); });
             return;
           }
