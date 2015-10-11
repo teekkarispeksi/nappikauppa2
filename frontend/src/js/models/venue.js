@@ -3,7 +3,7 @@
 var Backbone = require('backbone');
 
 var Venue = Backbone.Model.extend({
-  urlRoot: '/api/venues',
+  urlRoot: 'api/venues',
 
   defaults: {
     id: null, // 1

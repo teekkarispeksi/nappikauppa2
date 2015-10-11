@@ -66,7 +66,7 @@ var Store = React.createClass({
 
   updateSeatStatus: function(showid) {
     $.ajax({
-      url: '/api/shows/' + showid + '/reservedSeats',
+      url: 'api/shows/' + showid + '/reservedSeats',
       success: function(response, status) {
         var sections = _.values(this.venue.get('sections'));
         this.seats = _.flatten(sections.map(function(section) {
@@ -134,7 +134,7 @@ var Store = React.createClass({
 
   onReserveTickets: function() {
     Backbone.sync('create', this.tickets,
-      {url: '/api/shows/' + this.state.showid + '/reserveSeats/',
+      {url: 'api/shows/' + this.state.showid + '/reserveSeats/',
         success: function(response) {
           this.order = new Order({id: response.order_id});
           this.startTimer();

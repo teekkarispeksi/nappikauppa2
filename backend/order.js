@@ -215,9 +215,9 @@ var order = {
             'currency': 'EUR',
             'locale': 'fi_FI',
             'urlSet': {
-              'success': config.base_url + '/api/orders/' + order_id + '/success',
-              'failure': config.base_url + '/api/orders/' + order_id + '/failure',
-              'notification': config.base_url + '/api/orders/' + order_id + '/notification',
+              'success': config.base_url + 'api/orders/' + order_id + '/success',
+              'failure': config.base_url + 'api/orders/' + order_id + '/failure',
+              'notification': config.base_url + 'api/orders/' + order_id + '/notification',
             },
             'orderDetails': {
               'includeVat': '1',

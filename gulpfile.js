@@ -130,13 +130,13 @@ gulp.task('js:min', function() {
 
 gulp.task('index', function() {
   return gulp.src('./frontend/src/index.html')
-      .pipe(inject(gulp.src(['./public/**/*.{css,js}', '!./public/**/admin*'], {read: false, cwd: './frontend/build/'})))
+      .pipe(inject(gulp.src(['./public/**/*.{css,js}', '!./public/**/admin*'], {read: false, cwd: './frontend/build/'}), {addRootSlash: false}))
       .pipe(gulp.dest('./frontend/build/'));
 });
 
 gulp.task('admin', function() {
   return gulp.src('./frontend/src/admin.html')
-      .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: './frontend/build/'})))
+      .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: './frontend/build/'}), {addRootSlash: false}))
       .pipe(gulp.dest('./frontend/build/'));
 });
 

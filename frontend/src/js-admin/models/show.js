@@ -3,7 +3,7 @@
 var Backbone = require('backbone');
 
 var Show = Backbone.Model.extend({
-  urlRoot: '/api/shows'
+  urlRoot: 'api/shows'
 });
 
 module.exports = Show;
