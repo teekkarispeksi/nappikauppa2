@@ -1,17 +1,30 @@
 'use strict';
 
 var React = require('react');
+var _ = require('underscore');
 
 var FinalConfirmation = React.createClass({
 
   render: function() {
+    var numTickets = this.props.order.get('tickets').length;
+    var finalPrice = this.props.order.get('order_price');
+    var discountCode = this.props.order.get('discount_code');
+    var ticketTotal = this.props.order.get('tickets_total_price');
+    var discountedTotalEl = null;
+    if (discountCode) {
+      discountedTotalEl = (
+        <span>
+          Alennuskoodi {discountCode}: {ticketTotal - finalPrice} eur<br />
+          Yhteensä {finalPrice} eur<br />
+        </span>
+      );
+
+    }
     return (
       <div className='shopping-stage final-confirmation'>
         Tähän taulukko:<br />
-        Lippuja x kpl, yhteensä y eur<br />
-        Mahdollinen alennuskoodi -z eur<br />
-        Yhteensä xxx eur<br /><br />
-
+        Lippuja {numTickets} kpl, yhteensä {ticketTotal} eur<br />
+        {discountedTotalEl}
         <a id='proceedToPayment' onClick={this.props.paymentBegun ? null : this.props.onProceedToPayment}>Siirry maksamaan</a>
       </div>
     );

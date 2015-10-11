@@ -147,20 +147,16 @@ var Store = React.createClass({
   },
 
   onSaveOrderInfo: function(info) {
-    this.order.set('name', info.name);
-    this.order.set('email', info.email);
-    this.order.set('discount_code', info.discount_code);
-
-    Backbone.sync('patch', this.order,
-      {
-        success: function(response) {
-          this.setState({page: 'payment'});
-        }.bind(this),
-        error: function(response) {
-          console.log('order info saving failed, continuing now anyways'); // TODO
-          this.setState({page: 'payment'});
-        }.bind(this)
-      });
+    // backend assumes id is also an attribute
+    this.order.save({id: this.order.id, name: info.name, email: info.email, discount_code: info.discount_code}, {
+      patch: true,
+      success: function(response) {
+        this.setState({page: 'payment'});
+      }.bind(this),
+      error: function(response) {
+        console.log('order info saving failed'); // TODO
+      }.bind(this)
+    });
   },
 
   onProceedToPayment: function() {
@@ -172,6 +168,9 @@ var Store = React.createClass({
         if (res.err) {
           this.setState({page: 'seats', paymentBegun: false});
         } else {
+          if (res.url[0] === '/') { // when skipping Paytrail
+            this.replaceState(this.getInitialState());
+          }
           window.location.href = res.url;
         }
       }.bind(this));
@@ -202,7 +201,7 @@ var Store = React.createClass({
 
       // No breaks -> fallthrough-magic!
       case 'payment':
-        finalConfirmationElem = <FinalConfirmation tickets={this.tickets} paymentBegun={this.state.paymentBegun} onProceedToPayment={this.onProceedToPayment} />;
+        finalConfirmationElem = <FinalConfirmation order={this.order} paymentBegun={this.state.paymentBegun} onProceedToPayment={this.onProceedToPayment} />;
         /* fall through */
       case 'contacts':
         contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo} />;

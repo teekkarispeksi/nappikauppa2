@@ -8,6 +8,9 @@ var request = require('request');
 var uuid = require('uuid');
 var _ = require('underscore');
 
+// Paytrail wants to charge something, so they don't support minimal payments
+var PAYTRAIL_MIN_PAYMENT = 0.65;
+
 var order = {
 
   checkExpired: function(cb) {
@@ -40,9 +43,10 @@ var order = {
           // db.format() escapes everything properly
           var insert_values = seats.map(function(e) {
             return db.format('(:order_id, :show_id, :seat_id, :discount_group_id, :hash, \
-              (select price from nk2_prices \
-                where show_id = :show_id \
-                  and section_id = (select section_id from nk2_seats where id = :seat_id)) \
+              (select if(p.price >= d.eur, p.price-d.eur, 0) from nk2_prices p \
+                join nk2_discount_groups d on d.id = :discount_group_id\
+                where p.show_id = :show_id \
+                  and p.section_id = (select section_id from nk2_seats where id = :seat_id)) \
             )', {
               order_id: order_id,
               show_id: show_id,
@@ -81,7 +85,11 @@ var order = {
     db.query('update nk2_orders set \
         name = :name, \
         email = :email, \
-        discount_code = :discount_code \
+        discount_code = :discount_code, \
+        price = (select if(sum(price) - ifnull(d.eur,0) >= 0, sum(price)-ifnull(d.eur,0), 0) \
+          from nk2_tickets t \
+          left join nk2_discount_codes d on d.code = :discount_code \
+          where t.order_id = :id) \
       where id = :id',
       data,
       function(err, res) {
@@ -134,6 +142,9 @@ var order = {
         res.tickets = _.map(rows, function(row) {
           return _.pick(row, ['ticket_id', 'show_id', 'show_title', 'seat_id', 'discount_group_id', 'hash', 'ticket_price', 'used_time']);
         });
+
+        res.tickets_total_price = _.reduce(res.tickets, function(res, ticket) { return res + parseFloat(ticket.ticket_price);}, 0);
+
         cb(res);
       });
   },
@@ -166,6 +177,15 @@ var order = {
         }
 
         this.get(order_id, function(order) {
+          if (order.order_price < PAYTRAIL_MIN_PAYMENT) {
+            // as we skip Paytrail, we don't get their hash, but we can fake it
+            // TIMESTAMP and METHOD are only used for calculating the hash
+            var params = {PAID: 'free', TIMESTAMP: '',  METHOD: ''};
+            var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
+            params.RETURN_AUTHCODE = md5(verification).toUpperCase();
+            this.paymentDone(order_id, params, function(res) { res = {url: '/#ok'}; cb(res); });
+            return;
+          }
           var ticket_rows = _.map(order.tickets, function(ticket) {
             return {
               'title': 'Pääsylippu: ' + config.title + ' / ' + ticket.show_title,
@@ -177,6 +197,18 @@ var order = {
               'type': '1'
             };
           });
+          if (order.discount_code && (order.tickets_total_price - order.order_price) > 0) {
+            var discount_row = {
+              'title': 'Alennuskoodi: ' + order.discount_code,
+              'code': order.discount_code,
+              'amount': '1.00',
+              'price': -(order.tickets_total_price - order.order_price),
+              'vat': '0.00',
+              'discount': '0.00',
+              'type': '1'
+            };
+            ticket_rows.push(discount_row);
+          }
 
           var payment = {
             'orderNumber': order_id,
@@ -220,7 +252,7 @@ var order = {
           }, function(err, response, body) {
             cb({url: body.url});
           });
-        });
+        }.bind(this));
       }.bind(this));
   },
 
