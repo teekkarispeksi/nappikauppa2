@@ -168,7 +168,7 @@ var Store = React.createClass({
         if (res.err) {
           this.setState({page: 'seats', paymentBegun: false});
         } else {
-          if (res.url[0] === '/') { // when skipping Paytrail
+          if (res.url[0] === '#') { // when skipping Paytrail
             this.replaceState(this.getInitialState());
           }
           window.location.href = res.url;

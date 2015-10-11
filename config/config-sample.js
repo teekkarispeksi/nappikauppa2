@@ -1,7 +1,7 @@
 module.exports = {
     port: 36902, // for production environment
     dev_port: 3000, // for gulp watch
-    base_url: 'http://127.0.0.1:3000',
+    base_url: 'http://127.0.0.1:3000/',
     expire_minutes: 15,
     title: 'Teekkarispeksi 20xx',
     db: {
