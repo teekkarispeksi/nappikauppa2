@@ -178,7 +178,12 @@ var order = {
 
         this.get(order_id, function(order) {
           if (order.order_price < PAYTRAIL_MIN_PAYMENT) {
-            this.paymentDone(order_id, {PAID: 'free'}, true, function(res) { res = {url: '/#ok'}; cb(res); });
+            // as we skip Paytrail, we don't get their hash, but we can fake it
+            // TIMESTAMP and METHOD are only used for calculating the hash
+            var params = {PAID: 'free', TIMESTAMP: '',  METHOD: ''};
+            var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
+            params.RETURN_AUTHCODE = md5(verification).toUpperCase();
+            this.paymentDone(order_id, params, function(res) { res = {url: '/#ok'}; cb(res); });
             return;
           }
           var ticket_rows = _.map(order.tickets, function(ticket) {
@@ -270,11 +275,11 @@ var order = {
     }
   },
 
-  paymentDone: function(order_id, params, skipVerification, cb) {
+  paymentDone: function(order_id, params, cb) {
     var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
     var verification_hash = md5(verification).toUpperCase();
 
-    if (skipVerification || (verification_hash === params.RETURN_AUTHCODE)) {
+    if (verification_hash === params.RETURN_AUTHCODE) {
       db.beginTransaction(function() {
         // TODO create ticket hash ids
         db.query('update nk2_orders set \
