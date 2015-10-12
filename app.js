@@ -20,7 +20,6 @@ var basicAuth = auth.basic({
 var app = express();
 
 app.use(logger('dev'));
-app.use(require('connect-livereload')());
 
 app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));
 app.get('/', function(req, res) {

@@ -4,7 +4,7 @@ var Backbone = require('backbone');
 var $ = require('jquery');
 
 var Order = Backbone.Model.extend({
-  urlRoot: '/api/orders',
+  urlRoot: 'api/orders',
 
   defaults: {
     name: '',

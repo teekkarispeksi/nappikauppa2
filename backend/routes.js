@@ -9,6 +9,8 @@ var order = require('./order.js');
 var show = require('./show.js');
 var venue = require('./venue.js');
 
+var config = require('../config/config.js');
+
 var jsonParser = bodyParser.json();
 
 /* GET users listing. */
@@ -50,11 +52,11 @@ router.post('/orders/:orderid/preparePayment', function(req, res) {
 });
 
 router.get('/orders/:orderid/success', function(req, res) {
-  order.paymentDone(req.params.orderid, req.query, function() { res.redirect('/#ok'); });
+  order.paymentDone(req.params.orderid, req.query, function() { res.redirect(config.public_url + '#ok'); });
 });
 
 router.get('/orders/:orderid/failure', function(req, res) {
-  order.paymentCancelled(req.params.orderid, req.query, function() { res.redirect('/#fail'); });
+  order.paymentCancelled(req.params.orderid, req.query, function() { res.redirect(config.public_url + '#fail'); });
 });
 
 router.get('/venues/:venueid', function(req, res) {

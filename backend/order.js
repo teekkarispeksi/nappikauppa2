@@ -183,7 +183,7 @@ var order = {
             var params = {PAID: 'free', TIMESTAMP: '',  METHOD: ''};
             var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
             params.RETURN_AUTHCODE = md5(verification).toUpperCase();
-            this.paymentDone(order_id, params, function(res) { res = {url: '/#ok'}; cb(res); });
+            this.paymentDone(order_id, params, function(res) { res = {url: '#ok'}; cb(res); });
             return;
           }
           var ticket_rows = _.map(order.tickets, function(ticket) {
@@ -215,9 +215,9 @@ var order = {
             'currency': 'EUR',
             'locale': 'fi_FI',
             'urlSet': {
-              'success': config.base_url + '/api/orders/' + order_id + '/success',
-              'failure': config.base_url + '/api/orders/' + order_id + '/failure',
-              'notification': config.base_url + '/api/orders/' + order_id + '/notification',
+              'success': config.public_url + 'api/orders/' + order_id + '/success',
+              'failure': config.public_url + 'api/orders/' + order_id + '/failure',
+              'notification': config.public_url + 'api/orders/' + order_id + '/notification',
             },
             'orderDetails': {
               'includeVat': '1',

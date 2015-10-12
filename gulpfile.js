@@ -20,10 +20,13 @@ var plumber = require('gulp-plumber');
 var notify = require('gulp-notify');
 var lr = require('tiny-lr')();
 
+var config = require('./config/config.js');
+
 // from http://rhumaric.com/2014/01/livereload-magic-gulp-style/
 function startExpress() {
   var app = require('./app.js');
-  app.listen(3000);
+  app.use(require('connect-livereload')());
+  app.listen(config.port);
 }
 
 function startLivereload() {
@@ -127,13 +130,13 @@ gulp.task('js:min', function() {
 
 gulp.task('index', function() {
   return gulp.src('./frontend/src/index.html')
-      .pipe(inject(gulp.src(['./public/**/*.{css,js}', '!./public/**/admin*'], {read: false, cwd: './frontend/build/'})))
+      .pipe(inject(gulp.src(['./public/**/*.{css,js}', '!./public/**/admin*'], {read: false, cwd: './frontend/build/'}), {addRootSlash: false}))
       .pipe(gulp.dest('./frontend/build/'));
 });
 
 gulp.task('admin', function() {
   return gulp.src('./frontend/src/admin.html')
-      .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: './frontend/build/'})))
+      .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: './frontend/build/'}), {addRootSlash: false}))
       .pipe(gulp.dest('./frontend/build/'));
 });
 

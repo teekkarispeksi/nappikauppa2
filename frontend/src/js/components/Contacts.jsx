@@ -46,7 +46,7 @@ var Contacts = React.createClass({
 
   _checkDiscountCode: function(discount_code) {
     var req = $.ajax({
-      url: '/api/discountCode/' + discount_code,
+      url: 'api/discountCode/' + discount_code,
       async: false
     });
     return JSON.parse(req.responseText).ok === true;
