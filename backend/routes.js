@@ -52,11 +52,11 @@ router.post('/orders/:orderid/preparePayment', function(req, res) {
 });
 
 router.get('/orders/:orderid/success', function(req, res) {
-  order.paymentDone(req.params.orderid, req.query, function() { res.redirect(config.base_url + '#ok'); });
+  order.paymentDone(req.params.orderid, req.query, function() { res.redirect(config.public_url + '#ok'); });
 });
 
 router.get('/orders/:orderid/failure', function(req, res) {
-  order.paymentCancelled(req.params.orderid, req.query, function() { res.redirect(config.base_url + '#fail'); });
+  order.paymentCancelled(req.params.orderid, req.query, function() { res.redirect(config.public_url + '#fail'); });
 });
 
 router.get('/venues/:venueid', function(req, res) {

@@ -26,7 +26,7 @@ var config = require('./config/config.js');
 function startExpress() {
   var app = require('./app.js');
   app.use(require('connect-livereload')());
-  app.listen(config.dev_port);
+  app.listen(config.port);
 }
 
 function startLivereload() {
