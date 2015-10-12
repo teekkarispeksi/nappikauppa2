@@ -4,6 +4,7 @@ var config = require('../config/config.js');
 var db = require('./db.js');
 var log = require('./log.js');
 var mail = require('./mail.js');
+var ticket = require('./ticket.js');
 var md5 = require('md5');
 var request = require('request');
 var uuid = require('uuid');
@@ -361,7 +362,13 @@ var order = {
         from: config.email.from,
         to: order.email,
         subject: 'Lippu!',
-        text: 'hello there :)'
+        text: 'Kiitos tilauksestasi!\n\nNähdään teatterilla!',
+        attachments: [
+          {   // stream as an attachment
+            filename: 'test.pdf',
+            content: ticket.generatePdf()
+          }
+        ]
       }, function(error, info) {
         if (error) {
           log.error('Sending tickets failed', {error: error, order_id: order_id});
