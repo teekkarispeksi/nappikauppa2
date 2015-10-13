@@ -1,6 +1,7 @@
 'use strict';
 
 var db = require('./db.js');
+var log = require('./log.js');
 var _ = require('underscore');
 
 var venue = {
@@ -27,6 +28,10 @@ var venue = {
     WHERE venue.id=:venue_id',
       {venue_id: venue_id},
       function(err, rows, fields) {
+        if(err) {
+          log.error('Getting venue details failed', {venue_id: venue_id});
+          return;
+        }
         var first = rows[0];
         // convert the sql results into a json tree
         // begins with venue info

@@ -20,7 +20,8 @@
     "request": "2.64.0",
     "run-sequence": "^1.1.2",
     "underscore": "^1.8.3",
-    "uuid": "^2.0.1"
+    "uuid": "^2.0.1",
+    "winston": "1.1.0"
   },
   "devDependencies": {
     "browserify": "^11.0.0",

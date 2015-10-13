@@ -1,6 +1,7 @@
 'use strict';
 
 var db = require('./db.js');
+var log = require('./log.js');
 var order = require('./order.js');
 var _ = require('underscore');
 
@@ -18,7 +19,9 @@ var show = {
         and groups.admin_only = false \
         and groups.active = true',
       function(err, rows, fields) {
-        console.log(err);
+        if(err) {
+          log.error('Getting all shows failed', {error: err});
+        }
         var grouped = _.groupBy(rows, 'id');
         var shows = _.mapObject(grouped, function(showRows) {
           var show = _.pick(showRows[0], ['id', 'title', 'venue_id', 'time', 'active', 'inactivate_time', 'description']);
@@ -45,6 +48,10 @@ var show = {
     db.query('select * from nk2_shows where id=:show_id',
       {show_id: show_id},
       function(err, rows, fields) {
+        if(err) {
+          log.error('Getting a show failed', {error: err});
+          return;
+        }
         cb(rows[0]);
       });
   },
@@ -60,7 +67,8 @@ var show = {
         {show_id: show_id},
         function(err, res) {
           if (err) {
-            throw err;
+            log.error('Getting reserved seats failed', {error: err, show_id: show_id});
+            return;
           }
 
           cb({

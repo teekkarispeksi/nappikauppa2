@@ -1,6 +1,8 @@
 'use strict';
 
 var config = require('../config/config.js');
+var log = require('./log.js');
+
 var request = require('request');
 var _ = require('underscore');
 
@@ -16,11 +18,11 @@ var confluenceAuth = {
       if (now - userCache[user].inserted > CACHE_INVALIDATE_MSEC) {
         delete userCache[user];
       } else {
-        console.log('Found',user,'from cache');
         return cb(true);
       }
     }
 
+    log.info('Trying to authenticate', {user: user});
     request({
       uri: config.confluence_auth.url,
       method: 'POST',
@@ -30,18 +32,20 @@ var confluenceAuth = {
       var groups = body;
 
       if (err) {
+        log.error('Got error from auth server', {error: err, user: user});
         return cb(false);
       }
 
       if (!_.contains(groups, requiredGroup)) {
+        log.error('Access denied', {user: user, hasGroups: groups, requiredGroup: requiredGroup});
         return cb(false);
       }
 
-      console.log('Authed as', user);
       userCache[user] = {
         password: password, // a bit insecure, but it's only in memory and for a few minutes
         inserted: new Date()
       };
+      log.info('Authencation successful', {user: user});
       return cb(true);
     });
   }
