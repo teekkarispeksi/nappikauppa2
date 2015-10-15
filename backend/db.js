@@ -1,9 +1,14 @@
 'use strict';
 
 var config = require('../config/config.js');
+var log = require('./log.js');
 var mysql = require('mysql');
 
 var db = mysql.createConnection(config.db);
+
+db.on('error', function(err) {
+  log.error('Database query failed without callbacks', {error: err});
+});
 
 // Use :param style binding instead of question marks
 db.config.queryFormat = function(query, values) {
