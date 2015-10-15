@@ -1,0 +1,6 @@
+# This 'log'-folder has to exist or the winston transports will fail.
+#
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
