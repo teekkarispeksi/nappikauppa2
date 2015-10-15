@@ -19,7 +19,7 @@ var show = {
         and groups.admin_only = false \
         and groups.active = true',
       function(err, rows, fields) {
-        if(err) {
+        if (err) {
           log.error('Getting all shows failed', {error: err});
         }
         var grouped = _.groupBy(rows, 'id');
@@ -48,7 +48,7 @@ var show = {
     db.query('select * from nk2_shows where id=:show_id',
       {show_id: show_id},
       function(err, rows, fields) {
-        if(err) {
+        if (err) {
           log.error('Getting a show failed', {error: err});
           return;
         }

@@ -28,7 +28,7 @@ var venue = {
     WHERE venue.id=:venue_id',
       {venue_id: venue_id},
       function(err, rows, fields) {
-        if(err) {
+        if (err) {
           log.error('Getting venue details failed', {venue_id: venue_id});
           return;
         }

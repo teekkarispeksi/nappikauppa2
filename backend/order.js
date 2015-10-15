@@ -108,7 +108,7 @@ var order = {
 
         // TODO how we should really propagate these errors
         if (res.changedRows !== 1) {
-          errmsg = 'Should have updated one row, updated really ' + res.changedRows + ' rows';
+          var errmsg = 'Should have updated one row, updated really ' + res.changedRows + ' rows';
           log.error(errmsg);
           return cb({
             err: true,
@@ -148,7 +148,7 @@ var order = {
       where orders.id = :id',
       {id: order_id},
       function(err, rows) {
-        if(err) {
+        if (err) {
           log.error('Failed to get order', {order_id: order_id, error: err});
         }
         var first = rows[0];
@@ -168,7 +168,7 @@ var order = {
   getAll: function(cb) {
     db.query('select * from nk2_orders orders',
       function(err, rows) {
-        if(err) {
+        if (err) {
           log.error('Failed to get all orders');
         }
         cb(rows);
@@ -182,7 +182,7 @@ var order = {
       where tickets.show_id = :show_id',
       {show_id: show_id},
       function(err, rows) {
-        if(err) {
+        if (err) {
           log.error('Failed to get orders for a show', {show_id: show_id});
         }
         cb(rows);
@@ -229,7 +229,7 @@ var order = {
 
           if (order.discount_code && (order.tickets_total_price - order.order_price) > 0) {
             var discount_amount = (order.tickets_total_price - order.order_price);
-            log.info('Using discount code', {discount_code: order.discount_code, discount_amount: discount_amount, order_id: order_id})
+            log.info('Using discount code', {discount_code: order.discount_code, discount_amount: discount_amount, order_id: order_id});
             var discount_row = {
               'title': 'Alennuskoodi: ' + order.discount_code,
               'code': order.discount_code,
@@ -283,7 +283,7 @@ var order = {
               'sendImmediately': true
             }
           }, function(err, response, body) {
-            if(err) {
+            if (err) {
               log.error('Got an error from Paytrail', {error: err, response: response, order_id: order_id});
               return;
             }
@@ -337,7 +337,7 @@ var order = {
           },
           function(err, res) {
             if (err) {
-              log.error('Updating payment status failed - rolling back', {error: err, order_id: order_id})
+              log.error('Updating payment status failed - rolling back', {error: err, order_id: order_id});
               db.rollback();
               return;
             }
@@ -355,7 +355,7 @@ var order = {
   },
 
   sendTickets: function(order_id) {
-    log.info('Sending tickets', {order_id: order_id})
+    log.info('Sending tickets', {order_id: order_id});
     this.get(order_id, function(order) {
       mail.sendMail({
         from: config.email.from,
