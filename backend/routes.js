@@ -26,6 +26,7 @@ router.post('/log', jsonParser, function(req, res) {
   } else {
     log.log(req.body.level, req.body.msg);
   }
+  res.end();
 });
 
 router.get('/discountCode/:code', function(req, res) {
