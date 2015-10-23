@@ -40,7 +40,7 @@ var ShoppingCart = React.createClass({
     return (
       <div className='shopping-stage shopping-cart'>
         <h2>Paikkojen varaus <small>3/5</small></h2>
-        <ul>
+        <ul className='list-unstyled'>
           {tickets.map(function(ticket) {
             return (
               <Ticket

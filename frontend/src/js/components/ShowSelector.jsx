@@ -9,7 +9,7 @@ var ShowSelector = React.createClass({
     return (
       <div className='shopping-stage show-selector'>
         <h2>Näytökset <small>1/5</small></h2>
-        <ul>
+        <ul className='list-unstyled'>
           {this.props.shows.map(function(show) {
             var date = new Date(show.get('time'));
             var dateStr = date.getDate() + '.' + date.getMonth() + '.';

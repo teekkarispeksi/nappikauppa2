@@ -63,7 +63,7 @@ var Contacts = React.createClass({
           <Input
             label='Nimi'
             type='text'
-            bsStyle={ _.contains(this.state.errors, 'name') ? ('error') : ('') }
+            bsStyle={ _.contains(this.state.errors, 'name') ? ('error') : null }
             readOnly={!active}
             onChange={this.onValueChange.bind(null, 'name')}
             value={this.state.name} />
@@ -73,7 +73,7 @@ var Contacts = React.createClass({
           <Input
             label='Sähköposti'
             type='text'
-            bsStyle={ _.contains(this.state.errors, 'email') ? ('error') : ('') }
+            bsStyle={ _.contains(this.state.errors, 'email') ? ('error') : null }
             readOnly={!active}
             onChange={this.onValueChange.bind(null, 'email')}
             value={this.state.email} />
@@ -83,7 +83,7 @@ var Contacts = React.createClass({
           <Input
             label='Alennuskoodi'
             type='text'
-            bsStyle={ _.contains(this.state.errors, 'discount_code') ? ('error') : ('') }
+            bsStyle={ _.contains(this.state.errors, 'discount_code') ? ('error') : null }
             readOnly={!active}
             onChange={this.onValueChange.bind(null, 'discount_code')}
             value={this.state.discount_code} />
