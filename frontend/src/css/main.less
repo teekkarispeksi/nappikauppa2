@@ -30,21 +30,26 @@ main {
 a.seat {
   display: block;
   position: absolute;
-  height: 7px;
-  width: 7px;
+  height: 6px;
+  width: 6px;
   background-repeat: no-repeat;
   padding: 0;
   margin: 0;
   border: 0;
+  border-radius: 50%;
 
   &.seat-free {
-    background-image: url("../img/seats/seat_free.gif")
+    background-color: #55CC55;
+    //background-image: url("../img/seats/seat_free.gif")
   }
   &.seat-reserved {
-    background-image: url("../img/seats/seat_reserved.gif")
+    background-color: #555555;
+    //background-image: url("../img/seats/seat_reserved.gif")
   }
   &.seat-chosen {
-    background-image: url("../img/seats/seat_chosen.gif")
+    background-color: #cccc00;
+    border: 1px solid #555555;
+    //background-image: url("../img/seats/seat_chosen.gif")
   }
 }
 
