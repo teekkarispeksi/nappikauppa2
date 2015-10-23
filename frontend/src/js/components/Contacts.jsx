@@ -1,6 +1,8 @@
 'use strict';
 
 var React = require('react');
+var Button = require('react-bootstrap/lib/Button');
+var Input = require('react-bootstrap/lib/Input');
 var _ = require('underscore');
 var $ = require('jquery');
 
@@ -56,34 +58,40 @@ var Contacts = React.createClass({
     var active = this.props.active;
     return (
       <div className='shopping-stage contact-input'>
+        <h2>Yhteystiedot <small>4/6</small></h2>
         <div>
-          <label>Nimi</label>
-          <input
-            className={ _.contains(this.state.errors, 'name') ? ('error') : ('') }
+          <Input
+            label='Nimi'
+            type='text'
+            bsStyle={ _.contains(this.state.errors, 'name') ? ('error') : ('') }
             readOnly={!active}
             onChange={this.onValueChange.bind(null, 'name')}
             value={this.state.name} />
         </div>
 
         <div>
-          <label>Sähköposti</label>
-          <input
-            className={ _.contains(this.state.errors, 'email') ? ('error') : ('') }
+          <Input
+            label='Sähköposti'
+            type='text'
+            bsStyle={ _.contains(this.state.errors, 'email') ? ('error') : ('') }
             readOnly={!active}
             onChange={this.onValueChange.bind(null, 'email')}
             value={this.state.email} />
         </div>
 
         <div>
-          <label>Alennuskoodi</label>
-          <input
-            className={ _.contains(this.state.errors, 'discount_code') ? ('error') : ('') }
+          <Input
+            label='Alennuskoodi'
+            type='text'
+            bsStyle={ _.contains(this.state.errors, 'discount_code') ? ('error') : ('') }
             readOnly={!active}
             onChange={this.onValueChange.bind(null, 'discount_code')}
             value={this.state.discount_code} />
         </div>
 
-        <div>{active ? (<a id='saveOrderInfo' onClick={this.onSave}>Tallenna</a>) : null}</div>
+        <div>
+          <Button id='saveOrderInfo' disabled={!active} onClick={active ? this.onSave : null}>Tallenna</Button>
+        </div>
       </div>
     );
   }

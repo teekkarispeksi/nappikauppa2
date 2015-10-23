@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('react');
-
+var Button = require('react-bootstrap/lib/Button');
 var Ticket = require('./Ticket.jsx');
 
 var ShoppingCart = React.createClass({
@@ -24,10 +24,7 @@ var ShoppingCart = React.createClass({
       expirationText = (<span>Varauksesi on rauennut.</span>);
     }
 
-    var reserveTicketsButton;
-    if (this.props.active) {
-      reserveTicketsButton = (<a id='reserveTickets' onClick={this.props.onReserveTickets}>Varaa liput</a>);
-    }
+    var reserveTicketsButton = (<Button id='reserveTickets' disabled={!this.props.active} onClick={this.props.active ? this.props.onReserveTickets : null}>Varaa liput</Button>);
 
     var timer;
     if (this.props.reservationExpirationTime) {
@@ -42,6 +39,7 @@ var ShoppingCart = React.createClass({
 
     return (
       <div className='shopping-stage shopping-cart'>
+        <h2>Paikkojen varaus <small>3/5</small></h2>
         <ul>
           {tickets.map(function(ticket) {
             return (

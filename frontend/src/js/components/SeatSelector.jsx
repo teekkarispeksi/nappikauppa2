@@ -15,7 +15,8 @@ var SeatSelector = React.createClass({
 
     return (
       <div className='shopping-stage seat-selector'>
-        <h4>Valitse tästä paikkasi näytökseen <strong>{this.props.show.get('title')}</strong>!</h4>
+        <h2>Paikkojen valinta <small>2/5</small></h2>
+        <strong>{this.props.show.get('title')}</strong>
         <div style={{position: 'relative'}}>
           <img src='public/img/venues/venue_1.png' />
           {this.props.seats.map(function(seat) {

@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react');
+var Button = require('react-bootstrap/lib/Button');
 var _ = require('underscore');
 
 var FinalConfirmation = React.createClass({
@@ -20,12 +21,17 @@ var FinalConfirmation = React.createClass({
       );
 
     }
+    var active = !this.props.paymentBegun;
     return (
+
       <div className='shopping-stage final-confirmation'>
+        <h2>Vahvistus <small>4/5</small></h2>
         Tähän taulukko:<br />
         Lippuja {numTickets} kpl, yhteensä {ticketTotal} eur<br />
         {discountedTotalEl}
-        <a id='proceedToPayment' onClick={this.props.paymentBegun ? null : this.props.onProceedToPayment}>Siirry maksamaan</a>
+        <Button id='proceedToPayment' disabled={!active} onClick={active ? this.props.onProceedToPayment : null}>
+          {active ? 'Siirry maksamaan' : 'Siirrytään maksupalveluun'}
+        </Button>
       </div>
     );
   }
