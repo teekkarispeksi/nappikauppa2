@@ -16,13 +16,15 @@ var Ticket = React.createClass({
     var seat = this.props.ticket.get('seat');
     var remove = this.props.active ? (<Button bsStyle='link' className='removeSeat' onClick={this.props.onRemove.bind(null, seat)}><Glyphicon glyph='remove' /></Button>) : null;
     return (
-      <li key={seat.id}><div><div className='ticket'>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}</div>
-        {remove}
-        <Input type='select' className='discountGroupSelect' standalone disabled={!this.props.active} onChange={this.onChange} value={this.props.ticket.get('discount_group')}>
-          {_.map(seat.prices, function(group) {
-            return (<option key={group.id} value={group.id}>{group.title} à {group.price}€</option>);
-          })}
-        </Input>
+      <li key={seat.id}>
+        <div className='ticket'>
+          <div className='info'>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}</div>
+          {remove}
+          <Input type='select' className='discountGroupSelect' standalone disabled={!this.props.active} onChange={this.onChange} value={this.props.ticket.get('discount_group')}>
+            {_.map(seat.prices, function(group) {
+              return (<option key={group.id} value={group.id}>{group.title} à {group.price}€</option>);
+            })}
+          </Input>
         </div>
       </li>
     );

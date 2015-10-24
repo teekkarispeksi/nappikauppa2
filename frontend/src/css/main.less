@@ -66,19 +66,33 @@ a.seat {
 }
 
 .shopping-cart {
-  button.removeSeat {
-    color: #000;
+  li:last-child div.ticket {
+    border-bottom: none;
   }
   li div.ticket {
-    display: inline-block;
-    width: 200px;
+    margin-bottom: 3px;
+    padding-bottom: 3px;
+    border-bottom: 1px dashed #DDDDDD;
+
+    button.removeSeat {
+      color: #000;
+      span.glyphicon-remove {
+        margin-top: -5px;
+      }
+    }
+    div.info {
+      display: inline-block;
+      width: 182px;
+      vertical-align: middle;
+    }
+    div {
+      display: inline-block;
+    }
+    select.discountGroupSelect {
+      padding: 3px;
+      height: 28px;
+    }
   }
-  li div {
-    display: inline-block;
-  }
-  li select.discountGroupSelect {
-    padding: 3px;
-    height: 28px;
 }
 
 .seat-selector {
