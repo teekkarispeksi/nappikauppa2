@@ -1,10 +1,15 @@
 @import (less) '../bootstrap/css/bootstrap.css';
 
-@nice-blue: #5B83AD;
-@light-blue: @nice-blue + #111;
+@yellow: rgb(254, 240, 53);
+@light-blue: rgb(29, 175, 236);
+@magenta: rgb(233, 22, 140);
+@almost-black: rgb(35, 31, 32);
+@gray: @almost-black + rgb(100, 100, 100);
 
 header {
-
+  margin: 30px;
+  margin-top: 20px;
+  margin-bottom: 40px;
 }
 
 a {
@@ -13,18 +18,58 @@ a {
 
 main {
   display: inline-block;
+  margin: 0 5px;
 
   .shopping-stage {
-    border-left: 10px solid @nice-blue;
+    border-left: 10px solid #fff;
     float: left;
     display: inline-block;
     vertical-align: top;
-    min-width: 25em;
+    min-width: 150px;
     min-height: 200px;
 
-    margin: 5px;
-    padding: 5px;
+    margin: 0;
+    margin-left: 5px;
+    margin-right: 40px;
+
+    padding: 0;
+    padding-left: 10px;
+
+
+    &.show-selector {
+      border-left-color: @yellow;
+      a {
+        color: #000;
+        li:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+    &.seat-selector {
+      border-left-color: @almost-black;
+    }
+    &.shopping-cart {
+      border-left-color: @light-blue;
+    }
+    &.contact-input {
+      border-left-color: @magenta;
+    }
+    &.final-confirmation {
+      border-left-color: @almost-black;
+    }
   }
+}
+
+h1, h2 {
+  font-family: Georgia;
+}
+h1 {
+  font-size: 24px;
+}
+h2 {
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 20px;
 }
 
 a.seat {
@@ -54,14 +99,24 @@ a.seat {
 }
 
 .show-selector {
+  a {
+    display: block;
+  }
   span.date {
-    display: inline-block;
-    width: 40px;
+    padding-right: 3px;
   }
   div.progress {
     height: 10px;
-    width: 70%;
-    margin-top: 5px;
+    margin-top: 3px;
+    border-radius: 0;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+
+    .progress-bar {
+      background-color: @gray;
+      border: none;
+      box-shadow: none;
+    }
   }
 }
 
