@@ -10,6 +10,11 @@ db.on('error', function(err) {
   log.error('Database query failed without callbacks', {error: err});
 });
 
+// prevent connection time-out
+setInterval(function() {
+  db.query('SELECT 1');
+}, 5000);
+
 // Use :param style binding instead of question marks
 db.config.queryFormat = function(query, values) {
   if (!values) {
