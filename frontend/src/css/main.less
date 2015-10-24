@@ -1,13 +1,14 @@
 @import (less) '../bootstrap/css/bootstrap.css';
 
 @yellow: rgb(254, 240, 53);
-@light-blue: rgb(29, 175, 236);
+@dark-yellow: @yellow - rgb(100, 100, 100);
+@cyan: rgb(29, 175, 236);
 @magenta: rgb(233, 22, 140);
 @almost-black: rgb(35, 31, 32);
 @gray: @almost-black + rgb(100, 100, 100);
 
 header {
-  margin: 30px;
+  margin: 40px;
   margin-top: 20px;
   margin-bottom: 40px;
 }
@@ -18,7 +19,9 @@ a {
 
 main {
   display: inline-block;
-  margin: 0 5px;
+  font-family: "Trebuchet MS";
+  font-size: 13px;
+  margin: 0 15px;
 
   .shopping-stage {
     border-left: 10px solid #fff;
@@ -38,18 +41,12 @@ main {
 
     &.show-selector {
       border-left-color: @yellow;
-      a {
-        color: #000;
-        li:hover {
-          text-decoration: underline;
-        }
-      }
     }
     &.seat-selector {
       border-left-color: @almost-black;
     }
     &.shopping-cart {
-      border-left-color: @light-blue;
+      border-left-color: @cyan;
     }
     &.contact-input {
       border-left-color: @magenta;
@@ -70,6 +67,10 @@ h2 {
   font-size: 20px;
   margin-top: 0;
   margin-bottom: 20px;
+
+  small {
+    margin-left: 5px;
+  }
 }
 
 a.seat {
@@ -101,21 +102,35 @@ a.seat {
 .show-selector {
   a {
     display: block;
-  }
-  span.date {
-    padding-right: 3px;
-  }
-  div.progress {
-    height: 10px;
-    margin-top: 3px;
-    border-radius: 0;
-    box-shadow: none;
-    -webkit-box-shadow: none;
-
-    .progress-bar {
-      background-color: @gray;
-      border: none;
+    color: #000;
+    li:hover {
+      text-decoration: underline;
+    }
+    span.date {
+      padding-right: 3px;
+    }
+    div.progress {
+      height: 10px;
+      margin-top: 3px;
+      border-radius: 0;
       box-shadow: none;
+      -webkit-box-shadow: none;
+
+      .progress-bar {
+        background-color: @gray;
+        border: none;
+        box-shadow: none;
+      }
+    }
+    &:hover {
+      text-decoration: none;
+      color: @dark-yellow;
+
+      div.progress {
+        .progress-bar {
+          background-color: @yellow;
+        }
+      }
     }
   }
 }
@@ -126,26 +141,30 @@ a.seat {
   }
   li div.ticket {
     margin-bottom: 3px;
-    padding-bottom: 3px;
-    border-bottom: 1px dashed #DDDDDD;
+    padding-bottom: 8px;
 
     button.removeSeat {
-      color: #000;
+      color: @almost-black;
+
+      &:hover {
+        color: @cyan;
+      }
       span.glyphicon-remove {
         margin-top: -5px;
       }
     }
     div.info {
-      display: inline-block;
-      width: 182px;
       vertical-align: middle;
+      display: block;
     }
     div {
       display: inline-block;
     }
     select.discountGroupSelect {
-      padding: 3px;
-      height: 28px;
+      font-size: 13px;
+      padding: 0;
+      height: 24px;
+      width: auto;
     }
   }
 }

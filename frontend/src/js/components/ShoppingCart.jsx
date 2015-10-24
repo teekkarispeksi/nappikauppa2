@@ -24,7 +24,7 @@ var ShoppingCart = React.createClass({
       expirationText = (<span>Varauksesi on rauennut.</span>);
     }
 
-    var reserveTicketsButton = (<Button id='reserveTickets' disabled={!this.props.active} onClick={this.props.active ? this.props.onReserveTickets : null}>Varaa liput</Button>);
+    var reserveTicketsButton = this.props.active ? (<Button id='reserveTickets' onClick={this.props.onReserveTickets}>Varaa liput</Button>) : null;
 
     var timer;
     if (this.props.reservationExpirationTime) {

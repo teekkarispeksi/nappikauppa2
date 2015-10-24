@@ -16,7 +16,6 @@ var SeatSelector = React.createClass({
     return (
       <div className='shopping-stage seat-selector'>
         <h2>Paikkojen valinta <small>2/5</small></h2>
-        <strong>{this.props.show.get('title')}</strong>
         <div className='theaterLayout' style={{backgroundImage: 'url(public/img/venues/venue_1.png)'}}>
           {this.props.seats.map(function(seat) {
             return <Seat seat={seat} status={seat.status} key={seat.id} onClick={this.props.active ? this.props.onSeatClicked.bind(null, seat) : null} />;
