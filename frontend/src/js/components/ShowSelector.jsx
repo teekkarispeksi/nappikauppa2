@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react');
+var ProgressBar = require('react-bootstrap/lib/ProgressBar');
 
 var ShowSelector = React.createClass({
 
@@ -14,10 +15,12 @@ var ShowSelector = React.createClass({
             var date = new Date(show.get('time'));
             var dateStr = date.getDate() + '.' + date.getMonth() + '.';
             return (
-              <li key={show.id}>
-                <a onClick={this.props.onShowSelect.bind(null, show.id)}>
-                  <span className='date'>{dateStr}</span><span className='title'>{show.get('title')}</span>
-                </a>
+              <li key={show.id}><div>
+                  <a onClick={this.props.onShowSelect.bind(null, show.id)}>
+                    <span className='date'>{dateStr}</span><span className='title'>{show.get('title')}</span>
+                  </a>
+                  <ProgressBar bsSize='small' min={0} max={1000} now={Math.floor(Math.random() * 1000)} />
+                </div>
               </li>
             );
           }.bind(this))}
