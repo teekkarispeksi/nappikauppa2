@@ -2,8 +2,11 @@
 
 @yellow: rgb(254, 240, 53);
 @dark-yellow: @yellow - rgb(100, 100, 100);
+
+@green: rgb(85, 204, 85);
 @cyan: rgb(29, 175, 236);
 @magenta: rgb(233, 22, 140);
+
 @almost-black: rgb(35, 31, 32);
 @gray: @almost-black + rgb(100, 100, 100);
 
@@ -85,17 +88,18 @@ a.seat {
   border-radius: 50%;
 
   &.seat-free {
-    background-color: #55CC55;
-    //background-image: url("../img/seats/seat_free.gif")
+    background-color: @green;
+    &:hover {
+      border: 1px solid @almost-black;
+    }
   }
   &.seat-reserved {
-    background-color: #555555;
-    //background-image: url("../img/seats/seat_reserved.gif")
+    background-color: @gray;
+    cursor: default;
   }
   &.seat-chosen {
-    background-color: #cccc00;
-    border: 1px solid #555555;
-    //background-image: url("../img/seats/seat_chosen.gif")
+    background-color: @yellow;
+    border: 1px solid @almost-black;
   }
 }
 
