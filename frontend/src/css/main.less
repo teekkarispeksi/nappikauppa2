@@ -103,9 +103,18 @@ a.seat {
   a {
     display: block;
     color: #000;
-    li:hover {
-      text-decoration: underline;
+
+    &:hover, &.selected {
+      text-decoration: none;
+      color: @dark-yellow;
+
+      div.progress {
+        .progress-bar {
+          background-color: @yellow;
+        }
+      }
     }
+
     span.date {
       padding-right: 3px;
     }
@@ -120,16 +129,6 @@ a.seat {
         background-color: @gray;
         border: none;
         box-shadow: none;
-      }
-    }
-    &:hover {
-      text-decoration: none;
-      color: @dark-yellow;
-
-      div.progress {
-        .progress-bar {
-          background-color: @yellow;
-        }
       }
     }
   }

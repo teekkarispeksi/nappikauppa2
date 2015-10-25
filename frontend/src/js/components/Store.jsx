@@ -222,7 +222,7 @@ var Store = React.createClass({
 
     return (
       <div>
-        <ShowSelector onShowSelect={this.onShowSelect} shows={this.shows} />
+        <ShowSelector onShowSelect={this.onShowSelect} shows={this.shows} selectedShow={this.state.show} />
         {seatSelectorElem}
         {shoppingCartElem}
         {contactsElem}

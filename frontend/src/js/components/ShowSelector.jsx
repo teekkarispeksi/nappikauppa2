@@ -14,9 +14,10 @@ var ShowSelector = React.createClass({
           {this.props.shows.map(function(show) {
             var date = new Date(show.get('time'));
             var dateStr = date.getDate() + '.' + date.getMonth() + '.';
+            var selectedClass = (this.props.selectedShow.id === show.id) ? 'selected' : '';
             return (
               <li key={show.id}>
-                <a onClick={this.props.onShowSelect.bind(null, show.id)}>
+                <a onClick={this.props.onShowSelect.bind(null, show.id)} className={selectedClass}>
                   <span className='date'>{dateStr}</span><span className='title'>{show.get('title')}</span>
                   <ProgressBar bsSize='small' min={0} max={1000} now={Math.floor(Math.random() * 1000)} />
                 </a>
