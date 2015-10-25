@@ -25,7 +25,7 @@ var FinalConfirmation = React.createClass({
     return (
 
       <div className='shopping-stage final-confirmation'>
-        <h2>Vahvistus <small>4/5</small></h2>
+        <h2>Vahvistus <small>5/5</small></h2>
         Tähän taulukko:<br />
         Lippuja {numTickets} kpl, yhteensä {ticketTotal} eur<br />
         {discountedTotalEl}

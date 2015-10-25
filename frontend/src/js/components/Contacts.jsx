@@ -58,7 +58,7 @@ var Contacts = React.createClass({
     var active = this.props.active;
     return (
       <div className='shopping-stage contact-input'>
-        <h2>Yhteystiedot <small>4/6</small></h2>
+        <h2>Yhteystiedot <small>4/5</small></h2>
         <div>
           <Input
             label='Nimi'
