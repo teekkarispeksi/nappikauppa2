@@ -76,6 +76,10 @@ h2 {
   }
 }
 
+.form-control {
+  font-size: 13px;
+}
+
 a.seat {
   display: block;
   position: absolute;
@@ -164,7 +168,6 @@ a.seat {
       display: inline-block;
     }
     select.discountGroupSelect {
-      font-size: 13px;
       padding: 0;
       height: 24px;
       width: auto;
@@ -184,4 +187,37 @@ a.seat {
 
 .has-error .form-control {
   background: rgb(255,220,220);
+}
+
+
+@media (max-device-width: 600px) {
+  h1 {
+    font-size: 40px;
+  }
+  h2 {
+    font-size: 40px;
+  }
+
+  main {
+    .shopping-stage {
+      font-size: 24px;
+      display: block;
+      float: none;
+      width: 100%;
+      padding-top: 10px;
+      padding-bottom: 20px;
+
+      &.shopping-cart {
+        li div.ticket {
+          select.discountGroupSelect {
+            height: 40px;
+          }
+        }
+      }
+    }
+  }
+  .form-control, .btn {
+    font-size: 24px;
+  }
+  
 }

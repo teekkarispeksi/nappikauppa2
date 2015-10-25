@@ -23,6 +23,10 @@ var Router = require('../router.js');
 var EXPIRATION_IN_MINUTES = 15;
 var DISCOUNT_GROUP_DEFAULT = 1;
 
+var scrollToElem = function(elemstr) {
+  window.scrollTo(0, $(elemstr)[0].offsetTop);
+};
+
 var Store = React.createClass({
   shows: new Shows(),
   tickets: new Tickets(),
@@ -117,6 +121,9 @@ var Store = React.createClass({
       reservationHasExpired: null
     });
     Router.navigate('show/' + showid, {trigger: false});
+    setTimeout(function() {
+      scrollToElem('.seat-selector');
+    }, 100);
   },
 
   onSeatClicked: function(seat) {
@@ -139,6 +146,9 @@ var Store = React.createClass({
           this.order = new Order({id: response.order_id});
           this.startTimer();
           this.setState({page: 'contacts'});
+          setTimeout(function() {
+            scrollToElem('.contact-input');
+          }, 0);
         }.bind(this),
         error: function(model, response) {
           console.log('seat reservation failed');
@@ -152,6 +162,9 @@ var Store = React.createClass({
       patch: true,
       success: function(response) {
         this.setState({page: 'payment'});
+        setTimeout(function() {
+          scrollToElem('.final-confirmation');
+        }, 0);
       }.bind(this),
       error: function(response) {
         console.log('order info saving failed'); // TODO
