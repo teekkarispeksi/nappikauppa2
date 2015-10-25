@@ -56,8 +56,13 @@ var Contacts = React.createClass({
 
   render: function() {
     var active = this.props.active;
+    var divClass = 'shopping-stage contact-input';
+    if (!active) {
+      divClass += ' disabled';
+    }
+
     return (
-      <div className='shopping-stage contact-input'>
+      <div className={divClass}>
         <h2>Yhteystiedot <small>4/5</small></h2>
         <div>
           <Input

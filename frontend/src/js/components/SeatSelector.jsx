@@ -13,8 +13,13 @@ var SeatSelector = React.createClass({
       );
     }
 
+    var divClass = 'shopping-stage seat-selector';
+    if (!this.props.active) {
+      divClass += ' disabled';
+    }
+
     return (
-      <div className='shopping-stage seat-selector'>
+      <div className={divClass}>
         <h2>Paikkojen valinta <small>2/5</small></h2>
         <div className='theaterLayout' style={{backgroundImage: 'url(public/img/venues/venue_1.png)'}}>
           {this.props.seats.map(function(seat) {

@@ -37,8 +37,13 @@ var ShoppingCart = React.createClass({
       timer = (<span>Varauksesi on voimassa klo {time} asti</span>);
     }
 
+    var divClass = 'shopping-stage shopping-cart';
+    if (!this.props.active) {
+      divClass += ' disabled';
+    }
+
     return (
-      <div className='shopping-stage shopping-cart'>
+      <div className={divClass}>
         <h2>Paikkojen varaus <small>3/5</small></h2>
         <ul className='list-unstyled'>
           {tickets.map(function(ticket) {

@@ -57,6 +57,13 @@ main {
     &.final-confirmation {
       border-left-color: @almost-black;
     }
+
+    &.disabled {
+      opacity: .4;
+      a {
+        cursor: default !important;
+      }
+    }
   }
 }
 
@@ -78,6 +85,9 @@ h2 {
 
 .form-control {
   font-size: 13px;
+  &[disabled] {
+    cursor: default;
+  }
 }
 
 a.seat {
