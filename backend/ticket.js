@@ -4,31 +4,16 @@ var db = require('./db.js');
 var PDFDocument = require('pdfkit');
 
 var ticket = {
-  //TODO
-  getParameters: function(order_id, cb) {
-
-    db.query('select * from nk2_tickets where order_id = :order_id',
-      {order_id: order_id},
-      function(err, res) {
-        if (err) {
-          throw err;
-        }
-        cb(res);
-      });
-
-    //Todo
-  },
-
-  generatePdf: function() {
+  generatePdf: function(ticket) {
 
     var doc = new PDFDocument();
 
-    //TODO, get these values from database
-    var showDate = '20.4.2015 klo 19:00';
-    var show = 'Helsinki VI';
-    var seat = 'PERMANTO, RIVI 8, PAIKKA 154';
-    var venue = 'Aleksanterin teatteri, Helsinki';
-    var venueLocation = 'Bulevardi 23-27 / Albertinkatu 32';
+    var showDate = ticket.show_date + ' klo ' + ticket.show_time; //'20.4.2015 klo 19:00';
+    var show = ticket.show_title; //'Helsinki VI';
+    var seat = ticket.section_title + ', ' + ticket.row_name + ' ' + ticket.row + ', ' + ' paikka ' + ticket.seat_number; //'PERMANTO, RIVI 8, PAIKKA 154';
+    var venueDescription = ticket.venue_description.split('\n');
+    var venue = venueDescription[0]; //'Aleksanterin teatteri, Helsinki';
+    var address = venueDescription[1]; //'Bulevardi 23-27 / Albertinkatu 32';
 
     doc.fontSize(20)
         .text('Pääsylippu', 100, 80)
@@ -42,11 +27,11 @@ var ticket = {
         .font('Helvetica')
         .moveDown(0.5)
 
-        .text(seat)
+        .text(seat.toUpperCase())
         .font('Helvetica-Bold', 13)
         .text(venue)
         .font('Helvetica', 13)
-        .text(venueLocation)
+        .text(address)
         .moveTo(100, 390)
         .font('Helvetica', 13)
         .lineWidth(2)

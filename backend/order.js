@@ -142,10 +142,24 @@ var order = {
         orders.reserved_session_id,\
         orders.status, \
         \
-        shows.title show_title \
+        shows.title show_title, \
+        date_format(shows.time, "%e.%c.%Y") show_date,  \
+        time_format(shows.time, "%k:%i") show_time, \
+        \
+        seats.row row, \
+        seats.number seat_number, \
+        \
+        sections.title section_title, \
+        sections.row_name row_name, \
+        \
+        venues.title venue_title, \
+        venues.description venue_description \
       from nk2_orders orders \
       join nk2_tickets tickets on orders.id = tickets.order_id \
       join nk2_shows shows on tickets.show_id = shows.id \
+      join nk2_seats seats on tickets.seat_id = seats.id \
+      join nk2_sections sections on seats.section_id = sections.id \
+      join nk2_venues venues on sections.venue_id = venues.id \
       where orders.id = :id',
       {id: order_id},
       function(err, rows) {
@@ -157,7 +171,7 @@ var order = {
           'reserved_until', 'reserved_session_id', 'status']);
 
         res.tickets = _.map(rows, function(row) {
-          return _.pick(row, ['ticket_id', 'show_id', 'show_title', 'seat_id', 'discount_group_id', 'hash', 'ticket_price', 'used_time']);
+          return _.pick(row, ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id', 'hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_title', 'row_name']);
         });
 
         res.tickets_total_price = _.reduce(res.tickets, function(res, ticket) { return res + parseFloat(ticket.ticket_price);}, 0);
@@ -363,12 +377,12 @@ var order = {
         to: order.email,
         subject: 'Lippu!',
         text: 'Kiitos tilauksestasi!\n\nNähdään teatterilla!',
-        attachments: [
-          {   // stream as an attachment
-            filename: 'test.pdf',
-            content: ticket.generatePdf()
-          }
-        ]
+        attachments: order.tickets.map(function(t) {
+          return {
+            filename: 'lippu-' + t.ticket_id + '.pdf',
+            content: ticket.generatePdf(t)
+          };
+        })
       }, function(error, info) {
         if (error) {
           log.error('Sending tickets failed', {error: error, order_id: order_id});
