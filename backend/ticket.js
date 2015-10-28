@@ -5,11 +5,11 @@ var PDFDocument = require('pdfkit');
 
 var ticket = {
   //TODO
-  getParameters: function (order_id, cb) {
+  getParameters: function(order_id, cb) {
 
     db.query('select * from nk2_tickets where order_id = :order_id',
       {order_id: order_id},
-      function (err, res) {
+      function(err, res) {
         if (err) {
           throw err;
         }
@@ -19,10 +19,9 @@ var ticket = {
     //Todo
   },
 
-  generatePdf: function () {
+  generatePdf: function() {
 
-    var doc = new PDFDocument;
-
+    var doc = new PDFDocument();
 
     //TODO, get these values from database
     var showDate = '20.4.2015 klo 19:00';
@@ -60,7 +59,6 @@ var ticket = {
 
     return doc;
   }
-
 
 };
 
