@@ -377,12 +377,12 @@ var order = {
         to: order.email,
         subject: 'Lippu!',
         text: 'Kiitos tilauksestasi!\n\nNähdään teatterilla!',
-        attachments: order.tickets.map(function(t) {
-          return {
-            filename: 'lippu-' + t.ticket_id + '.pdf',
-            content: ticket.generatePdf(t)
-          };
-        })
+        attachments: [
+          {
+            filename: 'lippu.pdf',
+            content: ticket.generatePdf(order.tickets)
+          }
+        ]
       }, function(error, info) {
         if (error) {
           log.error('Sending tickets failed', {error: error, order_id: order_id});
