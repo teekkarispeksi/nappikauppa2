@@ -1,56 +1,237 @@
-@nice-blue: #5B83AD;
-@light-blue: @nice-blue + #111;
+@import (less) '../bootstrap/css/bootstrap.css';
+
+@yellow: rgb(254, 240, 53);
+@dark-yellow: @yellow - rgb(100, 100, 100);
+
+@green: rgb(85, 204, 85);
+@cyan: rgb(29, 175, 236);
+@magenta: rgb(233, 22, 140);
+
+@almost-black: rgb(35, 31, 32);
+@gray: @almost-black + rgb(100, 100, 100);
 
 header {
-
+  margin: 40px;
+  margin-top: 20px;
+  margin-bottom: 40px;
 }
 
 a {
   cursor: pointer;
 }
 
+td {
+  font-size: 13px;
+}
+
 main {
   display: inline-block;
+  font-family: "Trebuchet MS";
+  font-size: 13px;
+  margin: 0 15px;
 
   .shopping-stage {
-    border: 1px solid @nice-blue;
+    border-left: 10px solid #fff;
     float: left;
     display: inline-block;
     vertical-align: top;
-    min-width: 10em;
+    min-width: 150px;
     min-height: 200px;
 
-    margin: 5px;
-    padding: 0 5px;
+    margin: 0;
+    margin-left: 5px;
+    margin-right: 40px;
 
-    ul {
-      list-style-type: none;
-      padding: 0;
+    padding: 0;
+    padding-left: 10px;
+
+
+    &.show-selector {
+      border-left-color: @yellow;
     }
+    &.seat-selector {
+      border-left-color: @almost-black;
+    }
+    &.shopping-cart {
+      border-left-color: @cyan;
+    }
+    &.contact-input {
+      border-left-color: @magenta;
+    }
+    &.final-confirmation {
+      border-left-color: @almost-black;
+    }
+
+    &.disabled {
+      opacity: .4;
+      a {
+        cursor: default !important;
+      }
+    }
+  }
+}
+
+h1, h2 {
+  font-family: Georgia;
+}
+h1 {
+  font-size: 24px;
+}
+h2 {
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 20px;
+
+  small {
+    margin-left: 5px;
+  }
+}
+
+.form-control {
+  font-size: 13px;
+  &[disabled] {
+    cursor: default;
   }
 }
 
 a.seat {
   display: block;
   position: absolute;
-  height: 7px;
-  width: 7px;
+  height: 6px;
+  width: 6px;
   background-repeat: no-repeat;
   padding: 0;
   margin: 0;
   border: 0;
+  border-radius: 50%;
 
   &.seat-free {
-    background-image: url("../img/seats/seat_free.gif")
+    background-color: @green;
+    &:hover {
+      border: 1px solid @almost-black;
+    }
   }
   &.seat-reserved {
-    background-image: url("../img/seats/seat_reserved.gif")
+    background-color: @gray;
+    cursor: default;
   }
   &.seat-chosen {
-    background-image: url("../img/seats/seat_chosen.gif")
+    background-color: @yellow;
+    border: 1px solid @almost-black;
   }
 }
 
-input.error {
+.show-selector {
+  a {
+    display: block;
+    color: #000;
+
+    &:hover, &.selected {
+      text-decoration: none;
+      color: @dark-yellow;
+
+      div.progress {
+        .progress-bar {
+          background-color: @yellow;
+        }
+      }
+    }
+
+    span.date {
+      padding-right: 3px;
+    }
+    div.progress {
+      height: 10px;
+      margin-top: 3px;
+      border-radius: 0;
+      box-shadow: none;
+      -webkit-box-shadow: none;
+
+      .progress-bar {
+        background-color: @gray;
+        border: none;
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+.shopping-cart {
+  li:last-child div.ticket {
+    border-bottom: none;
+  }
+  li div.ticket {
+    margin-bottom: 3px;
+    padding-bottom: 8px;
+
+    button.removeSeat {
+      color: @almost-black;
+
+      &:hover {
+        color: @cyan;
+      }
+      span.glyphicon-remove {
+        margin-top: -5px;
+      }
+    }
+    div.info {
+      vertical-align: middle;
+      display: block;
+    }
+    div {
+      display: inline-block;
+    }
+    select.discountGroupSelect {
+      padding: 0;
+      height: 24px;
+      width: auto;
+    }
+  }
+}
+
+.seat-selector {
+  div.theaterLayout {
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 356px;
+    height: 470px;
+  }
+}
+
+.has-error .form-control {
   background: rgb(255,220,220);
+}
+
+
+@media (max-device-width: 600px) {
+  h1 {
+    font-size: 40px;
+  }
+  h2 {
+    font-size: 40px;
+  }
+
+  main {
+    .shopping-stage {
+      font-size: 24px;
+      display: block;
+      float: none;
+      width: 100%;
+      padding-top: 10px;
+      padding-bottom: 20px;
+
+      &.shopping-cart {
+        li div.ticket {
+          select.discountGroupSelect {
+            height: 40px;
+          }
+        }
+      }
+    }
+  }
+  .form-control, .btn {
+    font-size: 24px;
+  }
+  
 }

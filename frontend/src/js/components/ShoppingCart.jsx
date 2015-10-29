@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('react');
-
+var Button = require('react-bootstrap/lib/Button');
 var Ticket = require('./Ticket.jsx');
 
 var ShoppingCart = React.createClass({
@@ -24,25 +24,28 @@ var ShoppingCart = React.createClass({
       expirationText = (<span>Varauksesi on rauennut.</span>);
     }
 
-    var reserveTicketsButton;
-    if (this.props.active) {
-      reserveTicketsButton = (<a id='reserveTickets' onClick={this.props.onReserveTickets}>Varaa liput</a>);
-    }
+    var reserveTicketsButton = this.props.active ? (<Button id='reserveTickets' onClick={this.props.onReserveTickets}>Varaa liput</Button>) : null;
 
     var timer;
     if (this.props.reservationExpirationTime) {
       var et = this.props.reservationExpirationTime;
-      var secs = et.getSeconds();
+      var hours = et.getHours();
       var mins = et.getMinutes();
+      hours = hours < 10 ? '0' + hours : hours;
       mins = mins < 10 ? '0' + mins : mins;
-      secs = secs < 10 ? '0' + secs : secs;
-      var time = et.getHours() + ':' + mins + ':' + secs;
-      timer = (<span>Varauksesi on voimassa {time} asti</span>);
+      var time = hours + ':' + mins;
+      timer = (<span>Varauksesi on voimassa klo {time} asti</span>);
+    }
+
+    var divClass = 'shopping-stage shopping-cart';
+    if (!this.props.active) {
+      divClass += ' disabled';
     }
 
     return (
-      <div className='shopping-stage shopping-cart'>
-        <ul>
+      <div className={divClass}>
+        <h2>Paikkojen varaus <small>3/5</small></h2>
+        <ul className='list-unstyled'>
           {tickets.map(function(ticket) {
             return (
               <Ticket

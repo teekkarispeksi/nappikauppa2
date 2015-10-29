@@ -54,6 +54,11 @@ gulp.task('img', function() {
   .pipe(gulp.dest('./frontend/build/public/img/'));
 });
 
+gulp.task('fonts', function() {
+  return gulp.src('./frontend/src/bootstrap/fonts/*')
+  .pipe(gulp.dest('./frontend/build/public/fonts/'));
+});
+
 gulp.task('css:store', function() {
   return gulp.src(['./frontend/src/css/*.less', '!./frontend/src/css/admin*.less'])
       .pipe(less())
@@ -79,7 +84,7 @@ gulp.task('css:min', function() {
 gulp.task('css', ['css:store', 'css:admin']);
 
 gulp.task('lint', function() {
-  return gulp.src('frontend/src/**/*.{js,jsx}') // lint reactified JS
+  return gulp.src(['frontend/src/**/*.{js,jsx}', '!./frontend/src/bootstrap/**/*.js']) // lint reactified JS
   .pipe(plumber())
   .pipe(jscs())
   .pipe(react())
@@ -152,7 +157,7 @@ gulp.task('lint-backend', function() {
 gulp.task('build', function(cb) {
   runSequence(
     ['clean'],
-    ['css', 'js', 'img'],
+    ['css', 'js', 'img', 'fonts'],
     ['index', 'admin'],
     cb);
 });
