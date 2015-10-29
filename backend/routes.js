@@ -22,9 +22,9 @@ router.get('/', function(req, res, next) {
 
 router.post('/log', jsonParser, function(req, res) {
   if (req.body.meta) {
-    log.log(req.body.level, req.body.msg, req.body.meta);
+    log.log(req.body.level, 'FRONTEND: ' + req.body.msg, req.body.meta);
   } else {
-    log.log(req.body.level, req.body.msg);
+    log.log(req.body.level, 'FRONTEND: ' + req.body.msg);
   }
   res.end();
 });
