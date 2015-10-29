@@ -22,7 +22,7 @@ var basicAuth = auth.basic({
 var app = express();
 
 app.use(morgan('combined', {stream: {
-  write: function(message) { log.info(message); }
+  write: function(message) { log.info('HTTP: ' + message); }
 }}));
 
 app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));
