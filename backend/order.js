@@ -153,13 +153,16 @@ var order = {
         sections.row_name row_name, \
         \
         venues.title venue_title, \
-        venues.description venue_description \
+        venues.description venue_description, \
+        \
+        discount_groups.title discount_group_title \
       from nk2_orders orders \
       join nk2_tickets tickets on orders.id = tickets.order_id \
       join nk2_shows shows on tickets.show_id = shows.id \
       join nk2_seats seats on tickets.seat_id = seats.id \
       join nk2_sections sections on seats.section_id = sections.id \
       join nk2_venues venues on sections.venue_id = venues.id \
+      join nk2_discount_groups discount_groups on tickets.discount_group_id = discount_groups.id \
       where orders.id = :id',
       {id: order_id},
       function(err, rows) {
@@ -171,7 +174,7 @@ var order = {
           'reserved_until', 'reserved_session_id', 'status']);
 
         res.tickets = _.map(rows, function(row) {
-          return _.pick(row, ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id', 'hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_title', 'row_name']);
+          return _.pick(row, ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id', 'discount_group_title', 'hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_title', 'row_name']);
         });
 
         res.tickets_total_price = _.reduce(res.tickets, function(res, ticket) { return res + parseFloat(ticket.ticket_price);}, 0);
