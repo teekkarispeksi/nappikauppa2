@@ -2,13 +2,15 @@
 
 var express = require('express');
 var path = require('path');
-var logger = require('morgan');
+var morgan = require('morgan');
 var auth = require('http-auth');
 
 var config = require('./config/config.js');
 var confluenceAuth = require('./backend/confluenceAuth.js');
 var api = require('./backend/routes');
 var adminApi = require('./backend/routes-admin');
+
+var log = require('./backend/log.js');
 
 var basicAuth = auth.basic({
     realm: 'Nappikauppa v2 - use your speksi-intra account',
@@ -19,7 +21,9 @@ var basicAuth = auth.basic({
 
 var app = express();
 
-app.use(logger('dev'));
+app.use(morgan('combined', {stream: {
+  write: function(message) { log.info('HTTP: ' + message); }
+}}));
 
 app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));
 app.get('/', function(req, res) {
@@ -40,20 +44,6 @@ app.use(function(req, res, next) {
   err.status = 404;
   next(err);
 });
-
-// error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.send({
-      message: err.message,
-      error: err
-    });
-  });
-}
 
 // production error handler
 // no stacktraces leaked to user
