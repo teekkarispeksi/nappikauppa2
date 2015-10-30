@@ -9,6 +9,8 @@ var order = require('./order.js');
 var show = require('./show.js');
 var venue = require('./venue.js');
 
+var log = require('./log.js');
+
 var config = require('../config/config.js');
 
 var jsonParser = bodyParser.json();
@@ -16,6 +18,15 @@ var jsonParser = bodyParser.json();
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
+});
+
+router.post('/log', jsonParser, function(req, res) {
+  if (req.body.meta) {
+    log.log(req.body.level, 'FRONTEND: ' + req.body.msg, req.body.meta);
+  } else {
+    log.log(req.body.level, 'FRONTEND: ' + req.body.msg);
+  }
+  res.end();
 });
 
 router.get('/discountCode/:code', function(req, res) {

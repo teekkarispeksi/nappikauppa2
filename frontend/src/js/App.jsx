@@ -1,5 +1,12 @@
 'use strict';
 
+var Logger = require('./logger.js');
+
+window.onerror = function(errorMsg, url, line, col, error) {
+  Logger.error(errorMsg, {url: url, lineNumber: line, colNumber: col, error: error});
+  return true;
+};
+
 var React = require('react');
 var Backbone = require('backbone');
 
