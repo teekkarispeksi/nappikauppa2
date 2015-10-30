@@ -19,9 +19,9 @@ var ticket = {
         doc.addPage();
       }
       doc.fontSize(20)
-          .text('Pääsylippu', 100, 80)
-          .moveTo(100, 120)
-          .lineTo(500, 120)
+          .text('Pääsylippu', 50, 80)
+          .moveTo(50, 120)
+          .lineTo(550, 120)
           .stroke()
           .moveDown()
           .font('Helvetica-Bold')
@@ -35,14 +35,14 @@ var ticket = {
           .text(venue)
           .font('Helvetica', 13)
           .text(address)
-          .moveTo(100, 390)
+          .moveTo(50, 250)
           .font('Helvetica', 13)
           .lineWidth(2)
-          .lineTo(500, 390)
+          .lineTo(550, 250)
           .stroke()
 
-          .text('Teekkarispeksi ry', 100, 400)
-          .text('liput@teekkarispeksi.fi', 365, 400);
+          .text('Teekkarispeksi ry', 50, 260)
+          .text('liput@teekkarispeksi.fi', 405, 260);
     }
     doc.end();
     return doc;
