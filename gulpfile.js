@@ -157,7 +157,7 @@ gulp.task('lint-backend', function() {
 gulp.task('build', function(cb) {
   runSequence(
     ['clean'],
-    ['css', 'js', 'img', 'fonts'],
+    ['css:min', 'js:min', 'img', 'fonts'],
     ['index', 'admin'],
     cb);
 });
