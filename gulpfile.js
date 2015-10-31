@@ -169,7 +169,7 @@ gulp.task('lint-backend', function() {
 gulp.task('build-dev', function(cb) {
   runSequence(
     ['clean'],
-    ['css', 'js', 'img', 'fonts'],
+    ['lint-backend', 'css', 'js', 'img', 'fonts'],
     ['index', 'admin'],
     cb);
 });
@@ -177,12 +177,12 @@ gulp.task('build-dev', function(cb) {
 gulp.task('build', function(cb) {
   runSequence(
     ['clean'],
-    ['css:min', 'js:min', 'img', 'fonts'],
+    ['lint-backend', 'css:min', 'js:min', 'img', 'fonts'],
     ['index', 'admin'],
     cb);
 });
 
-gulp.task('start', function() {
+gulp.task('start-dev', function() {
   startExpress();
   startLivereload();
   gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index', 'admin']);
@@ -193,10 +193,13 @@ gulp.task('start', function() {
   gulp.watch('frontend/build/**/*.{html,css,js,jpg,gif,png}', notifyLivereload);
 });
 
+gulp.task('start', function() {
+  startExpress();
+});
+
 gulp.task('default', function(cb) {
   runSequence(
-    ['lint-backend'],
     ['build-dev'],
-    ['start'],
+    ['start-dev'],
     cb);
 });
