@@ -4,6 +4,7 @@ var express = require('express');
 var path = require('path');
 var morgan = require('morgan');
 var auth = require('http-auth');
+var compression = require('compression')
 
 var config = require('./config/config.js');
 var confluenceAuth = require('./backend/confluenceAuth.js');
@@ -25,6 +26,7 @@ app.use(morgan('combined', {stream: {
   write: function(message) { log.info('HTTP: ' + message); }
 }}));
 
+app.use(compression());
 app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/frontend/build/index.html');
