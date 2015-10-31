@@ -23,12 +23,16 @@ var ticket = {
       if (i > 0) {
         doc.addPage();
       }
-      doc.font('mp-bold')
+      doc.rect(30, 30, 15, 135)
+          .fill([254, 240, 53]) // yellow
+
+          .font('mp-bold')
+          .fill('#000000')
           .fontSize(21)
-          .text(config.title.toUpperCase(), 50, 80)
+          .text(config.title.toUpperCase(), 60, 30)
 
           .font('mp')
-          .text(discount, 50, 80, {align: 'right'})
+          .text(discount, 60, 30, {align: 'right'})
 
           .moveUp(0.2)
           .font('mp-bold')
@@ -43,8 +47,8 @@ var ticket = {
           .font('mp-bold')
           .text(seat.toUpperCase())
 
-          .font('mp')
           .moveDown(0.8)
+          .font('mp')
           .text(venue)
 
           .moveUp(0.2)
