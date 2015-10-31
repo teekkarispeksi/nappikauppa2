@@ -3,6 +3,7 @@
 var config = require('../config/config.js');
 var db = require('./db.js');
 var PDFDocument = require('pdfkit');
+var qr = require('qr-image');
 
 var ticket = {
   generatePdf: function(tickets) {
@@ -20,6 +21,7 @@ var ticket = {
       var venueDescription = ticket.venue_description.split('\n');
       var venue = venueDescription[0]; //'Aleksanterin teatteri, Helsinki';
       var address = venueDescription[1]; //'Bulevardi 23-27 / Albertinkatu 32';
+      var hash = ticket.hash;
       if (i > 0) {
         doc.addPage();
       }
@@ -50,10 +52,10 @@ var ticket = {
           .moveDown(0.8)
           .font('mp')
           .text(venue)
-
           .moveUp(0.2)
           .fontSize(9)
           .text(address)
+          .image(qr.imageSync(hash, {type: 'png', margin: 0}), 415, 55);
     }
     doc.end();
     return doc;
