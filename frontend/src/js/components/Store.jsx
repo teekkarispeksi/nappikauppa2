@@ -24,7 +24,9 @@ var EXPIRATION_IN_MINUTES = 15;
 var DISCOUNT_GROUP_DEFAULT = 1;
 
 var scrollToElem = function(elemstr) {
-  window.scrollTo(0, $(elemstr)[0].offsetTop);
+  $('html, body').animate({
+    scrollTop: $(elemstr)[0].offsetTop
+  });
 };
 
 var Store = React.createClass({
