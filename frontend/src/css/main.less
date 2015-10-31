@@ -208,17 +208,30 @@ a.seat {
 }
 
 
-@media (max-device-width: 600px) {
+@media (max-width: 600px) {
+  body {
+    padding-bottom: 200px;
+  }
   h1 {
-    font-size: 40px;
+    font-size: 30px;
   }
   h2 {
-    font-size: 40px;
+    font-size: 24px;
+  }
+  h3 {
+    font-size: 24px;
+  }
+  h4 {
+    font-size: 20px;
   }
 
   main {
+    font-size: 16px;
+    .form-control, .btn, td {
+      font-size: 16px;
+    }
+
     .shopping-stage {
-      font-size: 24px;
       display: block;
       float: none;
       width: 100%;
@@ -228,14 +241,11 @@ a.seat {
       &.shopping-cart {
         li div.ticket {
           select.discountGroupSelect {
-            height: 40px;
+            height: 28px;
           }
         }
       }
     }
-  }
-  .form-control, .btn {
-    font-size: 24px;
   }
   
 }
