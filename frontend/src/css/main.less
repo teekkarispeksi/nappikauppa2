@@ -107,6 +107,10 @@ a.seat {
 
   &.seat-free {
     background-color: @green;
+    &.price-0 { background-color: @green - rgb(50, 50, 50); }
+    &.price-1 { background-color: @green - rgb(10, 10, 10); }
+    &.price-2 { background-color: @green + rgb(10, 10, 10); }
+    &.price-3 { background-color: @green + rgb(30, 30, 30); }
     &:hover {
       border: 1px solid @almost-black;
     }
