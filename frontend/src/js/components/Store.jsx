@@ -192,9 +192,9 @@ var Store = React.createClass({
   helpText: function() {
     var result;
     if (this.props.action === 'ok') {
-      result = (<div className='result-ok'>Tilaus onnistui! TODO: Tulosta liput tästä.</div>);
+      result = (<div className='alert alert-success'>Tilaus onnistui! TODO: Tulosta liput tästä.</div>);
     } else if (this.props.action === 'fail') {
-      result = (<div className='result-fail'>Tilaus peruttiin onnistuneesti.</div>);
+      result = (<div className='alert alert-warning'>Tilaus peruttiin onnistuneesti.</div>);
     }
 
     return (<div className='shopping-stage help-text'>
