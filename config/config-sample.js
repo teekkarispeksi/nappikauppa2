@@ -22,6 +22,7 @@ module.exports = {
         password: '6pKF4jkv97zmqBJ3ZL8gUw5DfT2NMQ'
     },
     confluence_auth: {
+        enabled: true,
         url: 'http://localhost:3010/groups/',
         groups: {
             base: 'lippukauppa-admin' // possible to add different user levels later

@@ -32,7 +32,14 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/frontend/build/index.html');
 });
 
-app.all('/admin*', auth.connect(basicAuth));
+if(config.confluence_auth.enabled) {
+  app.all('/admin*', auth.connect(basicAuth));
+} else {
+  log.warn('=======================================');
+  log.warn('NO AUTHENTICATION ENABLED. Fine for dev, not cool for anything real.');
+  log.warn('=======================================');
+}
+
 app.get('/admin/', function(req, res) {
   res.sendFile(__dirname + '/frontend/build/admin.html');
 });
