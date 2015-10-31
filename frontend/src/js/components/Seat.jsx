@@ -29,7 +29,7 @@ var Seat = React.createClass({
 
     return (
       <a onClick={onClick}
-        className={'seat seat-' + this.props.status}
+        className={'seat seat-' + this.props.status + ' price-' + this.props.priceGroup}
         key={this.props.seat.id}
         data-id={this.props.seat.id}
         style={{
