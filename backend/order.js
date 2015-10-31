@@ -375,14 +375,21 @@ var order = {
   sendTickets: function(order_id) {
     log.info('Sending tickets', {order_id: order_id});
     this.get(order_id, function(order) {
+      // If we ever allow to have tickets for more than one show in an order, this will be wrong.
+      var order_datetime = order.tickets[0].show_date + ' klo ' + order.tickets[0].show_time;
+      var order_showtitle = order.tickets[0].show_title;
+
       mail.sendMail({
         from: config.email.from,
         to: order.email,
-        subject: 'Lippu!',
-        text: 'Kiitos tilauksestasi!\n\nNähdään teatterilla!',
+        subject: 'Kiitos tilauksestasi - ' + config.title + ' / ' + order_showtitle,
+        text: 'Kiitos tilauksestasi!\n\n' +
+          'Tilaamasi liput ovat tämän viestin liitteenä pdf-muodossa. Esitäthän teatterilla liput joko tulostettuna tai mobiililaitteestasi. Voit kysyä lisätietoja vastaamalla tähän viestiin.\n\n' +
+          'Esitys alkaa ' + order_datetime + '. Saavuthan paikalle ajoissa ruuhkien välttämiseksi. Nähdään näytöksessä!\n\n' +
+          'Ystävällisin terveisin,\nTeekkarispeksi\n',
         attachments: [
           {
-            filename: 'lippu.pdf',
+            filename: config.ticket_filename,
             content: ticket.generatePdf(order.tickets)
           }
         ]
