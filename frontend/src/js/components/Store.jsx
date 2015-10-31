@@ -199,7 +199,7 @@ var Store = React.createClass({
 
     return (<div className='shopping-stage help-text'>
       {result}
-      <h4>Tervetuloa katsomaan Suomen suurinta opiskelijamusikaalia!</h4>
+      <h2>Tervetuloa katsomaan Suomen suurinta opiskelijamusikaalia!</h2>
       Mikäli koet ongelmia lippukaupan toiminnassa, voit ottaa yhteyttä lipunmyyntivastaavaan osoitteessa liput@teekkarispeksi.fi.
     </div>);
   },
