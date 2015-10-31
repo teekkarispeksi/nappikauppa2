@@ -123,7 +123,7 @@ gulp.task('js:admin', function() {
 
 gulp.task('js', ['js:store', 'js:admin']);
 
-gulp.task('js:min', function() {
+gulp.task('js:store:min', function() {
   return browserify('./frontend/src/js/App.jsx')
   .transform(reactify)
   .bundle()
@@ -132,6 +132,18 @@ gulp.task('js:min', function() {
   .pipe(uglify())
   .pipe(gulp.dest('./frontend/build/public/js/'));
 });
+
+gulp.task('js:admin:min', function() {
+  return browserify('./frontend/src/js-admin/AdminApp.jsx')
+  .transform(reactify)
+  .bundle()
+  .pipe(source('adminApp.js'))
+  .pipe(buffer())
+  .pipe(uglify())
+  .pipe(gulp.dest('./frontend/build/public/js/'));
+});
+
+gulp.task('js:min', ['js:store:min', 'js:admin:min']);
 
 gulp.task('index', function() {
   return gulp.src('./frontend/src/index.html')
@@ -154,15 +166,23 @@ gulp.task('lint-backend', function() {
   .pipe(jshint.reporter('jshint-stylish'));
 });
 
-gulp.task('build', function(cb) {
+gulp.task('build-dev', function(cb) {
   runSequence(
     ['clean'],
-    ['css', 'js', 'img', 'fonts'],
+    ['lint-backend', 'css', 'js', 'img', 'fonts'],
     ['index', 'admin'],
     cb);
 });
 
-gulp.task('start', function() {
+gulp.task('build', function(cb) {
+  runSequence(
+    ['clean'],
+    ['lint-backend', 'css:min', 'js:min', 'img', 'fonts'],
+    ['index', 'admin'],
+    cb);
+});
+
+gulp.task('start-dev', function() {
   startExpress();
   startLivereload();
   gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index', 'admin']);
@@ -173,10 +193,13 @@ gulp.task('start', function() {
   gulp.watch('frontend/build/**/*.{html,css,js,jpg,gif,png}', notifyLivereload);
 });
 
+gulp.task('start', function() {
+  startExpress();
+});
+
 gulp.task('default', function(cb) {
   runSequence(
-    ['lint-backend'],
-    ['build'],
-    ['start'],
+    ['build-dev'],
+    ['start-dev'],
     cb);
 });
