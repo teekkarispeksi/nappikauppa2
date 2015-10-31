@@ -55,7 +55,9 @@ var ticket = {
           .moveUp(0.2)
           .fontSize(9)
           .text(address)
-          .image(qr.imageSync(hash, {type: 'png', margin: 0}), 415, 55);
+          .image(qr.imageSync(hash, {type: 'png', margin: 0}), 415, 55)
+
+          .image('assets/images/kronos.png', 100, 210, {width: 400});
     }
     doc.end();
     return doc;
