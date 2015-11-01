@@ -24,7 +24,8 @@ var ShoppingCart = React.createClass({
       expirationText = (<span>Varauksesi on rauennut.</span>);
     }
 
-    var reserveTicketsButton = this.props.active ? (<Button id='reserveTickets' onClick={this.props.onReserveTickets}>Varaa liput</Button>) : null;
+    var reserveTicketsButton = (this.props.active && tickets.length > 0) ?
+      (<Button id='reserveTickets' onClick={this.props.onReserveTickets}>Varaa liput</Button>) : null;
 
     var timer;
     if (this.props.reservationExpirationTime) {
@@ -42,9 +43,12 @@ var ShoppingCart = React.createClass({
       divClass += ' disabled';
     }
 
+    var error = this.props.error ? <div className='alert alert-danger'>{this.props.error}</div> : null;
+
     return (
       <div className={divClass}>
         <h2>Paikkojen varaus <small>3/5</small></h2>
+        {error}
         <ul className='list-unstyled'>
           {tickets.map(function(ticket) {
             return (

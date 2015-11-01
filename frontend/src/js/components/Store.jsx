@@ -37,7 +37,13 @@ var Store = React.createClass({
   seats: null,
 
   getInitialState: function() {
-    return {page: 'home', showid: this.props.showid, show: null, paymentBegun: false};
+    return {
+      page: 'home',
+      showid: this.props.showid,
+      show: null,
+      paymentBegun: false,
+      reservationError: null
+    };
   },
 
   componentWillMount: function() {
@@ -71,6 +77,10 @@ var Store = React.createClass({
   },
 
   updateSeatStatus: function(showid) {
+    if (showid === undefined) {
+      showid = this.state.showid;
+    }
+
     $.ajax({
       url: 'api/shows/' + showid + '/reservedSeats',
       success: function(response, status) {
@@ -129,7 +139,11 @@ var Store = React.createClass({
   },
 
   onSeatClicked: function(seat) {
-    this.setState({page: 'seats', reservationHasExpired: false});
+    this.setState({
+      page: 'seats',
+      reservationHasExpired: false,
+      reservationError: null
+    });
     var ticket = this.tickets.findWhere({seat: seat});
     if (ticket) {
       this.tickets.remove(ticket);
@@ -153,8 +167,13 @@ var Store = React.createClass({
           }, 0);
         }.bind(this),
         error: function(model, response) {
-          console.log('seat reservation failed');
-        }
+          this.updateSeatStatus();
+          this.tickets.reset();
+          this.setState({
+            reservationError: 'Valitsemasi paikka on valitettavasti jo ehditty varata.'
+          });
+          this.forceUpdate();
+        }.bind(this)
       });
   },
 
@@ -223,15 +242,15 @@ var Store = React.createClass({
         /* fall through */
       case 'seats':
         seatSelectorElem = <SeatSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked} show={this.state.show} seats={this.seats} />;
-        if (this.tickets.length > 0) {
-          shoppingCartElem = <ShoppingCart
+        if (this.tickets.length > 0 || this.state.reservationError) {
+          shoppingCartElem = (<ShoppingCart
             tickets={this.tickets}
             active={this.state.page === 'seats'}
             reservationExpirationTime={this.state.reservationExpirationTime}
             reservationHasExpired={this.state.reservationHasExpired}
             onReserveTickets={this.onReserveTickets}
             onSeatClicked={this.onSeatClicked}
-          />;
+            error={this.state.reservationError} />);
         }
     }
 
