@@ -21,6 +21,10 @@ router.get('/orders', function(req, res) {
   }
 });
 
+router.get('/orders/:orderid', function(req, res) {
+  order.get(req.params.orderid, function(order) { res.json(order); });
+});
+
 router.get('/orders/:orderid/tickets', function(req, res) {
   order.get(req.params.orderid, function(order) {
     var pdf = ticket.generatePdf(order.tickets);
