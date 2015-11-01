@@ -13,7 +13,7 @@ var ShowSelector = React.createClass({
         <ul className='list-unstyled'>
           {this.props.shows.map(function(show) {
             var date = new Date(show.get('time'));
-            var dateStr = date.getDate() + '.' + (date.getMonth()+1) + '.'; // JS getMonth is zero-indexed. Go figure.
+            var dateStr = date.getDate() + '.' + (date.getMonth() + 1) + '.'; // JS getMonth is zero-indexed. Go figure.
             var selectedClass = (this.props.selectedShow && this.props.selectedShow.id === show.id) ? 'selected' : '';
             var progressBar;
             if (show.get('reserved_percentage') < 100) {
