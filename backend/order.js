@@ -32,7 +32,9 @@ var order = {
           log.error('Failed to start a database transaction', {error: err});
           return;
         }
-        db.query('insert into nk2_orders (time, status) values (now(), "seats-reserved")', function(err, res) {
+        db.query('insert into nk2_orders (time, status, hash) values (now(), "seats-reserved", :hash)',
+          {hash: uuid.v4()},
+          function(err, res) {
           if (err) {
             log.error('Failed to create a new order - rolling back', {error: err});
             return db.rollback();
@@ -99,7 +101,7 @@ var order = {
           from nk2_tickets t \
           left join nk2_discount_codes d on d.code = :discount_code \
           where t.order_id = :id) \
-      where id = :id',
+      where id = :id and hash = :hash',
       data,
       function(err, res) {
         if (err) {
@@ -127,11 +129,12 @@ var order = {
         tickets.show_id,\
         tickets.seat_id,\
         tickets.discount_group_id, \
-        tickets.hash, \
+        tickets.hash ticket_hash, \
         tickets.price ticket_price, \
         tickets.used_time,\
         \
         orders.id order_id,\
+        orders.hash order_hash,\
         orders.name,\
         orders.email,\
         orders.discount_code,\
@@ -170,11 +173,13 @@ var order = {
           log.error('Failed to get order', {order_id: order_id, error: err});
         }
         var first = rows[0];
-        var res = _.pick(first, ['order_id', 'name', 'email', 'discount_code', 'time', 'order_price', 'payment_id',
+        var res = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'time', 'order_price', 'payment_id',
           'reserved_until', 'reserved_session_id', 'status']);
 
         res.tickets = _.map(rows, function(row) {
-          return _.pick(row, ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id', 'discount_group_title', 'hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_title', 'row_name']);
+          return _.pick(row,
+            ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id',
+            'discount_group_title', 'ticket_hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_title', 'row_name']);
         });
 
         res.tickets_total_price = _.reduce(res.tickets, function(res, ticket) { return res + parseFloat(ticket.ticket_price);}, 0);
