@@ -81,6 +81,8 @@ var Store = React.createClass({
       showid = this.state.showid;
     }
 
+    var mySeats = this.getMySeats();
+
     $.ajax({
       url: 'api/shows/' + showid + '/reservedSeats',
       success: function(response, status) {
@@ -94,14 +96,26 @@ var Store = React.createClass({
             seat.prices = prices;
             if (seat.is_bad) {
               seat.status = 'bad';
-            } else if (_.indexOf(response.reserved_seats,seat.id) >= 0) {
+            } else if (_.contains(response.reserved_seats, seat.id)) {
               seat.status = 'reserved';
+            } else if (_.contains(mySeats, seat.id)) {
+              seat.status = 'chosen';
             } else {
               seat.status = 'free';
             }
             return seat;
           });
         }.bind(this)));
+
+        var conflictSeats = _.difference(mySeats, this.getMySeats());
+        if (conflictSeats.length > 0) {
+          this.setState({reservationError: 'Valitsemasi paikka on jo ehditty varata.'});
+
+          for (var i = 0; i < conflictSeats.length; i++) {
+            this.unselectSeat(this.getSeatById(conflictSeats[i]));
+          }
+          this.updateSeatStatus();
+        }
         this.forceUpdate();
       }.bind(this)
     });
@@ -146,13 +160,42 @@ var Store = React.createClass({
     });
     var ticket = this.tickets.findWhere({seat: seat});
     if (ticket) {
-      this.tickets.remove(ticket);
-      this.seats[_.indexOf(this.seats, ticket.get('seat'))].status = 'free';
+      this.removeTicket(ticket);
     } else {
-      this.tickets.add(new Ticket({seat: seat, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
-      this.seats[_.indexOf(this.seats, seat)].status = 'chosen';
+      this.selectSeat(seat);
     }
     this.forceUpdate();
+  },
+
+  getMySeats: function() {
+    if (!this.seats) {
+      return [];
+    }
+
+    return this.seats.filter(function(seat) {
+      return seat.status === 'chosen';
+    }).map(function(seat) {
+      return seat.id;
+    });
+  },
+
+  getSeatById: function(id) {
+    return _.findWhere(this.seats, {id: id});
+  },
+
+  selectSeat: function(seat) {
+    this.tickets.add(new Ticket({seat: seat, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
+    this.seats[_.indexOf(this.seats, seat)].status = 'chosen';
+  },
+
+  unselectSeat: function(seat) {
+    var ticket = this.tickets.findWhere({seat: seat});
+    this.removeTicket(ticket);
+  },
+
+  removeTicket: function(ticket) {
+    this.tickets.remove(ticket);
+    this.seats[_.indexOf(this.seats, ticket.get('seat'))].status = 'free';
   },
 
   onReserveTickets: function() {
@@ -168,10 +211,6 @@ var Store = React.createClass({
         }.bind(this),
         error: function(model, response) {
           this.updateSeatStatus();
-          this.tickets.reset();
-          this.setState({
-            reservationError: 'Valitsemasi paikka on valitettavasti jo ehditty varata.'
-          });
           this.forceUpdate();
         }.bind(this)
       });
