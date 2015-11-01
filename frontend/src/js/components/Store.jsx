@@ -164,6 +164,7 @@ var Store = React.createClass({
     } else {
       this.selectSeat(seat);
     }
+    this.updateSeatStatus();
     this.forceUpdate();
   },
 
