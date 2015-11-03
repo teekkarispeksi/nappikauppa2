@@ -55,7 +55,9 @@ var ticket = {
           .moveUp(0.2)
           .fontSize(9)
           .text(address)
-          .image(qr.imageSync(hash, {type: 'png', margin: 0}), 415, 55)
+          .image(qr.imageSync(hash, {type: 'png', margin: 0, size: 3}), 600 - 30 - (39 * 3), 75)
+          // QR code right align: page is 600 wide, margin is 30, qr code has 39 blocks of width 3
+          // bottom align: trial-and-error
 
           .image('assets/images/kronos.png', 100, 210, {width: 400});
     }
