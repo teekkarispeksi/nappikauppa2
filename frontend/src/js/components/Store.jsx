@@ -145,7 +145,7 @@ var Store = React.createClass({
     Backbone.sync('create', this.tickets,
       {url: 'api/shows/' + this.state.showid + '/reserveSeats/',
         success: function(response) {
-          this.order = new Order({id: response.order_id});
+          this.order = new Order({id: response.order_id, hash: response.order_hash});
           this.startTimer();
           this.setState({page: 'contacts'});
           setTimeout(function() {
@@ -160,7 +160,7 @@ var Store = React.createClass({
 
   onSaveOrderInfo: function(info) {
     // backend assumes id is also an attribute
-    this.order.save({id: this.order.id, name: info.name, email: info.email, discount_code: info.discount_code}, {
+    this.order.save({id: this.order.id, hash: this.order.get('hash'), name: info.name, email: info.email, discount_code: info.discount_code}, {
       patch: true,
       success: function(response) {
         this.setState({page: 'payment'});

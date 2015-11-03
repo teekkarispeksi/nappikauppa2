@@ -21,7 +21,7 @@ var ticket = {
       var venueDescription = ticket.venue_description.split('\n');
       var venue = venueDescription[0]; //'Aleksanterin teatteri, Helsinki';
       var address = venueDescription[1]; //'Bulevardi 23-27 / Albertinkatu 32';
-      var hash = ticket.hash;
+      var hash = ticket.ticket_hash;
       if (i > 0) {
         doc.addPage();
       }
