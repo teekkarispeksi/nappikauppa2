@@ -15,7 +15,7 @@ var show = {
         groups.id as discount_group_id, groups.title as discount_group_title, groups.eur as discount_group_discount \
       from nk2_shows shows \
       join nk2_prices prices on shows.id = prices.show_id \
-      join ( \
+      left join ( \
         select show_id, count(*) seatcount \
         from nk2_tickets tickets \
         join nk2_orders orders on tickets.order_id = orders.id \
@@ -29,7 +29,7 @@ var show = {
         join nk2_seats seats on seats.section_id = sections.id \
         group by show_id \
       ) as total on total.show_id = shows.id \
-      left outer join nk2_discount_groups groups on \
+      left join nk2_discount_groups groups on \
         (shows.id = groups.show_id or groups.show_id is null) \
         and groups.admin_only = false \
         and groups.active = true',
