@@ -37,7 +37,13 @@ var Store = React.createClass({
   seats: null,
 
   getInitialState: function() {
-    return {page: 'home', showid: this.props.showid, show: null, paymentBegun: false};
+    return {
+      page: 'home',
+      showid: this.props.showid,
+      show: null,
+      paymentBegun: false,
+      reservationError: null
+    };
   },
 
   componentWillMount: function() {
@@ -71,9 +77,16 @@ var Store = React.createClass({
   },
 
   updateSeatStatus: function(showid) {
+    if (showid === undefined) {
+      showid = this.state.showid;
+    }
+
+    var mySeats = this.getMySeats();
+
     $.ajax({
       url: 'api/shows/' + showid + '/reservedSeats',
       success: function(response, status) {
+        var hasConflictingSeats = false;
         var sections = _.values(this.venue.get('sections'));
         this.seats = _.flatten(sections.map(function(section) {
           var prices = this.state.show.get('sections')[section.id].discount_groups;
@@ -84,14 +97,25 @@ var Store = React.createClass({
             seat.prices = prices;
             if (seat.is_bad) {
               seat.status = 'bad';
-            } else if (_.indexOf(response.reserved_seats,seat.id) >= 0) {
-              seat.status = 'reserved';
+            } else if (_.contains(response.reserved_seats, seat.id)) {
+              if (_.contains(mySeats, seat.id)) {
+                seat.status = 'conflict';
+                hasConflictingSeats = true;
+              } else {
+                seat.status = 'reserved';
+              }
+            } else if (_.contains(mySeats, seat.id)) {
+              seat.status = 'chosen';
             } else {
               seat.status = 'free';
             }
             return seat;
           });
         }.bind(this)));
+
+        if (hasConflictingSeats) {
+          this.setState({reservationError: 'Osa valitsemistasi paikoista on valitettavasti jo ehditty varata.'});
+        }
         this.forceUpdate();
       }.bind(this)
     });
@@ -129,16 +153,50 @@ var Store = React.createClass({
   },
 
   onSeatClicked: function(seat) {
-    this.setState({page: 'seats', reservationHasExpired: false});
+    this.setState({
+      page: 'seats',
+      reservationHasExpired: false,
+      reservationError: null
+    });
     var ticket = this.tickets.findWhere({seat: seat});
     if (ticket) {
-      this.tickets.remove(ticket);
-      this.seats[_.indexOf(this.seats, ticket.get('seat'))].status = 'free';
+      this.removeTicket(ticket);
     } else {
-      this.tickets.add(new Ticket({seat: seat, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
-      this.seats[_.indexOf(this.seats, seat)].status = 'chosen';
+      this.selectSeat(seat);
     }
+    this.updateSeatStatus();
     this.forceUpdate();
+  },
+
+  getMySeats: function() {
+    if (!this.seats) {
+      return [];
+    }
+
+    return this.seats.filter(function(seat) {
+      return seat.status === 'chosen' || seat.status === 'conflict';
+    }).map(function(seat) {
+      return seat.id;
+    });
+  },
+
+  getSeatById: function(id) {
+    return _.findWhere(this.seats, {id: id});
+  },
+
+  selectSeat: function(seat) {
+    this.tickets.add(new Ticket({seat: seat, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
+    this.seats[_.indexOf(this.seats, seat)].status = 'chosen';
+  },
+
+  unselectSeat: function(seat) {
+    var ticket = this.tickets.findWhere({seat: seat});
+    this.removeTicket(ticket);
+  },
+
+  removeTicket: function(ticket) {
+    this.tickets.remove(ticket);
+    this.seats[_.indexOf(this.seats, ticket.get('seat'))].status = 'free';
   },
 
   onReserveTickets: function() {
@@ -153,8 +211,9 @@ var Store = React.createClass({
           }, 0);
         }.bind(this),
         error: function(model, response) {
-          console.log('seat reservation failed');
-        }
+          this.updateSeatStatus();
+          this.forceUpdate();
+        }.bind(this)
       });
   },
 
@@ -223,15 +282,15 @@ var Store = React.createClass({
         /* fall through */
       case 'seats':
         seatSelectorElem = <SeatSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked} show={this.state.show} seats={this.seats} />;
-        if (this.tickets.length > 0) {
-          shoppingCartElem = <ShoppingCart
+        if (this.tickets.length > 0 || this.state.reservationError) {
+          shoppingCartElem = (<ShoppingCart
             tickets={this.tickets}
             active={this.state.page === 'seats'}
             reservationExpirationTime={this.state.reservationExpirationTime}
             reservationHasExpired={this.state.reservationHasExpired}
             onReserveTickets={this.onReserveTickets}
             onSeatClicked={this.onSeatClicked}
-          />;
+            error={this.state.reservationError} />);
         }
     }
 

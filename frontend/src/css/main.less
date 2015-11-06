@@ -1,5 +1,7 @@
 @import (less) '../bootstrap/css/bootstrap.css';
 
+@red: rgb(254, 53, 66);
+
 @yellow: rgb(254, 240, 53);
 @dark-yellow: @yellow - rgb(100, 100, 100);
 
@@ -127,6 +129,10 @@ a.seat {
     background-color: @yellow;
     border: 1px solid @almost-black;
   }
+  &.seat-conflict {
+    background-color: @red;
+    border: 1px solid @almost-black;
+  }
 }
 
 .show-selector {
@@ -174,6 +180,11 @@ a.seat {
   li div.ticket {
     margin-bottom: 3px;
     padding-bottom: 8px;
+
+    &.alert {
+      padding: 4px;
+      margin-bottom: 8px;
+    }
 
     button.removeSeat {
       color: @almost-black;
@@ -254,5 +265,5 @@ a.seat {
       }
     }
   }
-  
+
 }
