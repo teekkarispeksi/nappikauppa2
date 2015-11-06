@@ -86,6 +86,7 @@ var Store = React.createClass({
     $.ajax({
       url: 'api/shows/' + showid + '/reservedSeats',
       success: function(response, status) {
+        var hasConflictingSeats = false;
         var sections = _.values(this.venue.get('sections'));
         this.seats = _.flatten(sections.map(function(section) {
           var prices = this.state.show.get('sections')[section.id].discount_groups;
@@ -97,7 +98,12 @@ var Store = React.createClass({
             if (seat.is_bad) {
               seat.status = 'bad';
             } else if (_.contains(response.reserved_seats, seat.id)) {
-              seat.status = 'reserved';
+              if (_.contains(mySeats, seat.id)) {
+                seat.status = 'conflict';
+                hasConflictingSeats = true;
+              } else {
+                seat.status = 'reserved';
+              }
             } else if (_.contains(mySeats, seat.id)) {
               seat.status = 'chosen';
             } else {
@@ -107,14 +113,8 @@ var Store = React.createClass({
           });
         }.bind(this)));
 
-        var conflictSeats = _.difference(mySeats, this.getMySeats());
-        if (conflictSeats.length > 0) {
-          this.setState({reservationError: 'Valitsemasi paikka on jo ehditty varata.'});
-
-          for (var i = 0; i < conflictSeats.length; i++) {
-            this.unselectSeat(this.getSeatById(conflictSeats[i]));
-          }
-          this.updateSeatStatus();
+        if (hasConflictingSeats) {
+          this.setState({reservationError: 'Osa valitsemistasi paikoista on valitettavasti jo ehditty varata.'});
         }
         this.forceUpdate();
       }.bind(this)
@@ -174,7 +174,7 @@ var Store = React.createClass({
     }
 
     return this.seats.filter(function(seat) {
-      return seat.status === 'chosen';
+      return seat.status === 'chosen' || seat.status === 'conflict';
     }).map(function(seat) {
       return seat.id;
     });

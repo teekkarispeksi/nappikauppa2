@@ -16,7 +16,7 @@ var Seat = React.createClass({
     var onClick = this.props.onClick;
 
     var prices = _.pluck(this.props.seat.prices, 'price').join('/');
-    if (this.props.status === 'reserved') {
+    if (this.props.status === 'reserved' || this.props.status === 'conflict') {
       url = this.img_reserved;
       onClick = null;
       text = 'Tämä paikka on valitettavasti jo varattu.';

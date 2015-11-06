@@ -14,12 +14,15 @@ var Ticket = React.createClass({
 
   render: function() {
     var seat = this.props.ticket.get('seat');
+    var conflict = seat.status === 'conflict';
     var remove = this.props.active ? (<Button bsStyle='link' className='removeSeat' onClick={this.props.onRemove.bind(null, seat)}><Glyphicon glyph='remove' /></Button>) : null;
+    var disabled = !this.props.active || conflict;
+    var divClass = 'ticket' + (conflict ? ' alert alert-danger' : '');
     return (
       <li key={seat.id}>
-        <div className='ticket'>
+        <div className={divClass}>
           <div className='info'>{seat.section_title}, {seat.row_name} {seat.row}, paikka {seat.number}</div>
-          <Input type='select' className='discountGroupSelect' standalone disabled={!this.props.active} onChange={this.onChange} value={this.props.ticket.get('discount_group')}>
+          <Input type='select' className='discountGroupSelect' standalone disabled={disabled} onChange={this.onChange} value={this.props.ticket.get('discount_group')}>
             {_.map(seat.prices, function(group) {
               return (<option key={group.id} value={group.id}>{group.title} à {group.price}€</option>);
             })}
