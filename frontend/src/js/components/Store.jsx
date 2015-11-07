@@ -2,6 +2,7 @@
 
 var React = require('react');
 var Backbone = require('backbone');
+Backbone.emulateHTTP = true; // PATCH's don't work with our mod_rewrites
 var $ = require('jquery');
 var _ = require('underscore');
 
@@ -220,7 +221,7 @@ var Store = React.createClass({
   onSaveOrderInfo: function(info) {
     // backend assumes id is also an attribute
     this.order.save({id: this.order.id, hash: this.order.get('hash'), name: info.name, email: info.email, discount_code: info.discount_code}, {
-      patch: true,
+      patch: true, // Backbone.emulateHTTP is set to 'true' to make this still a POST request
       success: function(response) {
         this.setState({page: 'payment'});
         setTimeout(function() {
