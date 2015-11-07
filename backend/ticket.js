@@ -59,7 +59,7 @@ var ticket = {
           // QR code right align: page is 600 wide, margin is 30, qr code has 39 blocks of width 3
           // bottom align: trial-and-error
 
-          .image('assets/images/kronos.png', 100, 210, {width: 400});
+          .image('assets/images/' + config.ticket_image, 100, 210, {width: 400});
     }
     doc.end();
     return doc;
