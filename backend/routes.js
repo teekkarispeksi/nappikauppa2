@@ -7,6 +7,7 @@ var router = express.Router();
 var discountCode = require('./discountCode.js');
 var order = require('./order.js');
 var show = require('./show.js');
+var ticket = require('./ticket.js');
 var venue = require('./venue.js');
 
 var log = require('./log.js');
@@ -68,6 +69,18 @@ router.get('/orders/:orderid/success', function(req, res) {
 
 router.get('/orders/:orderid/failure', function(req, res) {
   order.paymentCancelled(req.params.orderid, req.query, function() { res.redirect(config.public_url + '#fail'); });
+});
+
+router.get('/orders/:orderid/:orderhash/tickets', function(req, res) {
+  order.get(req.params.orderid, function(order) {
+    if (order.order_hash === req.params.orderhash) {
+      var pdf = ticket.generatePdf(order.tickets);
+      res.type('application/pdf');
+      pdf.pipe(res);
+    } else {
+      res.sendStatus(403);
+    }
+  });
 });
 
 router.get('/venues/:venueid', function(req, res) {
