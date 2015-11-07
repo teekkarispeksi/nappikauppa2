@@ -263,7 +263,7 @@ var Store = React.createClass({
         </div>
       );
     } else if (this.props.action === 'fail') {
-      result = (<div className='alert alert-warning'>Tilaus peruttiin onnistuneesti.</div>);
+      result = (<div className='alert alert-warning'>Keskeytit tilauksesi ja varaamasi paikat on vapautettu myyntiin.</div>);
     }
 
     return (<div className='shopping-stage help-text'>
