@@ -368,7 +368,7 @@ var order = {
 
             db.commit();
             this.sendTickets(order_id);
-            cb(res);
+            this.get(order_id, cb);
           }.bind(this));
       }.bind(this));
     } else {

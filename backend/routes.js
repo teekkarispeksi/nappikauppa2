@@ -64,7 +64,9 @@ router.post('/orders/:orderid/preparePayment', function(req, res) {
 });
 
 router.get('/orders/:orderid/success', function(req, res) {
-  order.paymentDone(req.params.orderid, req.query, function() { res.redirect(config.public_url + '#ok'); });
+  order.paymentDone(req.params.orderid, req.query, function(order) {
+    res.redirect(config.public_url + '#ok/' + order.order_id + '/' + order.order_hash);
+  });
 });
 
 router.get('/orders/:orderid/failure', function(req, res) {

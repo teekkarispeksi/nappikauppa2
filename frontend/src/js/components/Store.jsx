@@ -254,7 +254,14 @@ var Store = React.createClass({
   helpText: function() {
     var result;
     if (this.props.action === 'ok') {
-      result = (<div className='alert alert-success'>Tilaus onnistui! TODO: Tulosta liput tästä.</div>);
+      var order_id = this.props.args[0];
+      var order_hash = this.props.args[1];
+      result = (
+        <div className='alert alert-success'><p>Tilaus onnistui!</p>
+          <p>Lähetimme liput sähköpostitse.
+          Voit myös <a className='alert-link' href={'/api/orders/' + order_id + '/' + order_hash + '/tickets'}>ladata liput tästä.</a></p>
+        </div>
+      );
     } else if (this.props.action === 'fail') {
       result = (<div className='alert alert-warning'>Tilaus peruttiin onnistuneesti.</div>);
     }
