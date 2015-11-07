@@ -306,8 +306,9 @@ var order = {
               'sendImmediately': true
             }
           }, function(err, response, body) {
-            if (err) {
-              log.error('Got an error from Paytrail', {error: err, response: response, order_id: order_id});
+            if (err || response.statusCode >= 400 || response.body.errorCode || response.body.errorMessage) {
+              log.error('Got an error from Paytrail', {error: err, responseBody: body, statusCode: response.statusCode, statusMessage: response.statusMessage,
+                requestHeaders: response.request.headers, requestBody: response.request.body, requestUri: response.request.uri, order_id: order_id});
               return;
             }
             cb({url: body.url});
