@@ -18,7 +18,14 @@ var Router = require('./router.js');
 React.render(<Header />, document.getElementsByTagName('header')[0]);
 
 Router.on('route:default', function(url) {
-  React.render(<Store action={url} />, document.getElementsByTagName('main')[0]);
+  var store;
+  if (url) {
+    var urlparts = url.split('/');
+    store = <Store action={urlparts[0]} args={urlparts.slice(1)} />;
+  } else {
+    store = <Store />;
+  }
+  React.render(store, document.getElementsByTagName('main')[0]);
 });
 
 Router.on('route:show', function(showid) {
