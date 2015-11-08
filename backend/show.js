@@ -26,7 +26,8 @@ var show = {
         select shows.id as show_id, count(*) seatcount \
         from nk2_shows shows \
         join nk2_sections sections on sections.venue_id = shows.venue_id \
-        join nk2_seats seats on seats.section_id = sections.id \
+        join nk2_seats seats on seats.section_id = sections.id and seats.bad_seat = false \
+        join nk2_prices prices on shows.id = prices.show_id and sections.id = prices.section_id and prices.active = true \
         group by show_id \
       ) as total on total.show_id = shows.id \
       left join nk2_discount_groups groups on \
