@@ -89,8 +89,12 @@ var Store = React.createClass({
       success: function(response, status) {
         var hasConflictingSeats = false;
         var sections = _.values(this.venue.get('sections'));
-        this.seats = _.flatten(sections.map(function(section) {
-          var prices = this.state.show.get('sections')[section.id].discount_groups;
+        this.seats = _.compact(_.flatten(sections.map(function(section) {
+          var sectionPrice = this.state.show.get('sections')[section.id];
+          if (!sectionPrice) {
+            return null;
+          }
+          var prices = sectionPrice.discount_groups;
           return _.values(section.seats).map(function(seat) {
             seat.section_id = section.id;
             seat.section_title = section.title;
@@ -112,7 +116,7 @@ var Store = React.createClass({
             }
             return seat;
           });
-        }.bind(this)));
+        }.bind(this))));
 
         if (hasConflictingSeats) {
           this.setState({reservationError: 'Osa valitsemistasi paikoista on valitettavasti jo ehditty varata.'});

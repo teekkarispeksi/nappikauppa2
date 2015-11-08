@@ -14,7 +14,7 @@ var show = {
         prices.section_id, prices.price, \
         groups.id as discount_group_id, groups.title as discount_group_title, groups.eur as discount_group_discount \
       from nk2_shows shows \
-      join nk2_prices prices on shows.id = prices.show_id \
+      join nk2_prices prices on shows.id = prices.show_id and prices.active = true \
       left join ( \
         select show_id, count(*) seatcount \
         from nk2_tickets tickets \
