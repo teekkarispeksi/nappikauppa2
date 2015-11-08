@@ -272,8 +272,11 @@ var Store = React.createClass({
 
     return (<div className='shopping-stage help-text'>
       {result}
-      <h2>Tervetuloa katsomaan Suomen suurinta opiskelijamusikaalia!</h2>
-      Mikäli koet ongelmia lippukaupan toiminnassa, voit ottaa yhteyttä lipunmyyntivastaavaan osoitteessa liput@teekkarispeksi.fi.
+      <h2>Tervetuloa katsomaan NääsPeksin Helsingin-näytöstä!</h2>
+      <p>Näytös järjestetään Aleksanterin teatterissa, Albertinkatu 32. Teatteri perii eteispalvelumaksun.</p>
+      <p>Lipunmyynti sulkeutuu 23.11. klo 04:00. Mikäli lippuja on tällöin vielä jäljellä, niitä saa ostaa teatterin
+        ovelta tuntia ennen näytöstä, niin kauan kuin niitä on jäljellä.</p>
+      <p>Mikäli koet ongelmia lippukaupan toiminnassa, voit ottaa yhteyttä lipunmyyntivastaavaan osoitteessa liput@teekkarispeksi.fi.</p>
     </div>);
   },
 
