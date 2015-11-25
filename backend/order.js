@@ -407,6 +407,48 @@ var order = {
         log.info('Tickets sent', {order_id: order_id});
       });
     });
+  },
+
+  updateNameOrEmail: function(order_id, data, cb) {
+
+    data.id = order_id;
+
+    log.info('ADMIN: Updating contact details', {order_id: order_id, name: data});
+    var query = '';
+    if (data.name) {
+      if (data.email) {
+        query = 'name = :name, email = :email';
+      } else {
+        query = 'name = :name';
+      }
+    } else if (data.email) {
+      query = 'email = :email';
+    } else {
+      log.error('ADMIN: Nothing to update!');
+      return;
+    }
+
+    db.query('update nk2_orders set ' + query + ' where id = :id',
+      data,
+      function(err, res) {
+        if (err) {
+          console.log(err);
+          log.error('ADMIN: Failed to update contact details', {error: err});
+          return cb({err: true});
+        }
+
+        // TODO how we should really propagate these errors
+        if (res.changedRows !== 1) {
+          var errmsg = 'ADMIN: Should have updated one row, updated really ' + res.changedRows + ' rows';
+          log.error(errmsg);
+          return cb({
+            err: true,
+            errmsg: errmsg
+          });
+        }
+        log.info('ADMIN: Updated contact details successfully');
+        order.get(order_id, cb);
+      });
   }
 };
 

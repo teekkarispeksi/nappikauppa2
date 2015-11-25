@@ -25,6 +25,10 @@ router.get('/orders/:orderid', function(req, res) {
   order.get(req.params.orderid, function(order) { res.json(order); });
 });
 
+router.post('/orders/:orderid', jsonParser, function(req, res) {
+  order.updateNameOrEmail(req.params.orderid, req.body, function(data) { res.json(data); });
+});
+
 router.get('/orders/:orderid/tickets', function(req, res) {
   order.get(req.params.orderid, function(order) {
     var pdf = ticket.generatePdf(order.tickets);
