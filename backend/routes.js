@@ -55,7 +55,7 @@ router.post('/shows/:showid/reserveSeats', jsonParser, function(req, res) {
   });
 });
 
-router.post('/orders/:orderid', jsonParser, function(req, res) {
+router.patch('/orders/:orderid', jsonParser, function(req, res) {
   order.updateContact(req.body.id, req.body, function(data) { res.json(data); });
 });
 
