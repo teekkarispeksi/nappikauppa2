@@ -432,7 +432,6 @@ var order = {
       data,
       function(err, res) {
         if (err) {
-          console.log(err);
           log.error('ADMIN: Failed to update contact details', {error: err});
           return cb({err: true});
         }
@@ -449,6 +448,27 @@ var order = {
         log.info('ADMIN: Updated contact details successfully');
         order.get(order_id, cb);
       });
+  },
+
+  remove: function(order_id, cb) {
+    log.info('ADMIN: Removing order ' + order_id);
+
+    db.query('delete from nk2_orders where id = :id', {id: order_id}, function(err, res) {
+      if (err) {
+        log.error('ADMIN: Failed to remove order ' + order_id, {error: err});
+        return cb({err: true});
+      }
+      if (res.affectedRows !== 1) {
+        var errmsg = 'ADMIN: Should have removed one row, affected really ' + res.changedRows + ' rows';
+        log.error(errmsg);
+        return cb({
+          err: true,
+          errmsg: errmsg
+        });
+      }
+      log.info('ADMIN: Removed order ' + order_id + ' successfully');
+      cb();
+    });
   }
 };
 
