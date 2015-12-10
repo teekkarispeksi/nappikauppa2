@@ -3,11 +3,12 @@
 var React = require('react');
 var Backbone = require('backbone');
 var Table = require('react-bootstrap/lib/Table');
-var Modal = require('react-bootstrap/lib/Modal');
 var Button = require('react-bootstrap/lib/Button');
 
 var $ = require('jquery');
 var _ = require('underscore');
+
+var Modal = require('./Modal.jsx');
 
 var Orders = require('../collections/orders.js');
 
@@ -28,47 +29,34 @@ var OrderList = React.createClass({
     var order = this.orders.get(id);
     var ticketLink = order.get('status') === 'paid' ? <a target='_blank' href={'admin-api/orders/' + order.get('id') + '/tickets/'}>Liput</a> : null;
 
-    var close = function() {
-      React.unmountComponentAtNode(document.getElementById('modal-container'));
-    };
-
     var removeAndClose = function() {
-      close();
       order.destroy();
       this.forceUpdate();
     }.bind(this);
 
     var confirmEl = (
-      <Modal.Dialog>
-        <Modal.Header onHide={close} closeButton={true}>
-          <Modal.Title>Vahvista poisto</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Haluatko varmasti poistaa seuraavan varauksen:
-          <Table bordered striped condensed><tbody>
-          <tr>
-            <th>Nimi</th>
-            <th>Ostettu</th>
-            <th>Hinta</th>
-            <th>Status</th>
-            <th>Liput</th>
-          </tr>
-          <tr key={order.get('id')}>
-            <td>{order.get('name')}</td>
-            <td>{order.get('time')}</td>
-            <td>{order.get('price')}</td>
-            <td>{order.get('status')}</td>
-            <td>{ticketLink}</td>
-          </tr>
-          </tbody></Table>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={removeAndClose}>Poista</Button>
-          <Button onClick={close} data-dismiss='modal' bsStyle='primary'>Peruuta</Button>
-        </Modal.Footer>
-      </Modal.Dialog>
+      <Modal title='Vahvista poisto' onAccept={removeAndClose} acceptText='Poista' >
+        Haluatko varmasti poistaa seuraavan varauksen:
+        <Table bordered striped condensed><tbody>
+        <tr>
+          <th>Nimi</th>
+          <th>Ostettu</th>
+          <th>Hinta</th>
+          <th>Status</th>
+          <th>Liput</th>
+        </tr>
+        <tr key={order.get('id')}>
+          <td>{order.get('name')}</td>
+          <td>{order.get('time')}</td>
+          <td>{order.get('price')}</td>
+          <td>{order.get('status')}</td>
+          <td>{ticketLink}</td>
+        </tr>
+        </tbody></Table>
+      </Modal>
     );
-    React.render(confirmEl, document.getElementById('modal-container'));
+    React.unmountComponentAtNode(document.getElementById('modal-container')); // in case the Modal exists already
+    React.render(confirmEl, document.getElementById('modal-container')); // there is probably a better way to do this
   },
 
   render: function() {
