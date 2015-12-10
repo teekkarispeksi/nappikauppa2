@@ -16,6 +16,13 @@ var config = require('../config/config.js');
 
 var jsonParser = bodyParser.json();
 
+var callback = function(res, data) {
+  if (data.err) {
+    res.status(404);
+  }
+  res.json(data);
+};
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
@@ -56,7 +63,7 @@ router.post('/shows/:showid/reserveSeats', jsonParser, function(req, res) {
 });
 
 router.post('/orders/:orderid', jsonParser, function(req, res) {
-  order.updateContact(req.body.id, req.body, function(data) { res.json(data); });
+  order.updateContact(req.body.id, req.body, callback.bind(null,res));
 });
 
 router.post('/orders/:orderid/preparePayment', function(req, res) {
