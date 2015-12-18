@@ -24,7 +24,7 @@ var Home = React.createClass({
       <div>
         <ul>
           {this.shows.map(function(show) {
-            return <li key={show.id}><a href={'#orders/' + show.get('id')}>{show.get('title')}</a></li>;
+            return <li key={show.id}><a href={'#shows/' + show.get('id') + '/orders'}>{show.get('title')}</a></li>;
           }.bind(this))}
         </ul>
       </div>
