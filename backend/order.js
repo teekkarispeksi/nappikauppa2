@@ -87,40 +87,58 @@ var order = {
   },
 
   updateContact: function(order_id, data, cb) {
+    var discountCheck = 'select (dc.use_max - count(*)) > 0 as valid from nk2_orders o \
+      join nk2_discount_codes dc on dc.code = o.discount_code \
+      where o.discount_code = :discount_code';
     // make falsy to be a real NULL
     if (!data.discount_code) {
       data.discount_code = null;
+      discountCheck = 'select 1';
     }
 
     log.info('Updating contact details', {order_id: order_id, contact: data});
-    db.query('update nk2_orders set \
-        name = :name, \
-        email = :email, \
-        discount_code = :discount_code, \
-        price = (select if(sum(price) - ifnull(d.eur,0) >= 0, sum(price)-ifnull(d.eur,0), 0) \
-          from nk2_tickets t \
-          left join nk2_discount_codes d on d.code = :discount_code \
-          where t.order_id = :id) \
-      where id = :id and hash = :hash',
-      data,
-      function(err, res) {
-        if (err) {
-          log.error('Failed to update contact details', {error: err});
-          return cb({err: true});
-        }
 
-        // TODO how we should really propagate these errors
-        if (res.changedRows !== 1) {
-          var errmsg = 'Should have updated one row, updated really ' + res.changedRows + ' rows';
-          log.error(errmsg);
-          return cb({
-            err: true,
-            errmsg: errmsg
-          });
-        }
-        log.info('Updated contact details successfully');
-        order.get(order_id, cb);
-      });
+    db.query(discountCheck, data, function(err, rows) {
+      if (err) {
+        log.error('Failed to check discount code validity', {order_id: order_id, contact: data, error: err});
+        return cb({err: true});
+      }
+      console.log(rows);
+      if (!(/* is admin || */ rows[0].valid)) {
+        log.error('Discount code not valid and user is not admin', {order_id: order_id, contact: data});
+        return cb({err: true});
+      }
+
+      db.query('update nk2_orders set \
+          name = :name, \
+          email = :email, \
+          discount_code = :discount_code, \
+          price = (select if(sum(price) - ifnull(d.eur,0) >= 0, sum(price)-ifnull(d.eur,0), 0) \
+            from nk2_tickets t \
+            left join nk2_discount_codes d on d.code = :discount_code \
+            where t.order_id = :id) \
+        where id = :id and hash = :hash',
+        data,
+        function(err, res) {
+          if (err) {
+            log.error('Failed to update contact details', {error: err});
+            return cb({err: true});
+          }
+
+          // TODO how we should really propagate these errors
+          if (res.changedRows !== 1) {
+            var errmsg = 'Should have updated one row, updated really ' + res.changedRows + ' rows';
+            log.error(errmsg);
+            return cb({
+              err: true,
+              errmsg: errmsg
+            });
+          }
+          log.info('Updated contact details successfully');
+          order.get(order_id, cb);
+        });
+    });
+
   },
 
   get: function(order_id, cb) {

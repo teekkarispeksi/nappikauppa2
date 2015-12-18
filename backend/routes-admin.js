@@ -29,7 +29,7 @@ router.delete('/orders/:orderid', function(req, res) {
   order.remove(req.params.orderid, function(data) { res.json(data); });
 });
 
-router.post('/orders/:orderid', jsonParser, function(req, res) {
+router.patch('/orders/:orderid', jsonParser, function(req, res) {
   order.updateNameOrEmail(req.params.orderid, req.body, function(data) { res.json(data); });
 });
 
