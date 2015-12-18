@@ -21,6 +21,18 @@ router.get('/orders', function(req, res) {
   }
 });
 
+router.get('/orders/:orderid', function(req, res) {
+  order.get(req.params.orderid, function(order) { res.json(order); });
+});
+
+router.delete('/orders/:orderid', function(req, res) {
+  order.remove(req.params.orderid, function(data) { res.json(data); });
+});
+
+router.post('/orders/:orderid', jsonParser, function(req, res) {
+  order.updateNameOrEmail(req.params.orderid, req.body, function(data) { res.json(data); });
+});
+
 router.get('/orders/:orderid/tickets', function(req, res) {
   order.get(req.params.orderid, function(order) {
     var pdf = ticket.generatePdf(order.tickets);

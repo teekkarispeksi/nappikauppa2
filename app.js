@@ -4,7 +4,8 @@ var express = require('express');
 var path = require('path');
 var morgan = require('morgan');
 var auth = require('http-auth');
-var compression = require('compression')
+var compression = require('compression');
+var methodOverride = require('method-override');
 
 var config = require('./config/config.js');
 var confluenceAuth = require('./backend/confluenceAuth.js');
@@ -22,6 +23,8 @@ var basicAuth = auth.basic({
 
 var app = express();
 
+app.use(methodOverride('X-HTTP-Method-Override'));
+
 app.use(morgan('combined', {stream: {
   write: function(message) { log.info('HTTP: ' + message); }
 }}));
@@ -32,7 +35,7 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/frontend/build/index.html');
 });
 
-if(config.confluence_auth.enabled) {
+if (config.confluence_auth.enabled) {
   app.all('/admin*', auth.connect(basicAuth));
 } else {
   log.warn('=======================================');
