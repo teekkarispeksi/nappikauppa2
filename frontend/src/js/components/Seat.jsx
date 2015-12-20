@@ -15,17 +15,17 @@ var Seat = React.createClass({
     var url;
     var onClick = this.props.onClick;
 
-    var prices = _.pluck(this.props.seat.prices, 'price').join('/');
+    var prices = this.props.prices.join('/');
     if (this.props.status === 'reserved' || this.props.status === 'conflict') {
       onClick = null;
       text = 'Tämä paikka on valitettavasti jo varattu.';
     } else {
-      text = this.props.seat.row_name.toTitleCase() + ' ' + this.props.seat.row + '\nPaikka ' + this.props.seat.number + '\nHinta ' + prices + ' eur';
+      text = this.props.rowName.toTitleCase() + ' ' + this.props.seat.row + '\nPaikka ' + this.props.seat.number + '\nHinta ' + prices + ' eur';
     }
 
     return (
       <a onClick={onClick}
-        className={'seat seat-' + this.props.status + ' price-' + this.props.priceGroup}
+        className={'seat seat-' + this.props.status + ' ' + this.props.priceClass}
         key={this.props.seat.id}
         data-id={this.props.seat.id}
         style={{

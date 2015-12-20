@@ -37,23 +37,22 @@ var venue = {
         // begins with venue info
         var res = _.pick(first, ['venue_title', 'description', 'ticket_type']);
         res.id = first.venue_id; // just to be more RESTful
-        var sections = _.groupBy(rows, function(row) { return row.section_id;});
 
         // groupBy creates a dictionary (object) containing lists
         // so convert those lists into objects with section info
+        var sections = _.groupBy(rows, function(row) { return row.section_id;});
         res.sections = _.mapObject(sections, function(rowsForSection) {
           first = rowsForSection[0]; // rowsForSection is a list of seats
-          var section = _.pick(first, ['section_id', 'section_title', 'row_name', 'seat_count']);
+          var section = _.pick(first, ['section_title', 'row_name', 'seat_count']);
+          section.id = first.section_id;
 
-          // if the theather has numbered seats, turn them into a dictionary
-          // with indexBy and use mapObject to strip venue & section info
-          if (res.ticket_type === 'numbered-seats') {
-            var seats = _.indexBy(rowsForSection, function(row) { return row.seat_id;});
-            seats = _.mapObject(seats, function(seat) {
-              return _.pick(seat, ['seat_id', 'row', 'number', 'x_coord', 'y_coord', 'bad_seat']);
-            });
-            section.seats = seats;
-          }
+          // turn seats into a dictionary with indexBy and use mapObject to strip venue & section info
+          var seats = _.indexBy(rowsForSection, function(row) { return row.seat_id;});
+          section.seats = _.mapObject(seats, function(rowForSeat) {
+            var seat = _.pick(rowForSeat, ['seat_id', 'row', 'number', 'x_coord', 'y_coord', 'bad_seat']);
+            seat.id = rowForSeat.seat_id;
+            return seat;
+          });
           return section;
         });
         cb(res);

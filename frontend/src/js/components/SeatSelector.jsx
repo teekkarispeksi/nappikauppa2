@@ -19,18 +19,31 @@ var SeatSelector = React.createClass({
     }
 
     // different price groups among seats in this show; prices[0] is the most expensive one
-    var getBasePrice = function(seat) {
-      return seat.prices[0].price;
+    var getBasePrice = function(section) {
+      return section.discount_groups[0].price;
     };
-    var prices = _.uniq(this.props.seats.map(getBasePrice)).sort().reverse();
+    var prices = _.uniq(_.values(this.props.show.get('sections')).map(getBasePrice)).sort().reverse();
 
     return (
       <div className={divClass}>
         <h2>Paikkojen valinta <small>2/5</small></h2>
         <div className='theaterLayout' style={{backgroundImage: 'url(public/img/venues/venue_1.png)'}}>
-          {this.props.seats.map(function(seat) {
-            var priceGroup = prices.indexOf(getBasePrice(seat));
-            return <Seat seat={seat} priceGroup={priceGroup} status={seat.status} key={seat.id} onClick={this.props.active ? this.props.onSeatClicked.bind(null, seat) : null} />;
+          {_.values(this.props.venue.get('sections')).map(function(section) {
+            var priceGroup = prices.indexOf(getBasePrice(this.props.show.get('sections')[section.id]));
+            var price = _.pluck(section.discount_groups, 'price');
+            return (
+              <div key={section.id}>
+              {_.values(section.seats).map(function(seat) {
+                return <Seat key={seat.id}
+                  seat={seat}
+                  prices={price}
+                  status={this.props.seats[seat.id].status}
+                  rowName={section.row_name}
+                  priceClass={'price-' + priceGroup}
+                  onClick={this.props.active ? this.props.onSeatClicked.bind(null, seat.id, section.id) : null} />;
+              }.bind(this))}
+              </div>
+            );
           }.bind(this))}
         </div>
       </div>
