@@ -90,26 +90,26 @@ var Store = React.createClass({
         var hasConflictingSeats = false;
         var sections = _.values(this.venue.get('sections'));
         this.seats = _.compact(_.flatten(sections.map(function(section) {
-          var sectionPrice = this.state.show.get('sections')[section.id];
+          var sectionPrice = this.state.show.get('sections')[section.section_id];
           if (!sectionPrice) {
             return null;
           }
           var prices = sectionPrice.discount_groups;
           return _.values(section.seats).map(function(seat) {
-            seat.section_id = section.id;
-            seat.section_title = section.title;
+            seat.section_id = section.section_id;
+            seat.section_title = section.section_title;
             seat.row_name = section.row_name;
             seat.prices = prices;
             if (seat.is_bad) {
               seat.status = 'bad';
-            } else if (_.contains(response.reserved_seats, seat.id)) {
-              if (_.contains(mySeats, seat.id)) {
+            } else if (_.contains(response.reserved_seats, seat.seat_id)) {
+              if (_.contains(mySeats, seat.seat_id)) {
                 seat.status = 'conflict';
                 hasConflictingSeats = true;
               } else {
                 seat.status = 'reserved';
               }
-            } else if (_.contains(mySeats, seat.id)) {
+            } else if (_.contains(mySeats, seat.seat_id)) {
               seat.status = 'chosen';
             } else {
               seat.status = 'free';
@@ -181,12 +181,12 @@ var Store = React.createClass({
     return this.seats.filter(function(seat) {
       return seat.status === 'chosen' || seat.status === 'conflict';
     }).map(function(seat) {
-      return seat.id;
+      return seat.seat_id;
     });
   },
 
   getSeatById: function(id) {
-    return _.findWhere(this.seats, {id: id});
+    return _.findWhere(this.seats, {seat_id: id});
   },
 
   selectSeat: function(seat) {

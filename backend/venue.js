@@ -35,38 +35,22 @@ var venue = {
         var first = rows[0];
         // convert the sql results into a json tree
         // begins with venue info
-        var res = {
-          id: first.venue_id,
-          title: first.venue_title,
-          description: first.description,
-          ticket_type: first.ticket_type,
-          sections: _.groupBy(rows, function(row) { return row.section_id;})
-        };
+        var res = _.pick(first, ['venue_title', 'description', 'ticket_type']);
+        res.id = first.venue_id; // just to be more RESTful
+        var sections = _.groupBy(rows, function(row) { return row.section_id;});
 
         // groupBy creates a dictionary (object) containing lists
         // so convert those lists into objects with section info
-        res.sections = _.mapObject(res.sections, function(rows) {
-          first = rows[0]; // rows is a list of seats
-          var section = {
-            id: first.section_id,
-            title: first.section_title,
-            row_name: first.row_name,
-            seat_count: first.seat_count
-          };
+        res.sections = _.mapObject(sections, function(rowsForSection) {
+          first = rowsForSection[0]; // rowsForSection is a list of seats
+          var section = _.pick(first, ['section_id', 'section_title', 'row_name', 'seat_count']);
 
           // if the theather has numbered seats, turn them into a dictionary
           // with indexBy and use mapObject to strip venue & section info
           if (res.ticket_type === 'numbered-seats') {
-            var seats = _.indexBy(rows, function(row) { return row.seat_id;});
+            var seats = _.indexBy(rowsForSection, function(row) { return row.seat_id;});
             seats = _.mapObject(seats, function(seat) {
-              return {
-                id: seat.seat_id,
-                row: seat.row,
-                number: seat.number,
-                x: seat.x_coord,
-                y: seat.y_coord,
-                is_bad: seat.bad_seat
-              };
+              return _.pick(seat, ['seat_id', 'row', 'number', 'x_coord', 'y_coord', 'bad_seat']);
             });
             section.seats = seats;
           }

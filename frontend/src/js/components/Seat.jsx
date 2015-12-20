@@ -29,8 +29,8 @@ var Seat = React.createClass({
         key={this.props.seat.id}
         data-id={this.props.seat.id}
         style={{
-          top: parseInt(this.props.seat.y),
-          left: parseInt(this.props.seat.x)
+          top: parseInt(this.props.seat.y_coord),
+          left: parseInt(this.props.seat.x_coord)
         }}
         title={text}>
       </a>
