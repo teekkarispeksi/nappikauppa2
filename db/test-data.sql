@@ -35,22 +35,22 @@ insert into nk2_discount_groups (show_id, title, eur, admin_only, active) values
     (1, 'Erikoislippu', 2, false, true),
     (1, 'Eläkeläinen', 5, false, false);
 
-insert into nk2_sections (venue_id, title, row_name, sort, seat_count) values
-    (2, 'Permanto', 'rivi', 1, null), -- 1
-    (2, 'Permanto, parhaat paikat', 'rivi', 1, null), -- 11
-    (2, '1. Parvi', 'rivi', 2, null), -- 14
-    (2, '1. parvi', 'rivi', 3, null), -- 2
-    (2, 'Aitiot', 'aitio', 4, null), -- 3
-    (2, 'Aitiot', 'aitio', 5, null), -- 4
-    (2, '2. parvi', 'rivi', 7, null), -- 6
-    (2, 'Aitiot', 'aitio', 8, null), -- 7
-    (2, 'Aitiot', 'aitio', 9, null), -- 8
-    (3, 'Numeroimaton', '', 5, 100), -- 5 -- seat count not real
-    (4, 'Permanto', 'rivi', 9, null), -- 9
-    (5, 'Numeroimaton', '', 10, 100), -- 10 -- seat count not real
-    (6, 'Permanto', 'rivi', 12, null), -- 12
-    (7, 'Numeroimaton', '', 13, 100), -- 13 -- seat count not real
-    (8, 'Permanto', 'rivi', 0, null); -- 15
+insert into nk2_sections (venue_id, title, row_name, sort) values
+    (2, 'Permanto', 'rivi', 1), -- 1
+    (2, 'Permanto, parhaat paikat', 'rivi', 1), -- 11
+    (2, '1. Parvi', 'rivi', 2), -- 14
+    (2, '1. parvi', 'rivi', 3), -- 2
+    (2, 'Aitiot', 'aitio', 4), -- 3
+    (2, 'Aitiot', 'aitio', 5), -- 4
+    (2, '2. parvi', 'rivi', 7), -- 6
+    (2, 'Aitiot', 'aitio', 8), -- 7
+    (2, 'Aitiot', 'aitio', 9), -- 8
+    (3, 'Numeroimaton', '', 5), -- 5
+    (4, 'Permanto', 'rivi', 9), -- 9
+    (5, 'Numeroimaton', '', 10), -- 1
+    (6, 'Permanto', 'rivi', 12), -- 12
+    (7, 'Numeroimaton', '', 13), -- 1
+    (8, 'Permanto', 'rivi', 0); -- 15
 
 insert into nk2_seats (number, row, section_id, x_coord, y_coord, bad_seat) values
     (1, 1, 1, 115, 37, false),
@@ -545,6 +545,28 @@ insert into nk2_seats (number, row, section_id, x_coord, y_coord, bad_seat) valu
     (1, 20, 9, 327, 271, false),
     (2, 20, 9, 323, 281, false);
 
+-- sigyn
+insert into nk2_seats (section_id, bad_seat) values
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false),
+    (14, false);
+
 insert into nk2_prices (section_id, show_id, price, active) values
     (1, 1, 18.00, true),
     (2, 1, 20.00, true),
@@ -572,7 +594,8 @@ insert into nk2_prices (section_id, show_id, price, active) values
     (6, 3, 18.00, true),
     (7, 3, 14.00, true),
     (8, 3, 14.00, true),
-    (9, 3, 14.00, true);
+    (9, 3, 14.00, true),
+    (14, 12, 14.00, true);
 
 insert into nk2_orders (name, email, discount_code, time, price, payment_id, reserved_until, reserved_session_id, status) values
     ('Pekko I', 'pekko@example.com', null, '2015-03-13 12:47:05', 14.00, 'AASDASD', null, null, 'paid'),

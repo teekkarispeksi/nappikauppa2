@@ -7,7 +7,8 @@ var $ = require('jquery');
 var _ = require('underscore');
 
 var ShowSelector = require('./ShowSelector.jsx');
-var SeatSelector = require('./SeatSelector.jsx');
+var SeatSelector = require('./SeatSelector.jsx'); // for numbered seats
+var TicketCountSelector = require('./TicketCountSelector.jsx'); // for non-numbered seats
 var ShoppingCart = require('./ShoppingCart.jsx');
 var Contacts = require('./Contacts.jsx');
 var FinalConfirmation = require('./FinalConfirmation.jsx');
@@ -253,8 +254,13 @@ var Store = React.createClass({
         contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo} />;
         /* fall through */
       case 'seats':
-        seatSelectorElem = <SeatSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked} show={this.state.show} venue={this.venue}
-          conflictingSeatIds={this.state.conflictingSeatIds} chosenSeatIds={this.state.chosenSeatIds} reservedSeatIds={this.state.reservedSeatIds} />;
+        if (this.venue.get('ticket_type') === 'generic-tickets') {
+          seatSelectorElem = <TicketCountSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked} show={this.state.show} venue={this.venue}
+            conflictingSeatIds={this.state.conflictingSeatIds} chosenSeatIds={this.state.chosenSeatIds} reservedSeatIds={this.state.reservedSeatIds} />;
+        } else {
+          seatSelectorElem = <SeatSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked} show={this.state.show} venue={this.venue}
+            conflictingSeatIds={this.state.conflictingSeatIds} chosenSeatIds={this.state.chosenSeatIds} reservedSeatIds={this.state.reservedSeatIds} />;
+        }
         if (this.tickets.length > 0 || this.state.reservationError) {
           shoppingCartElem = (<ShoppingCart
             tickets={this.tickets}
