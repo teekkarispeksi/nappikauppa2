@@ -36,7 +36,6 @@ var venue = {
         // convert the sql results into a json tree
         // begins with venue info
         var res = _.pick(first, ['venue_title', 'description', 'ticket_type']);
-        res.id = first.venue_id; // just to be more RESTful
 
         // groupBy creates a dictionary (object) containing lists
         // so convert those lists into objects with section info
