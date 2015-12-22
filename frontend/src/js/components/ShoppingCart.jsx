@@ -53,8 +53,9 @@ var ShoppingCart = React.createClass({
           {tickets.map(function(ticket) {
             return (
               <Ticket
-                key={ticket.get('seat').id}
+                key={ticket.get('seat_id')}
                 ticket={ticket}
+                conflicts={this.props.conflictingSeatIds.indexOf(ticket.get('seat_id')) >= 0}
                 active={this.props.active}
                 onDiscountSelect={this.onDiscountSelect.bind(null,ticket)}
                 onRemove={this.props.onSeatClicked} />

@@ -8,6 +8,13 @@ String.prototype.toTitleCase = function() {
 };
 
 var Seat = React.createClass({
+  shouldComponentUpdate: function(nextProps, nextState) {
+    // this seems to make things actually faster on Lumia925 + Edge, and does not seem to break anything
+    if (nextProps.status !== this.props.status) {
+      return true;
+    }
+    return false;
+  },
 
   render: function() {
 

@@ -15,7 +15,7 @@ var Ticket = React.createClass({
   render: function() {
     var seat = this.props.ticket.get('seat');
     var section = this.props.ticket.get('section');
-    var conflict = seat.status === 'conflict';
+    var conflict = this.props.conflict;
     var remove = this.props.active ? (<Button bsStyle='link' className='removeSeat' onClick={this.props.onRemove.bind(null, seat.id, section.id)}><Glyphicon glyph='remove' /></Button>) : null;
     var disabled = !this.props.active || conflict;
     var divClass = 'ticket' + (conflict ? ' alert alert-danger' : '');
