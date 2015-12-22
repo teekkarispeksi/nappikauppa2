@@ -45,7 +45,11 @@ var SeatSelector = React.createClass({
         <h2>Paikkojen valinta <small>2/5</small></h2>
         <div className='theaterLayout' style={{backgroundImage: 'url(public/img/venues/venue_1.png)'}}>
           {_.values(this.props.venue.get('sections')).map(function(section) {
-            var price = _.pluck(this.props.show.get('sections')[section.id].discount_groups, 'price');
+            var showSection = this.props.show.get('sections')[section.id];
+            if (!showSection) {
+              return null; // if section is set to active=0 in DB table 'nk2_prices'
+            }
+            var price = _.pluck(showSection.discount_groups, 'price');
             var priceGroup = prices.indexOf(price[0]);
             return (
               <div key={section.id}>
@@ -54,7 +58,7 @@ var SeatSelector = React.createClass({
                 if (statuses[seat.id]) {
                   status = statuses[seat.id];
                 } else {
-                  status = seat.is_bad ? 'bad' : 'free';
+                  status = seat.bad_seat ? 'bad' : 'free';
                 }
                 return <Seat key={seat.id}
                   seat={seat}
