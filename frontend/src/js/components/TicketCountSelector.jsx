@@ -22,11 +22,9 @@ var TicketCountSelector = React.createClass({
         this.setState({error: 'Lippujen määrä ei voi olla negatiivinen'});
         return;
       }
-      var i = 0;
-      while (current > newVal) {
-        this.props.onSeatClicked(this.props.chosenSeatIds[current - 1], null);
-        current--;
-      }
+      _.chain(this.props.chosenSeatIds)
+       .last(current - newVal)
+       .each(function(id) { this.props.onSeatClicked(id, section.id); }.bind(this));
     } else if (current < newVal) {
       var sectionReservedSeatIds = _.intersection(this.props.reservedSeatIds, sectionSeatIds);
       var availabeSeatsCount = sectionSeatIds.length - sectionReservedSeatIds.length;
@@ -34,14 +32,11 @@ var TicketCountSelector = React.createClass({
         this.setState({error: 'Vain ' + availabeSeatsCount + ' paikkaa on vapaana'});
         return;
       }
-      var possibleSeatIds = _.difference(sectionSeatIds, this.props.chosenSeatIds);
-      possibleSeatIds = _.difference(possibleSeatIds, this.props.reservedSeatIds);
-      var j = 0;
-      while (current < newVal) {
-        this.props.onSeatClicked(possibleSeatIds[j], section.id);
-        j++;
-        current++;
-      }
+      _.chain(sectionSeatIds)
+       .difference(this.props.chosenSeatIds)
+       .difference(this.props.reservedSeatIds)
+       .sample(newVal - current) // choose random id's to lessen the chance that another user picks the same seats
+       .each(function(id) { this.props.onSeatClicked(id, section.id); }.bind(this));
     }
     this.setState({error: null});
   },
