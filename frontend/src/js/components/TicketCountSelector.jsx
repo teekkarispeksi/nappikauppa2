@@ -69,7 +69,7 @@ var TicketCountSelector = React.createClass({
             var availabeSeatsCount = sectionSeatIds.length - sectionReservedSeatIds.length;
 
             return (
-              <Input
+              <Input key={section.id}
                 label={section.section_title}
                 type='number'
                 readOnly={!this.props.active || availabeSeatsCount === 0}

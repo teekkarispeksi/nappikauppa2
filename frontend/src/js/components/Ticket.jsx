@@ -19,10 +19,11 @@ var Ticket = React.createClass({
     var remove = this.props.active ? (<Button bsStyle='link' className='removeSeat' onClick={this.props.onRemove.bind(null, seat.id, section.id)}><Glyphicon glyph='remove' /></Button>) : null;
     var disabled = !this.props.active || conflict;
     var divClass = 'ticket' + (conflict ? ' alert alert-danger' : '');
+    var info = section.row_name ? section.section_title + ', ' + section.row_name + ' ' + seat.row + ', paikka ' + seat.number : section.section_title; // for numbered or un-numbered
     return (
       <li key={seat.id}>
         <div className={divClass}>
-          <div className='info'>{section.section_title}, {section.row_name} {seat.row}, paikka {seat.number}</div>
+          <div className='info'>{info}</div>
           <Input type='select' className='discountGroupSelect' standalone disabled={disabled} onChange={this.onChange} value={this.props.ticket.get('discount_group')}>
             {_.map(this.props.ticket.get('discount_groups'), function(group) {
               return (<option key={group.id} value={group.id}>{group.title} à {group.price}€</option>);
