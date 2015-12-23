@@ -1,12 +1,25 @@
 'use strict';
 
-var _ = require('underscore');
-var React = require('react');
-var Seat = require('./Seat.jsx');
+import _ = require('underscore');
+import React = require('react');
+import Seat from './Seat.tsx';
+import Show from "../models/show";
+import Venue from "../models/venue";
 
-var SeatSelector = React.createClass({
+export interface ISeatSelectorProps {
+  active: boolean;
+  conflictingSeatIds: number[];
+  chosenSeatIds: number[];
+  reservedSeatIds: number[];
+  show: Show;
+  venue: Venue;
 
-  getSeatStatuses: function(conflictingSeatIds, chosenSeatIds, reservedSeatIds) {
+  onSeatClicked: Function;
+}
+
+export default class SeatSelector extends React.Component<ISeatSelectorProps, any> {
+
+  getSeatStatuses(conflictingSeatIds, chosenSeatIds, reservedSeatIds): {} {
     var statuses = {};
     this.props.conflictingSeatIds.forEach(function(id) {
       statuses[id] = 'conflict';
@@ -18,9 +31,9 @@ var SeatSelector = React.createClass({
       statuses[id] = 'reserved';
     });
     return statuses;
-  },
+  }
 
-  render: function() {
+  render() {
     if (!this.props.show) {
       return (
         <div className='shopping-stage seat-selector'></div>
@@ -36,7 +49,7 @@ var SeatSelector = React.createClass({
     var getBasePrice = function(section) {
       return section.discount_groups[0].price;
     };
-    var prices = _.chain(this.props.show.get('sections')).values().map(getBasePrice).unique().sort().reverse().value();
+    var prices = _.chain(this.props.show.get('sections')).values().map(getBasePrice).unique().value().sort().reverse();
 
     var statuses = this.getSeatStatuses(this.props.conflictingSeatIds, this.props.chosenSeatIds, this.props.reservedSeatIds);
 
@@ -76,6 +89,4 @@ var SeatSelector = React.createClass({
     );
   }
 
-});
-
-module.exports = SeatSelector;
+}

@@ -1,11 +1,20 @@
+import Shows from "../collections/shows";
 'use strict';
 
-var React = require('react');
-var ProgressBar = require('react-bootstrap/lib/ProgressBar');
+import React = require('react');
+import Bootstrap = require('react-bootstrap');
+import Show from "../models/show";
 
-var ShowSelector = React.createClass({
+export interface IShowSelectorProps {
+  selectedShow: Show;
+  shows: Shows;
 
-  render: function() {
+  onShowSelect: Function;
+}
+
+export default class ShowSelector extends React.Component<IShowSelectorProps, any> {
+
+  render() {
 
     return (
       <div className='shopping-stage show-selector'>
@@ -17,7 +26,7 @@ var ShowSelector = React.createClass({
             var selectedClass = (this.props.selectedShow && this.props.selectedShow.id === show.id) ? 'selected' : '';
             var progressBar;
             if (show.get('reserved_percentage') < 100) {
-              progressBar = (<ProgressBar bsSize='small' min={0} max={100} now={show.get('reserved_percentage')} />);
+              progressBar = (<Bootstrap.ProgressBar bsSize='small' min={0} max={100} now={show.get('reserved_percentage')} />);
             } else {
               progressBar = (<div className='sold-out'>Loppuunmyyty</div>);
             }
@@ -36,6 +45,4 @@ var ShowSelector = React.createClass({
     );
   }
 
-});
-
-module.exports = ShowSelector;
+}

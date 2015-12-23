@@ -1,12 +1,21 @@
 'use strict';
 
-var React = require('react');
-var Button = require('react-bootstrap/lib/Button');
-var _ = require('underscore');
+import React = require('react');
+import Bootstrap = require('react-bootstrap');
+import _ = require('underscore');
 
-var FinalConfirmation = React.createClass({
+import Order from "../models/order";
 
-  render: function() {
+export interface IFinalConfirmationProps {
+  order: Order;
+  paymentBegun: boolean;
+
+  onProceedToPayment: Function;
+}
+
+export default class FinalConfirmation extends React.Component<IFinalConfirmationProps, any> {
+
+  render() {
     var numTickets = this.props.order.get('tickets').length;
     var finalPrice = this.props.order.get('order_price');
     var discountCode = this.props.order.get('discount_code');
@@ -40,13 +49,11 @@ var FinalConfirmation = React.createClass({
         </tbody>
         </table>
 
-        <Button id='proceedToPayment' disabled={!active} onClick={active ? this.props.onProceedToPayment : null}>
+        <Bootstrap.Button id='proceedToPayment' disabled={!active} onClick={active ? this.props.onProceedToPayment : null}>
           {active ? 'Siirry maksamaan' : 'Siirrytään maksupalveluun'}
-        </Button>
+        </Bootstrap.Button>
       </div>
     );
   }
 
-});
-
-module.exports = FinalConfirmation;
+}

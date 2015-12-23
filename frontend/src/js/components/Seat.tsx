@@ -1,22 +1,35 @@
+import EventHandler = __React.EventHandler;
+;
 'use strict';
 
-var React = require('react');
-var _ = require('underscore');
+import React = require('react');
+import _ = require('underscore');
+import {ISeat} from "../models/seat"
+import Props = __React.Props;
 
-String.prototype.toTitleCase = function() {
-  return this[0].toUpperCase() + this.substr(1);
+export interface ISeatProps extends Props<any> {
+  prices: number[];
+  priceClass: string;
+  rowName: string;
+  status: string;
+  seat: ISeat;
+
+  onClick: any;
+}
+
+var toTitleCase = function(str) {
+  return str[0].toUpperCase() + str.substr(1);
 };
 
-var Seat = React.createClass({
-  shouldComponentUpdate: function(nextProps, nextState) {
+export default class Seat extends React.Component<ISeatProps, any> {
+  shouldComponentUpdate(nextProps, nextState) {
     // this seems to make things actually faster on Lumia925 + Edge, and does not seem to break anything
     return nextProps.status !== this.props.status;
-  },
+  }
 
-  render: function() {
+  render() {
 
-    var text;
-    var url;
+    var text: string;
     var onClick = this.props.onClick;
 
     var prices = this.props.prices.join('/');
@@ -24,7 +37,7 @@ var Seat = React.createClass({
       onClick = null;
       text = 'Tämä paikka on valitettavasti jo varattu.';
     } else {
-      text = this.props.rowName.toTitleCase() + ' ' + this.props.seat.row + '\nPaikka ' + this.props.seat.number + '\nHinta ' + prices + ' eur';
+      text = toTitleCase(this.props.rowName) + ' ' + this.props.seat.row + '\nPaikka ' + this.props.seat.number + '\nHinta ' + prices + ' eur';
     }
 
     return (
@@ -41,6 +54,4 @@ var Seat = React.createClass({
     );
   }
 
-});
-
-module.exports = Seat;
+}

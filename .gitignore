@@ -1,5 +1,7 @@
 #built css/js/html
+backend/build
 frontend/build
+app.js
 
 # Logs
 logs
@@ -31,3 +33,8 @@ npm-debug.log
 config/config.js
 
 nohup.out
+
+# idea
+.idea
+*.iml
+*.ipr
