@@ -93,55 +93,41 @@ gulp.task('lint', function() {
   .pipe(jshint.reporter('jshint-stylish'));
 });
 
-gulp.task('js:store', ['lint'], function() {
-  return browserify('./frontend/src/js/App.jsx')
-  .transform(reactify)
-  .bundle()
-  .on('error', function(err) {
-    notify.onError({
-      message: '<%= error.message %>'
-    }).apply(this, arguments);
-    this.emit('end');
-  })
-  .pipe(source('App.js'))
-  .pipe(gulp.dest('./frontend/build/public/js/'));
-});
+function js(startPath, targetFile) {
+  return function() {
+    return browserify(startPath)
+    .transform(reactify)
+    .bundle()
+    .on('error', function(err) {
+      notify.onError({
+        message: '<%= error.message %>'
+      }).apply(this, arguments);
+      this.emit('end');
+    })
+    .pipe(source(targetFile))
+    .pipe(gulp.dest('./frontend/build/public/js/'));
+  }
+}
 
-gulp.task('js:admin', function() {
-  return browserify('./frontend/src/js-admin/AdminApp.jsx')
-  .transform(reactify)
-  .bundle()
-  .on('error', function(err) {
-    notify.onError({
-      message: '<%= error.message %>'
-    }).apply(this, arguments);
-    this.emit('end');
-  })
-  .pipe(source('adminApp.js'))
-  .pipe(gulp.dest('./frontend/build/public/js/'));
-});
+function jsMin(startPath, targetFile) {
+  return function() {
+    return browserify(startPath)
+    .transform(reactify)
+    .bundle()
+    .pipe(source(targetFile))
+    .pipe(buffer())
+    .pipe(uglify())
+    .pipe(gulp.dest('./frontend/build/public/js/'));
+  }
+}
+
+gulp.task('js:store', ['lint'], js('./frontend/src/js/App.jsx', 'App.js'));
+gulp.task('js:admin', js('./frontend/src/js-admin/AdminApp.jsx', 'adminApp.js'));
 
 gulp.task('js', ['js:store', 'js:admin']);
 
-gulp.task('js:store:min', function() {
-  return browserify('./frontend/src/js/App.jsx')
-  .transform(reactify)
-  .bundle()
-  .pipe(source('App.js'))
-  .pipe(buffer())
-  .pipe(uglify())
-  .pipe(gulp.dest('./frontend/build/public/js/'));
-});
-
-gulp.task('js:admin:min', function() {
-  return browserify('./frontend/src/js-admin/AdminApp.jsx')
-  .transform(reactify)
-  .bundle()
-  .pipe(source('adminApp.js'))
-  .pipe(buffer())
-  .pipe(uglify())
-  .pipe(gulp.dest('./frontend/build/public/js/'));
-});
+gulp.task('js:store:min', jsMin('./frontend/src/js/App.jsx', 'App.js'));
+gulp.task('js:admin:min', jsMin('./frontend/src/js-admin/AdminApp.jsx', 'adminApp.js'));
 
 gulp.task('js:min', ['js:store:min', 'js:admin:min']);
 
