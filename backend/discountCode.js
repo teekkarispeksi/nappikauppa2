@@ -13,7 +13,7 @@ var discountCode = {
       where o.discount_code = :discount_code',
     {discount_code: code},
     function(err, rows) {
-      var ok = (/* is admin || */ rows[0].valid);
+      var ok = (/* is admin || */ rows[0].valid) === 1;
       log.info('Pre-order validation, discount code "' + code + '" is ' + (ok ? 'valid' : 'invalid'));
       cb({ok: ok});
     });
