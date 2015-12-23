@@ -43,7 +43,10 @@ var Store = React.createClass({
       showid: this.props.showid,
       show: null,
       paymentBegun: false,
-      reservationError: null
+      reservationError: null,
+      conflictingSeatIds: [],
+      chosenSeatIds: [],
+      reservedSeatIds: []
     };
   },
 
@@ -82,46 +85,22 @@ var Store = React.createClass({
       showid = this.state.showid;
     }
 
-    var mySeats = this.getMySeats();
-
+    var chosenSeatIds = this.tickets.map(function(ticket) { return ticket.get('seat_id'); });
+    this.setState({chosenSeatIds: chosenSeatIds});
     $.ajax({
       url: 'api/shows/' + showid + '/reservedSeats',
       success: function(response, status) {
-        var hasConflictingSeats = false;
-        var sections = _.values(this.venue.get('sections'));
-        this.seats = _.compact(_.flatten(sections.map(function(section) {
-          var sectionPrice = this.state.show.get('sections')[section.id];
-          if (!sectionPrice) {
-            return null;
-          }
-          var prices = sectionPrice.discount_groups;
-          return _.values(section.seats).map(function(seat) {
-            seat.section_id = section.id;
-            seat.section_title = section.title;
-            seat.row_name = section.row_name;
-            seat.prices = prices;
-            if (seat.is_bad) {
-              seat.status = 'bad';
-            } else if (_.contains(response.reserved_seats, seat.id)) {
-              if (_.contains(mySeats, seat.id)) {
-                seat.status = 'conflict';
-                hasConflictingSeats = true;
-              } else {
-                seat.status = 'reserved';
-              }
-            } else if (_.contains(mySeats, seat.id)) {
-              seat.status = 'chosen';
-            } else {
-              seat.status = 'free';
-            }
-            return seat;
-          });
-        }.bind(this))));
-
+        var reservedSeatIds = response.reserved_seats;
+        var conflictingSeatIds = _.intersection(reservedSeatIds, chosenSeatIds);
+        var hasConflictingSeats = conflictingSeatIds.length > 0;
+        var state = {
+          conflictingSeatIds: conflictingSeatIds,
+          reservedSeatIds: reservedSeatIds,
+        };
         if (hasConflictingSeats) {
-          this.setState({reservationError: 'Osa valitsemistasi paikoista on valitettavasti jo ehditty varata.'});
+          state.reservationError = 'Osa valitsemistasi paikoista on valitettavasti jo ehditty varata.';
         }
-        this.forceUpdate();
+        this.setState(state);
       }.bind(this)
     });
   },
@@ -129,7 +108,6 @@ var Store = React.createClass({
   onShowSelect: function(showid) {
     this.tickets.reset();
     this.order = null;
-    this.seats = null;
 
     var show = this.shows.get(showid);
 
@@ -157,51 +135,30 @@ var Store = React.createClass({
     }, 100);
   },
 
-  onSeatClicked: function(seat) {
+  onSeatClicked: function(seat_id, section_id) {
     this.setState({
       page: 'seats',
       reservationHasExpired: false,
       reservationError: null
     });
-    var ticket = this.tickets.findWhere({seat: seat});
-    if (ticket) {
-      this.removeTicket(ticket);
+    if (this.state.chosenSeatIds.indexOf(seat_id) >= 0) {
+      this.unselectSeat(seat_id);
     } else {
-      this.selectSeat(seat);
+      this.selectSeat(seat_id, section_id);
     }
     this.updateSeatStatus();
-    this.forceUpdate();
   },
 
-  getMySeats: function() {
-    if (!this.seats) {
-      return [];
-    }
-
-    return this.seats.filter(function(seat) {
-      return seat.status === 'chosen' || seat.status === 'conflict';
-    }).map(function(seat) {
-      return seat.id;
-    });
+  selectSeat: function(seat_id, section_id) {
+    var section = this.venue.get('sections')[section_id];
+    var seat = section.seats[seat_id];
+    var discount_groups = this.state.show.get('sections')[section_id].discount_groups;
+    this.tickets.add(new Ticket({seat_id: seat_id, seat: seat, section: section, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
   },
 
-  getSeatById: function(id) {
-    return _.findWhere(this.seats, {id: id});
-  },
-
-  selectSeat: function(seat) {
-    this.tickets.add(new Ticket({seat: seat, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
-    this.seats[_.indexOf(this.seats, seat)].status = 'chosen';
-  },
-
-  unselectSeat: function(seat) {
-    var ticket = this.tickets.findWhere({seat: seat});
-    this.removeTicket(ticket);
-  },
-
-  removeTicket: function(ticket) {
+  unselectSeat: function(seat_id) {
+    var ticket = this.tickets.findWhere({seat_id: seat_id});
     this.tickets.remove(ticket);
-    this.seats[_.indexOf(this.seats, ticket.get('seat'))].status = 'free';
   },
 
   onReserveTickets: function() {
@@ -296,10 +253,12 @@ var Store = React.createClass({
         contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo} />;
         /* fall through */
       case 'seats':
-        seatSelectorElem = <SeatSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked} show={this.state.show} seats={this.seats} />;
+        seatSelectorElem = <SeatSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked} show={this.state.show} venue={this.venue}
+          conflictingSeatIds={this.state.conflictingSeatIds} chosenSeatIds={this.state.chosenSeatIds} reservedSeatIds={this.state.reservedSeatIds} />;
         if (this.tickets.length > 0 || this.state.reservationError) {
           shoppingCartElem = (<ShoppingCart
             tickets={this.tickets}
+            conflictingSeatIds={this.state.conflictingSeatIds}
             active={this.state.page === 'seats'}
             reservationExpirationTime={this.state.reservationExpirationTime}
             reservationHasExpired={this.state.reservationHasExpired}

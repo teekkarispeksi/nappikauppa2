@@ -8,6 +8,10 @@ String.prototype.toTitleCase = function() {
 };
 
 var Seat = React.createClass({
+  shouldComponentUpdate: function(nextProps, nextState) {
+    // this seems to make things actually faster on Lumia925 + Edge, and does not seem to break anything
+    return nextProps.status !== this.props.status;
+  },
 
   render: function() {
 
@@ -15,22 +19,22 @@ var Seat = React.createClass({
     var url;
     var onClick = this.props.onClick;
 
-    var prices = _.pluck(this.props.seat.prices, 'price').join('/');
+    var prices = this.props.prices.join('/');
     if (this.props.status === 'reserved' || this.props.status === 'conflict') {
       onClick = null;
       text = 'Tämä paikka on valitettavasti jo varattu.';
     } else {
-      text = this.props.seat.row_name.toTitleCase() + ' ' + this.props.seat.row + '\nPaikka ' + this.props.seat.number + '\nHinta ' + prices + ' eur';
+      text = this.props.rowName.toTitleCase() + ' ' + this.props.seat.row + '\nPaikka ' + this.props.seat.number + '\nHinta ' + prices + ' eur';
     }
 
     return (
       <a onClick={onClick}
-        className={'seat seat-' + this.props.status + ' price-' + this.props.priceGroup}
+        className={'seat seat-' + this.props.status + ' ' + this.props.priceClass}
         key={this.props.seat.id}
         data-id={this.props.seat.id}
         style={{
-          top: parseInt(this.props.seat.y),
-          left: parseInt(this.props.seat.x)
+          top: parseInt(this.props.seat.y_coord),
+          left: parseInt(this.props.seat.x_coord)
         }}
         title={text}>
       </a>

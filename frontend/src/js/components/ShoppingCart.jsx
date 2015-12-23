@@ -1,5 +1,6 @@
 'use strict';
 
+var _ = require('underscore');
 var React = require('react');
 var Button = require('react-bootstrap/lib/Button');
 var Ticket = require('./Ticket.jsx');
@@ -53,8 +54,9 @@ var ShoppingCart = React.createClass({
           {tickets.map(function(ticket) {
             return (
               <Ticket
-                key={ticket.get('seat').id}
+                key={ticket.get('seat_id')}
                 ticket={ticket}
+                conflict={_.contains(this.props.conflictingSeatIds, ticket.get('seat_id'))}
                 active={this.props.active}
                 onDiscountSelect={this.onDiscountSelect.bind(null,ticket)}
                 onRemove={this.props.onSeatClicked} />
