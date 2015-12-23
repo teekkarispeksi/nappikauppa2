@@ -27,29 +27,29 @@ var venue = {
     LEFT OUTER JOIN nk2_seats seat ON section.id = seat.section_id \
     WHERE venue.id=:venue_id',
       {venue_id: venue_id},
-      function(err, rows, fields) {
+      function(err, dbRows, fields) {
         if (err) {
           log.error('Getting venue details failed', {venue_id: venue_id});
           return;
         }
-        var first = rows[0];
+        var first = dbRows[0];
         // convert the sql results into a json tree
         // begins with venue info
         var res = _.pick(first, ['venue_title', 'description', 'ticket_type']);
 
         // groupBy creates a dictionary (object) containing lists
         // so convert those lists into objects with section info
-        var sections = _.groupBy(rows, function(row) { return row.section_id;});
-        res.sections = _.mapObject(sections, function(rowsForSection) {
-          first = rowsForSection[0]; // rowsForSection is a list of seats
+        var sections = _.groupBy(dbRows, function(dbRow) { return dbRow.section_id;});
+        res.sections = _.mapObject(sections, function(dbRowsForSection) {
+          first = dbRowsForSection[0]; // dbRowsForSection is a list of seats
           var section = _.pick(first, ['section_title', 'row_name', 'seat_count']);
-          section.id = first.section_id;
+          section.id = first.section_id; // we want to call this 'id' instead of 'section_id'
 
           // turn seats into a dictionary with indexBy and use mapObject to strip venue & section info
-          var seats = _.indexBy(rowsForSection, function(row) { return row.seat_id;});
-          section.seats = _.mapObject(seats, function(rowForSeat) {
-            var seat = _.pick(rowForSeat, ['seat_id', 'row', 'number', 'x_coord', 'y_coord', 'bad_seat']);
-            seat.id = rowForSeat.seat_id;
+          var seats = _.indexBy(dbRowsForSection, function(dbRow) { return dbRow.seat_id;});
+          section.seats = _.mapObject(seats, function(dbRowForSeat) {
+            var seat = _.pick(dbRowForSeat, ['seat_id', 'row', 'number', 'x_coord', 'y_coord', 'bad_seat']);
+            seat.id = dbRowForSeat.seat_id; // we want to call this 'id' instead of 'seat_id'
             return seat;
           });
           return section;

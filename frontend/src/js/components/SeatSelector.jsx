@@ -32,11 +32,11 @@ var SeatSelector = React.createClass({
       divClass += ' disabled';
     }
 
-    // different price groups among seats in this show; prices[0] is the most expensive one
+    // different price groups among seats in this show; discount_groups[0] is the most expensive one
     var getBasePrice = function(section) {
       return section.discount_groups[0].price;
     };
-    var prices = _.uniq(_.values(this.props.show.get('sections')).map(getBasePrice)).sort().reverse();
+    var prices = _.chain(this.props.show.get('sections')).values().map(getBasePrice).unique().sort().reverse().value();
 
     var statuses = this.getSeatStatuses(this.props.conflictingSeatIds, this.props.chosenSeatIds, this.props.reservedSeatIds);
 
