@@ -12,8 +12,7 @@ import ShoppingCart from './ShoppingCart.tsx';
 import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
 
-import Shows from '../collections/shows';
-import Show from "../models/show";
+import {IShow} from "../../../../backend/src/show";
 import Ticket from '../models/ticket';
 import Venue from '../models/venue';
 import Order from '../models/order';
@@ -40,7 +39,7 @@ export interface IStoreProps {
 export interface IStoreState {
   page?: string;
   showid?: number;
-  show?: Show;
+  show?: IShow;
   paymentBegun?: boolean;
   reservationError?: string;
   conflictingSeatIds?: number[];
@@ -51,7 +50,7 @@ export interface IStoreState {
 }
 
 export default class Store extends React.Component<IStoreProps, IStoreState> {
-  shows: Shows;
+  shows: IShow[];
   tickets: TicketModel[];
   order: any;
   venue: any;
@@ -61,7 +60,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   constructor(props: any) {
     super();
 
-    this.shows = new Shows();
+    this.shows = [];
     this.tickets = [];
 
     this.state = {
@@ -81,16 +80,15 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       // clean the ok/fail hash in the url
       window.history.pushState('', '', window.location.pathname);
     }
-
-    this.shows.fetch({
-      success: (collection, response, options) => {
-        if (this.state.showid) {
-          this.onShowSelect(this.state.showid);
-        }
-
-        this.forceUpdate();
+    $.getJSON('api/shows', (resp: IShow[]) => {
+      this.shows = resp;
+      if (this.state.showid) {
+        this.onShowSelect(this.state.showid);
       }
+
+      this.forceUpdate();
     });
+
   }
 
   componentWillUnmount() {
@@ -136,10 +134,10 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     this.tickets = [];
     this.order = null;
 
-    var show = this.shows.get(showid);
+    var show = _.findWhere(this.shows, (show: IShow) => show.id == showid);
 
-    if (!this.venue || this.venue.get('id') !== show.get('venue_id')) {
-      this.venue = new Venue({id: show.get('venue_id')});
+    if (!this.venue || this.venue.get('id') !== show.venue_id) {
+      this.venue = new Venue({id: show.venue_id});
       this.venue.fetch({
         success: (model, response, options) => {
           this.updateSeatStatus(showid);
@@ -180,7 +178,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     console.log("selecting", seat_id, section_id);
     var section = this.venue.get('sections')[section_id];
     var seat = section.seats[seat_id];
-    var discount_groups = this.state.show.get('sections')[section_id].discount_groups;
+    var discount_groups = this.state.show.sections[section_id].discount_groups;
     this.tickets.push(new Ticket({seat_id: seat_id, seat: seat, section: section, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
   }
 

@@ -44,7 +44,7 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
   }
 
   onSave() {
-    var errors = [];
+    var errors: string[] = [];
     if (!this.state.name) {
       errors.push('name');
     }

@@ -1,4 +1,3 @@
-import {Section} from "../models/section";
 'use strict';
 
 import React = require('react');

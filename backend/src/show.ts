@@ -8,7 +8,30 @@ import promise = require('es6-promise');
 
 var Promise = promise.Promise;
 
-export function getAll(): Promise<any> {
+export interface IShow {
+  active: boolean;
+  description: string;
+  id: number;
+  inactive_time: string;
+  reserved_percentage: number;
+  sections: _.Dictionary<IShowSection>; // TODO: ideally just IShowSection[] :(
+  time: string;
+  title: string;
+  venue_id: number;
+}
+
+export interface IShowSection {
+  section_id: number;
+  discount_groups: IDiscountGroup[];
+}
+
+export interface IDiscountGroup {
+  id: number;
+  price: number;
+  title: string;
+}
+
+export function getAll(): Promise<IShow[]> {
   return db.query('select \
       shows.*, \
       (100.0 * reserved.seatcount / total.seatcount) as reserved_percentage, \
@@ -38,7 +61,7 @@ export function getAll(): Promise<any> {
     .then((rows) => {
       var grouped = _.groupBy(rows, 'id');
       var shows = _.mapObject(grouped, function(showRows: any[]) {
-        var show = _.pick(showRows[0], ['id', 'title', 'venue_id', 'time', 'active', 'inactivate_time', 'description', 'reserved_percentage']);
+        var show: IShow = _.pick(showRows[0], ['id', 'title', 'venue_id', 'time', 'active', 'inactivate_time', 'description', 'reserved_percentage']);
         var sections = _.groupBy(showRows, 'section_id');
         show.sections = _.mapObject(sections, function(sectionRows: any[]) {
           var basePrice = sectionRows[0].price;

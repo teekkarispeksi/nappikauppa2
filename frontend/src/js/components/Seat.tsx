@@ -17,12 +17,12 @@ export interface ISeatProps extends Props<any> {
   onClick: any;
 }
 
-var toTitleCase = function(str) {
+var toTitleCase = function(str: string) {
   return str[0].toUpperCase() + str.substr(1);
 };
 
 export default class Seat extends React.Component<ISeatProps, any> {
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: ISeatProps, nextState: any) {
     // this seems to make things actually faster on Lumia925 + Edge, and does not seem to break anything
     return nextProps.status !== this.props.status;
   }

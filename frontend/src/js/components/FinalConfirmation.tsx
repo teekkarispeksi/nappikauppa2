@@ -1,3 +1,4 @@
+import ReactElement = __React.ReactElement;
 'use strict';
 
 import React = require('react');
@@ -20,7 +21,7 @@ export default class FinalConfirmation extends React.Component<IFinalConfirmatio
     var finalPrice = this.props.order.get('order_price');
     var discountCode = this.props.order.get('discount_code');
     var ticketTotal = this.props.order.get('tickets_total_price');
-    var discountedTotalEl = null;
+    var discountedTotalEl: ReactElement<any> = null;
     if (discountCode) {
       discountedTotalEl = (
         <tr>

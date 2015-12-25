@@ -3,15 +3,16 @@
 import _ = require('underscore');
 import React = require('react');
 import Seat from './Seat.tsx';
-import Show from "../models/show";
 import Venue from "../models/venue";
+import {IShow} from "../../../../backend/src/show";
+import {ISection} from "../../../../backend/src/venue";
 
 export interface ISeatSelectorProps {
   active: boolean;
   conflictingSeatIds: number[];
   chosenSeatIds: number[];
   reservedSeatIds: number[];
-  show: Show;
+  show: IShow;
   venue: Venue;
 
   onSeatClicked: Function;
@@ -19,8 +20,8 @@ export interface ISeatSelectorProps {
 
 export default class SeatSelector extends React.Component<ISeatSelectorProps, any> {
 
-  getSeatStatuses(conflictingSeatIds, chosenSeatIds, reservedSeatIds): {} {
-    var statuses = {};
+  getSeatStatuses(): {} {
+    var statuses: { [id: number]: string} = {};
     this.props.conflictingSeatIds.forEach(function(id) {
       statuses[id] = 'conflict';
     });
@@ -46,19 +47,19 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
     }
 
     // different price groups among seats in this show; discount_groups[0] is the most expensive one
-    var getBasePrice = function(section) {
+    var getBasePrice = function(section: any) {
       return section.discount_groups[0].price;
     };
-    var prices = _.chain(this.props.show.get('sections')).values().map(getBasePrice).unique().value().sort().reverse();
+    var prices = _.chain(this.props.show.sections).values().map(getBasePrice).unique().value().sort().reverse();
 
-    var statuses = this.getSeatStatuses(this.props.conflictingSeatIds, this.props.chosenSeatIds, this.props.reservedSeatIds);
+    var statuses = this.getSeatStatuses();
 
     return (
       <div className={divClass}>
         <h2>Paikkojen valinta <small>2/5</small></h2>
         <div className='theaterLayout' style={{backgroundImage: 'url(public/img/venues/venue_1.png)'}}>
           {_.values(this.props.venue.get('sections')).map(function(section) {
-            var showSection = this.props.show.get('sections')[section.id];
+            var showSection = this.props.show.sections[section.id];
             if (!showSection) {
               return null; // if section is set to active=0 in DB table 'nk2_prices'
             }
