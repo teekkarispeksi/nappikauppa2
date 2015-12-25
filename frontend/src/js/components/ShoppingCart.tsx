@@ -1,4 +1,3 @@
-import Tickets from "../collections/tickets";
 'use strict';
 
 import _ = require('underscore');

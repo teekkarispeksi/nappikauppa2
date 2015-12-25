@@ -1,4 +1,3 @@
-import Show from "../models/show";
 'use strict';
 
 import React = require('react');
@@ -14,7 +13,7 @@ import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
 
 import Shows from '../collections/shows';
-import Tickets from '../collections/tickets';
+import Show from "../models/show";
 import Ticket from '../models/ticket';
 import Venue from '../models/venue';
 import Order from '../models/order';
