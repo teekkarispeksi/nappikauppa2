@@ -4,11 +4,11 @@ import ReactElement = __React.ReactElement;
 import React = require('react');
 import Bootstrap = require('react-bootstrap');
 import _ = require('underscore');
+import {IOrder} from "../../../../backend/src/order";
 
-import Order from "../models/order";
 
 export interface IFinalConfirmationProps {
-  order: Order;
+  order: IOrder;
   paymentBegun: boolean;
 
   onProceedToPayment: Function;
@@ -17,10 +17,13 @@ export interface IFinalConfirmationProps {
 export default class FinalConfirmation extends React.Component<IFinalConfirmationProps, any> {
 
   render() {
-    var numTickets = this.props.order.get('tickets').length;
-    var finalPrice = this.props.order.get('order_price');
-    var discountCode = this.props.order.get('discount_code');
-    var ticketTotal = this.props.order.get('tickets_total_price');
+    if(!this.props.order) {
+      return (<div />);
+    }
+    var numTickets = this.props.order.tickets.length;
+    var finalPrice = this.props.order.order_price;
+    var discountCode = this.props.order.discount_code;
+    var ticketTotal = this.props.order.tickets_total_price;
     var discountedTotalEl: ReactElement<any> = null;
     if (discountCode) {
       discountedTotalEl = (

@@ -1,3 +1,4 @@
+import {IOrder} from "../../../../backend/src/order";
 'use strict';
 
 import React = require('react');
@@ -15,7 +16,6 @@ import FinalConfirmation from './FinalConfirmation.tsx';
 import {IShow} from "../../../../backend/src/show";
 import {IVenue} from "../../../../backend/src/venue";
 import Ticket from '../models/ticket';
-import Order from '../models/order';
 
 import Router = require('../router');
 import TicketModel from "../models/ticket";
@@ -52,7 +52,7 @@ export interface IStoreState {
 export default class Store extends React.Component<IStoreProps, IStoreState> {
   shows: IShow[];
   tickets: TicketModel[];
-  order: any;
+  order: IOrder;
   venue: IVenue;
   seats: any;
   timer: any;
@@ -198,9 +198,9 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       method: 'POST',
       data: JSON.stringify(data),
       contentType: 'application/json',
-      success: function (response) {
+      success: function (response: IOrder) {
         console.log("resp", response);
-        this.order = new Order({id: response.order_id, hash: response.order_hash});
+        this.order = response;
         this.startTimer();
         this.setState({page: 'contacts'});
         setTimeout(function () {
@@ -216,14 +216,21 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
   onSaveOrderInfo(info) {
     // backend assumes id is also an attribute
-    this.order.save({id: this.order.id, hash: this.order.get('hash'), name: info.name, email: info.email, discount_code: info.discount_code}, {
-      patch: true, // Backbone.emulateHTTP is set to 'true' to make this still a POST request
-      success: (response) => {
+    this.order.name = info.name;
+    this.order.email = info.email;
+    this.order.discount_code = info.discount_code;
+
+    $.ajax({
+      url: 'api/orders/' + this.order.order_id,
+      method: 'POST',
+      data: JSON.stringify(this.order),
+      contentType: 'application/json',
+      success: function (response) {
         this.setState({page: 'payment'});
         setTimeout(function() {
           scrollToElem('.final-confirmation');
         }, 0);
-      },
+      }.bind(this),
       error: (response) => {
         console.log('order info saving failed'); // TODO
       }
@@ -234,7 +241,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     clearTimeout(this.timer);
     this.setState({paymentBegun: true, reservationExpirationTime: null});
 
-    $.post(this.order.urlRoot + '/' + this.order.get('id') + '/preparePayment',
+    $.post('api/orders/' + this.order.order_id + '/preparePayment',
       function(res) {
         if (res.err) {
           this.setState({page: 'seats', paymentBegun: false});

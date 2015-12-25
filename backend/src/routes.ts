@@ -63,8 +63,8 @@ router.post('/shows/:showid/reserveSeats', jsonParser, function(req: Request, re
     .catch((err) => { res.status(409); res.json(err); });
 });
 
-router.patch('/orders/:orderid', jsonParser, function(req: Request, res: Response) {
-  order.updateContact(req.body.id, req.body).then(ok(res), err(res));
+router.post('/orders/:orderid', jsonParser, function(req: Request, res: Response) {
+  order.updateContact(req.params.orderid, req.body).then(ok(res), err(res));
 });
 
 router.post('/orders/:orderid/preparePayment', function(req: Request, res: Response) {

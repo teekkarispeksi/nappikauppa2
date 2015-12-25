@@ -128,8 +128,8 @@ export function updateContact(order_id: string, data: IContact): Promise<any> {
         price = (select if(sum(price) - ifnull(d.eur,0) >= 0, sum(price)-ifnull(d.eur,0), 0) \
           from nk2_tickets t \
           left join nk2_discount_codes d on d.code = :discount_code \
-          where t.order_id = :id) \
-      where id = :id and hash = :hash',
+          where t.order_id = :order_id) \
+      where id = :order_id and hash = :order_hash',
         data)
     }).then((res) => {
       if (res.changedRows !== 1) {
