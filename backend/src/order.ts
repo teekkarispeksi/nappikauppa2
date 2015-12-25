@@ -132,7 +132,6 @@ export function updateContact(order_id: string, data: IContact): Promise<any> {
       where id = :id and hash = :hash',
         data)
     }).then((res) => {
-      // TODO how we should really propagate these errors
       if (res.changedRows !== 1) {
         var errmsg = 'Should have updated one row, updated really ' + res.changedRows + ' rows';
         log.error(errmsg);
@@ -340,7 +339,6 @@ export function paymentCancelled(order_id, params): Promise<any> {
     log.error('Hash verification failed!',
       {order_id: order_id, verification_hash: verification_hash, return_authcode: params.RETURN_AUTHCODE});
     throw "Hash verification failed";
-    // TODO: how to propagate these errors
   }
 }
 
@@ -378,7 +376,6 @@ export function paymentDone(order_id, params): Promise<any> {
     log.error('Hash verification failed!',
       {order_id: order_id, verification_hash: verification_hash, return_authcode: params.RETURN_AUTHCODE});
     throw "Hash verification failed!";
-    // TODO: how to propagate these errors
   }
 }
 
@@ -435,7 +432,6 @@ export function updateNameOrEmail(order_id, data): Promise<any> {
 
   db.query('update nk2_orders set ' + query + ' where id = :id', data)
   .then((res) => {
-    // TODO how we should really propagate these errors
     if (res.changedRows !== 1) {
       var errmsg = 'ADMIN: Should have updated one row, updated really ' + res.changedRows + ' rows';
       log.error(errmsg);

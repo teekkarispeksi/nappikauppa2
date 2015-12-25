@@ -15,15 +15,22 @@ var config = require('../config/config.js');
 
 var jsonParser = bodyParser.json();
 
-var callback = function(res, data) {
-  if (data.err) {
-    res.status(404);
-  }
-  res.json(data);
-};
-
 type Request = express.Request;
 type Response = express.Response;
+
+var ok = (res) => {
+  return (data) => {
+    res.json(data);
+  }
+}
+
+var err = (res, errStatus=500) => {
+  return (data) => {
+    log.error("Caught error", {data});
+    res.status(errStatus);
+    res.json(data); // TODO don't expose these to end-users
+  }
+}
 
 router.post('/log', jsonParser, function(req: Request, res: Response) {
   if (req.body.meta) {
@@ -35,35 +42,33 @@ router.post('/log', jsonParser, function(req: Request, res: Response) {
 });
 
 router.get('/discountCode/:code', function(req: Request, res: Response) {
-  discountCode.check(req.params.code).then(function(data) { res.json(data); });
+  discountCode.check(req.params.code).then(ok(res), err(res));
 });
 
 router.get('/shows/', function(req: Request, res: Response) {
-  show.getAll().then(function(data) { res.json(data); });
+  show.getAll().then(ok(res), err(res));
 });
 
 router.get('/shows/:showid', function(req: Request, res: Response) {
-  show.get(req.params.showid).then(function(data) { res.json(data); });
+  show.get(req.params.showid).then(ok(res), err(res));
 });
 
 router.get('/shows/:showid/reservedSeats', function(req: Request, res: Response) {
-  show.getReservedSeats(req.params.showid)
-    .then(function(data) { res.json(data); })
-    .catch((err) => { log.error("Getting reserved seats failed", err)} );
+  show.getReservedSeats(req.params.showid).then(ok(res), err(res));
 });
 
 router.post('/shows/:showid/reserveSeats', jsonParser, function(req: Request, res: Response) {
   order.reserveSeats(req.params.showid, req.body)
-    .then((data) => { res.json(data)})
+    .then(ok(res))
     .catch((err) => { res.status(409); res.json(err); });
 });
 
 router.patch('/orders/:orderid', jsonParser, function(req: Request, res: Response) {
-  order.updateContact(req.body.id, req.body).then((data) => callback(res, data)); // TODO wrong
+  order.updateContact(req.body.id, req.body).then(ok(res), err(res));
 });
 
 router.post('/orders/:orderid/preparePayment', function(req: Request, res: Response) {
-  order.preparePayment(req.params.orderid).then(function(data) { res.json(data); });
+  order.preparePayment(req.params.orderid).then(ok(res), err(res));
 });
 
 router.get('/orders/:orderid/success', function(req: Request, res: Response) {
@@ -89,7 +94,7 @@ router.get('/orders/:orderid/:orderhash/tickets', function(req: Request, res: Re
 });
 
 router.get('/venues/:venueid', function(req: Request, res: Response) {
-  venue.get(req.params.venueid).then(function(data) { res.json(data); });
+  venue.get(req.params.venueid).then(ok(res), err(res));
 });
 
 export = router;
