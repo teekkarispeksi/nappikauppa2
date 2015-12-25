@@ -5,8 +5,8 @@ import Props = __React.Props;
 import Bootstrap = require('react-bootstrap');
 import _ = require('underscore');
 
+import {IDiscountGroup} from "../../../../backend/src/show";
 import TicketModel from "../models/ticket";
-import {DiscountGroup} from "../models/discountGroup";
 
 export interface ITicketProps extends Props<any> {
   active: boolean;
@@ -38,8 +38,8 @@ export default class Ticket extends React.Component<ITicketProps, any> {
         <div className={divClass}>
           <div className='info'>{section.section_title}, {section.row_name} {seat.row}, paikka {seat.number}</div>
           <Bootstrap.Input type='select' className='discountGroupSelect' standalone disabled={disabled} onChange={this.onChange.bind(this)} value={this.props.ticket.get('discount_group')}>
-            {_.map(this.props.ticket.get('discount_groups'), (group: DiscountGroup) => {
-              return (<option key={group.id} value={group.id}>{group.title} à {group.price}€</option>);
+            {_.map(this.props.ticket.get('discount_groups'), (group: IDiscountGroup) => {
+              return (<option key={group.id} value={group.id.toString()}>{group.title} à {group.price}€</option>);
             })}
           </Bootstrap.Input>
           {remove}
