@@ -3,9 +3,9 @@
 import _ = require('underscore');
 import React = require('react');
 import Seat from './Seat.tsx';
-import Venue from "../models/venue";
 import {IShow} from "../../../../backend/src/show";
 import {ISection} from "../../../../backend/src/venue";
+import {IVenue} from "../../../../backend/src/venue";
 
 export interface ISeatSelectorProps {
   active: boolean;
@@ -13,7 +13,7 @@ export interface ISeatSelectorProps {
   chosenSeatIds: number[];
   reservedSeatIds: number[];
   show: IShow;
-  venue: Venue;
+  venue: IVenue;
 
   onSeatClicked: Function;
 }
@@ -35,7 +35,7 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
   }
 
   render() {
-    if (!this.props.show) {
+    if (!this.props.show || !this.props.venue) {
       return (
         <div className='shopping-stage seat-selector'></div>
       );
@@ -58,7 +58,7 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
       <div className={divClass}>
         <h2>Paikkojen valinta <small>2/5</small></h2>
         <div className='theaterLayout' style={{backgroundImage: 'url(public/img/venues/venue_1.png)'}}>
-          {_.values(this.props.venue.get('sections')).map(function(section) {
+          {_.values(this.props.venue.sections).map(function(section) {
             var showSection = this.props.show.sections[section.id];
             if (!showSection) {
               return null; // if section is set to active=0 in DB table 'nk2_prices'

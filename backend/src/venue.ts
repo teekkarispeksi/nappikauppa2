@@ -24,6 +24,7 @@ export interface ISection {
 }
 
 export interface IVenue {
+  id: number;
   description: string;
   venue_title: string;
   ticket_type: string;

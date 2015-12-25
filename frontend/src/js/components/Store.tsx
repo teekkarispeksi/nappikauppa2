@@ -13,8 +13,8 @@ import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
 
 import {IShow} from "../../../../backend/src/show";
+import {IVenue} from "../../../../backend/src/venue";
 import Ticket from '../models/ticket';
-import Venue from '../models/venue';
 import Order from '../models/order';
 
 import Router = require('../router');
@@ -53,7 +53,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   shows: IShow[];
   tickets: TicketModel[];
   order: any;
-  venue: any;
+  venue: IVenue;
   seats: any;
   timer: any;
 
@@ -136,12 +136,11 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
     var show = _.findWhere(this.shows, (show: IShow) => show.id == showid);
 
-    if (!this.venue || this.venue.get('id') !== show.venue_id) {
-      this.venue = new Venue({id: show.venue_id});
-      this.venue.fetch({
-        success: (model, response, options) => {
+    if (!this.venue || this.venue.id !== show.venue_id) {
+      $.getJSON('api/venues/' + show.venue_id,
+        (response: IVenue) => {
+          this.venue = response;
           this.updateSeatStatus(showid);
-        }
       });
     } else {
       this.updateSeatStatus(showid);
@@ -176,7 +175,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
   selectSeat(seat_id, section_id) {
     console.log("selecting", seat_id, section_id);
-    var section = this.venue.get('sections')[section_id];
+    var section = this.venue.sections[section_id];
     var seat = section.seats[seat_id];
     var discount_groups = this.state.show.sections[section_id].discount_groups;
     this.tickets.push(new Ticket({seat_id: seat_id, seat: seat, section: section, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
