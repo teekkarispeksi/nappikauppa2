@@ -47,7 +47,9 @@ router.get('/shows/:showid', function(req: Request, res: Response) {
 });
 
 router.get('/shows/:showid/reservedSeats', function(req: Request, res: Response) {
-  show.getReservedSeats(req.params.showid).then(function(data) { res.json(data); }, (err) => {console.error("ERR", err)});
+  show.getReservedSeats(req.params.showid)
+    .then(function(data) { res.json(data); })
+    .catch((err) => { log.error("Getting reserved seats failed", err)} );
 });
 
 router.post('/shows/:showid/reserveSeats', jsonParser, function(req: Request, res: Response) {

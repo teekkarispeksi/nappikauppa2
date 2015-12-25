@@ -1,3 +1,5 @@
+import {Response} from "express";
+import {Request} from "express";
 'use strict';
 
 var express = require('express');
@@ -36,6 +38,9 @@ app.use('/public/', express.static(path.join(dirname, '/frontend/build/public'))
 app.get('/', function(req, res: any) {
   res.sendFile(dirname + '/frontend/build/index.html');
 });
+app.get('/favicon.ico', function(req, res: Response) {
+  res.send("");
+});
 
 if (config.confluence_auth.enabled) {
   app.all('/admin*', auth.connect(basicAuth));
@@ -45,7 +50,7 @@ if (config.confluence_auth.enabled) {
   log.warn('=======================================');
 }
 
-app.get('/admin/', function(req, res: any) {
+app.get('/admin/', function(req, res: Response) {
   res.sendFile(dirname + '/frontend/build/admin.html');
 });
 
@@ -53,15 +58,15 @@ app.use('/api', api);
 app.use('/admin-api', adminApi);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+app.use(function(req: Request, res, next) {
+  var err = new Error('Not Found: ' + req.url);
   //err.status = 404; TODO
   next(err);
 });
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
+app.use(function(err: any, req: any, res: any, next) {
   log.error("Unhandled error:", err);
   res.status(err.status || 500);
   res.send({
