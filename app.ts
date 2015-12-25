@@ -8,11 +8,11 @@ var compression = require('compression');
 var methodOverride = require('method-override');
 
 var config = require('./config/config.js');
-var confluenceAuth = require('./backend/confluenceAuth.js');
-var api = require('./backend/routes');
-var adminApi = require('./backend/routes-admin');
+var confluenceAuth = require('./backend/build/confluenceAuth.js');
+var api = require('./backend/build/routes');
+var adminApi = require('./backend/build/routes-admin');
 
-var log = require('./backend/log.js');
+var log = require('./backend/build/log.js');
 
 var basicAuth = auth.basic({
     realm: 'Nappikauppa v2 - use your speksi-intra account',
@@ -29,10 +29,12 @@ app.use(morgan('combined', {stream: {
   write: function(message) { log.info('HTTP: ' + message); }
 }}));
 
+var dirname = '/Users/plipsanen/personal/nappikauppa2'; // TODO
+
 app.use(compression());
-app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));
-app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/frontend/build/index.html');
+app.use('/public/', express.static(path.join(dirname, '/frontend/build/public')));
+app.get('/', function(req, res: any) {
+  res.sendFile(dirname + '/frontend/build/index.html');
 });
 
 if (config.confluence_auth.enabled) {
@@ -43,8 +45,8 @@ if (config.confluence_auth.enabled) {
   log.warn('=======================================');
 }
 
-app.get('/admin/', function(req, res) {
-  res.sendFile(__dirname + '/frontend/build/admin.html');
+app.get('/admin/', function(req, res: any) {
+  res.sendFile(dirname + '/frontend/build/admin.html');
 });
 
 app.use('/api', api);
@@ -53,13 +55,14 @@ app.use('/admin-api', adminApi);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
-  err.status = 404;
+  //err.status = 404; TODO
   next(err);
 });
 
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
+  log.error("Unhandled error:", err);
   res.status(err.status || 500);
   res.send({
     message: err.message,
@@ -67,4 +70,4 @@ app.use(function(err, req, res, next) {
   });
 });
 
-module.exports = app;
+export = app;

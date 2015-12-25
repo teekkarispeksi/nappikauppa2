@@ -1,21 +1,21 @@
 'use strict';
 
-var config = require('../config/config.js');
-var log = require('./log.js');
+var config = require('../../config/config.js');
+import log = require('./log');
 
-var request = require('request');
-var _ = require('underscore');
+import request = require('request');
+import _ = require('underscore');
 
 // In-memory userCache to reduce number of queries.
 // Invalidation means that we'll query user again from confluence, not that the user is logged out.
 var userCache = {};
 var CACHE_INVALIDATE_MSEC = 5 * 60 * 1000;
 
-var confluenceAuth = {
-  auth: function(user, password, requiredGroup, cb) {
+export default class ConfluenceAuth {
+  auth(user: string, password: string, requiredGroup: string, cb: Function) {
     if (userCache[user] && userCache[user].password === password) {
       var now = new Date();
-      if (now - userCache[user].inserted > CACHE_INVALIDATE_MSEC) {
+      if (now.getTime() - userCache[user].inserted.getTime() > CACHE_INVALIDATE_MSEC) {
         delete userCache[user];
       } else {
         return cb(true);
@@ -49,6 +49,4 @@ var confluenceAuth = {
       return cb(true);
     });
   }
-};
-
-module.exports = confluenceAuth;
+}
