@@ -4,8 +4,8 @@ import EventHandler = __React.EventHandler;
 
 import React = require('react');
 import _ = require('underscore');
-import {ISeat} from "../models/seat"
 import Props = __React.Props;
+import {ISeat} from "../../../../backend/src/venue";
 
 export interface ISeatProps extends Props<any> {
   prices: number[];
@@ -46,8 +46,8 @@ export default class Seat extends React.Component<ISeatProps, any> {
         key={this.props.seat.id}
         data-id={this.props.seat.id}
         style={{
-          top: parseInt(this.props.seat.y_coord),
-          left: parseInt(this.props.seat.x_coord)
+          top: this.props.seat.y_coord,
+          left: this.props.seat.x_coord
         }}
         title={text}>
       </a>
