@@ -196,14 +196,13 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         seat_id: t.get('seat_id'),
         discount_group_id: t.get('discount_group_id')
     }});
-    console.log('data', data);
+
     $.ajax({
       url: 'api/shows/' + this.state.showid + '/reserveSeats/',
       method: 'POST',
       data: JSON.stringify(data),
       contentType: 'application/json',
       success: function (response: IOrder) {
-        console.log("resp", response);
         this.order = response;
         this.startTimer();
         this.setState({page: 'contacts'});
@@ -229,7 +228,8 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       method: 'POST',
       data: JSON.stringify(this.order),
       contentType: 'application/json',
-      success: function (response) {
+      success: function (response: IOrder) {
+        this.order = response;
         this.setState({page: 'payment'});
         setTimeout(function() {
           scrollToElem('.final-confirmation');
