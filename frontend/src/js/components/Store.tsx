@@ -38,7 +38,7 @@ export interface IStoreProps {
 
 export interface IStoreState {
   page?: string;
-  showid?: number;
+  showid?: string;
   show?: IShow;
   paymentBegun?: boolean;
   reservationError?: string;
@@ -57,13 +57,17 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   seats: any;
   timer: any;
 
-  constructor(props: any) {
+  constructor(props: IStoreProps) {
     super();
 
     this.shows = [];
     this.tickets = [];
 
-    this.state = {
+    this.state = this._getInitialState(props);
+  }
+
+  private _getInitialState(props: IStoreProps) {
+    return {
       page: 'home',
       showid: props.showid,
       show: null,
@@ -72,7 +76,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       conflictingSeatIds: [],
       chosenSeatIds: [],
       reservedSeatIds: []
-    };
+    }
   }
 
   componentWillMount() {
@@ -247,7 +251,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           this.setState({page: 'seats', paymentBegun: false});
         } else {
           if (res.url[0] === '#') { // when skipping Paytrail
-            this.replaceState(this.getInitialState());
+            this.setState(this._getInitialState(this.props));
           }
           window.location.href = res.url;
         }
