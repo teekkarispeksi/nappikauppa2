@@ -14,6 +14,6 @@ export function check(code: string): Promise<any> {
     var ok = (/* is admin || */ rows[0].valid) === 1;
     log.info('Pre-order validation, discount code "' + code + '" is ' + (ok ? 'valid' : 'invalid'));
     if(!ok) throw 'Discount code validation failed';
-    return {ok: 'ok'};
+    return {ok: true};
   });
 }
