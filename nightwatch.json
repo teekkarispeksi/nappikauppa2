@@ -1,5 +1,6 @@
 {
   "src_folders": ["test/ete"],
+  "output_folder": "test/output",
   "selenium" : {
     "start_process": true,
     "server_path" : "",
