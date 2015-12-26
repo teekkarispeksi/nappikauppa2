@@ -111,7 +111,7 @@ function js(startPath, targetFile) {
     })
     .pipe(source(targetFile))
     .pipe(gulp.dest('./frontend/build/public/js/'));
-  }
+  };
 }
 
 function jsMin(startPath, targetFile) {
@@ -125,7 +125,7 @@ function jsMin(startPath, targetFile) {
     .pipe(buffer())
     .pipe(uglify())
     .pipe(gulp.dest('./frontend/build/public/js/'));
-  }
+  };
 }
 
 gulp.task('js:store', ['lint'], js('./frontend/src/js/App.tsx', 'App.js'));
@@ -141,7 +141,7 @@ gulp.task('js:min', ['js:store:min', 'js:admin:min']);
 gulp.task('backend', function() {
   return gulp.src(['backend/src/**/*.ts', 'typings/tsd.d.ts'])
     .pipe(ts({
-      module: "commonjs"
+      module: 'commonjs'
     }))
     .pipe(gulp.dest('backend/build/'));
 });
@@ -149,7 +149,7 @@ gulp.task('backend', function() {
 gulp.task('app', function() {
   return gulp.src(['app.ts', 'typings/tsd.d.ts'])
     .pipe(ts({
-      module: "commonjs"
+      module: 'commonjs'
     }))
     .pipe(gulp.dest('./'));
 });

@@ -58,6 +58,7 @@ export function get(venue_id): Promise<any> {
     // convert the sql results into a json tree
     // begins with venue info
     var res: IVenue = _.pick(first, ['venue_title', 'description', 'ticket_type']);
+    res.id = first.venue_id;
 
     // groupBy creates a dictionary (object) containing lists
     // so convert those lists into objects with section info

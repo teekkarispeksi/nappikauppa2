@@ -30,8 +30,8 @@ Router.on('route:default', function(url: string) {
   ReactDOM.render(store, document.getElementsByTagName('main')[0]);
 });
 
-Router.on('route:show', function(showid: string) {
-  ReactDOM.render(<Store showid={showid} />, document.getElementsByTagName('main')[0]);
+Router.on('route:show', function(showid) {
+  ReactDOM.render(<Store showid={parseInt(showid)} />, document.getElementsByTagName('main')[0]);
 });
 
 Backbone.history.start();
