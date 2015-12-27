@@ -7,6 +7,8 @@ var del = require('del');
 var runSequence = require('run-sequence');
 var browserify = require('browserify');
 var reactify = require('reactify'); // for browserify
+var tsify = require('tsify');
+var ts = require('gulp-typescript');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
@@ -93,57 +95,64 @@ gulp.task('lint', function() {
   .pipe(jshint.reporter('jshint-stylish'));
 });
 
-gulp.task('js:store', ['lint'], function() {
-  return browserify('./frontend/src/js/App.jsx')
-  .transform(reactify)
-  .bundle()
-  .on('error', function(err) {
-    notify.onError({
-      message: '<%= error.message %>'
-    }).apply(this, arguments);
-    this.emit('end');
-  })
-  .pipe(source('App.js'))
-  .pipe(gulp.dest('./frontend/build/public/js/'));
-});
+function js(startPath, targetFile) {
+  return function() {
+    return browserify(startPath)
+    .add(startPath)
+    .add('typings/tsd.d.ts')
+    .transform(reactify)
+    .plugin(tsify)
+    .bundle()
+    .on('error', function(err) {
+      notify.onError({
+        message: '<%= error.message %>'
+      }).apply(this, arguments);
+      this.emit('end');
+    })
+    .pipe(source(targetFile))
+    .pipe(gulp.dest('./frontend/build/public/js/'));
+  };
+}
 
-gulp.task('js:admin', function() {
-  return browserify('./frontend/src/js-admin/AdminApp.jsx')
-  .transform(reactify)
-  .bundle()
-  .on('error', function(err) {
-    notify.onError({
-      message: '<%= error.message %>'
-    }).apply(this, arguments);
-    this.emit('end');
-  })
-  .pipe(source('adminApp.js'))
-  .pipe(gulp.dest('./frontend/build/public/js/'));
-});
+function jsMin(startPath, targetFile) {
+  return function() {
+    return browserify()
+    .add(startPath)
+    .add('typings/tsd.d.ts')
+    .transform(reactify)
+    .bundle()
+    .pipe(source(targetFile))
+    .pipe(buffer())
+    .pipe(uglify())
+    .pipe(gulp.dest('./frontend/build/public/js/'));
+  };
+}
+
+gulp.task('js:store', ['lint'], js('./frontend/src/js/App.tsx', 'App.js'));
+gulp.task('js:admin', js('./frontend/src/js-admin/AdminApp.jsx', 'adminApp.js'));
 
 gulp.task('js', ['js:store', 'js:admin']);
 
-gulp.task('js:store:min', function() {
-  return browserify('./frontend/src/js/App.jsx')
-  .transform(reactify)
-  .bundle()
-  .pipe(source('App.js'))
-  .pipe(buffer())
-  .pipe(uglify())
-  .pipe(gulp.dest('./frontend/build/public/js/'));
-});
-
-gulp.task('js:admin:min', function() {
-  return browserify('./frontend/src/js-admin/AdminApp.jsx')
-  .transform(reactify)
-  .bundle()
-  .pipe(source('adminApp.js'))
-  .pipe(buffer())
-  .pipe(uglify())
-  .pipe(gulp.dest('./frontend/build/public/js/'));
-});
+gulp.task('js:store:min', jsMin('./frontend/src/js/App.jsx', 'App.js'));
+gulp.task('js:admin:min', jsMin('./frontend/src/js-admin/AdminApp.jsx', 'adminApp.js'));
 
 gulp.task('js:min', ['js:store:min', 'js:admin:min']);
+
+gulp.task('backend', function() {
+  return gulp.src(['backend/src/**/*.ts', 'typings/tsd.d.ts'])
+    .pipe(ts({
+      module: 'commonjs'
+    }))
+    .pipe(gulp.dest('backend/build/'));
+});
+
+gulp.task('app', function() {
+  return gulp.src(['app.ts', 'typings/tsd.d.ts'])
+    .pipe(ts({
+      module: 'commonjs'
+    }))
+    .pipe(gulp.dest('./'));
+});
 
 gulp.task('index', function() {
   return gulp.src('./frontend/src/index.html')
@@ -170,7 +179,7 @@ gulp.task('lint-backend', function() {
 gulp.task('build-dev', function(cb) {
   runSequence(
     ['clean'],
-    ['lint-backend', 'css', 'js', 'img', 'fonts'],
+    ['app', 'backend', 'css', 'js', 'img', 'fonts'],
     ['index', 'admin'],
     cb);
 });
@@ -178,7 +187,7 @@ gulp.task('build-dev', function(cb) {
 gulp.task('build', function(cb) {
   runSequence(
     ['clean'],
-    ['lint-backend', 'css:min', 'js:min', 'img', 'fonts'],
+    ['app', 'backend', 'css:min', 'js:min', 'img', 'fonts'],
     ['index', 'admin'],
     cb);
 });
@@ -187,7 +196,7 @@ gulp.task('start-dev', function() {
   startExpress();
   startLivereload();
   gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index', 'admin']);
-  gulp.watch('frontend/src/js*/**/*.{js,jsx}', ['js', 'index', 'admin']);
+  gulp.watch('frontend/src/js*/**/*.{js,jsx,ts,tsx}', ['js', 'index', 'admin']);
   gulp.watch('frontend/src/img/**/*.{jpg,gif,png}', ['img']);
   gulp.watch('frontend/src/index.html', ['index']);
   gulp.watch('frontend/src/admin.html', ['admin']);
