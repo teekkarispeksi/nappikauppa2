@@ -37,6 +37,7 @@ export interface IStoreProps {
 
 export interface IStoreState {
   page?: string;
+  showid?: string;
   show?: IShow;
   paymentBegun?: boolean;
   reservationError?: string;
@@ -192,7 +193,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         seat_id: t.get('seat_id'),
         discount_group_id: t.get('discount_group_id')
     }});
-    console.log('data', data);
+
     $.ajax({
       url: 'api/shows/' + this.state.show.id + '/reserveSeats/',
       method: 'POST',

@@ -38,3 +38,6 @@ nohup.out
 .idea
 *.iml
 *.ipr
+
+# tests
+test/output/*
