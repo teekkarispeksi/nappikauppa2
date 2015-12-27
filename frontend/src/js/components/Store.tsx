@@ -18,7 +18,6 @@ import {IVenue} from "../../../../backend/src/venue";
 import Ticket from '../models/ticket';
 
 import Router = require('../router');
-import TicketModel from "../models/ticket";
 
 // TODO: get this from backend, as it should match as closely as possible to backend's timer
 const EXPIRATION_IN_MINUTES = 15;
@@ -31,8 +30,8 @@ var scrollToElem = function(elemstr) {
 };
 
 export interface IStoreProps {
-  action?: string
-  showid?: string;
+  action?: string;
+  showid?: number;
   args?: string[];
 }
 
@@ -51,7 +50,7 @@ export interface IStoreState {
 
 export default class Store extends React.Component<IStoreProps, IStoreState> {
   shows: IShow[];
-  tickets: TicketModel[];
+  tickets: Ticket[];
   order: IOrder;
   venue: IVenue;
   seats: any;
@@ -69,7 +68,6 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   private _getInitialState(props: IStoreProps) {
     return {
       page: 'home',
-      showid: props.showid,
       show: null,
       paymentBegun: false,
       reservationError: null,
@@ -86,8 +84,8 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     }
     $.getJSON('api/shows', (resp: IShow[]) => {
       this.shows = resp;
-      if (this.state.showid) {
-        this.onShowSelect(this.state.showid);
+      if (this.props.showid) {
+        this.onShowSelect(this.props.showid);
       }
 
       this.forceUpdate();
@@ -110,10 +108,10 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
   updateSeatStatus(showid = undefined) {
     if (showid === undefined) {
-      showid = this.state.showid;
+      showid = this.state.show.id;
     }
 
-    var chosenSeatIds = this.tickets.map(function(ticket) { return ticket.get('seat_id'); });
+    var chosenSeatIds = this.tickets.map((t: Ticket) => t.get('seat_id'));
     this.setState({chosenSeatIds: chosenSeatIds});
     $.ajax({
       url: 'api/shows/' + showid + '/reservedSeats',
@@ -134,11 +132,11 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     });
   }
 
-  onShowSelect(showid) {
+  onShowSelect(showid: number) {
     this.tickets = [];
     this.order = null;
 
-    var show = _.findWhere(this.shows, (show: IShow) => show.id == showid);
+    var show = _.findWhere(this.shows, {id: showid});
 
     if (!this.venue || this.venue.id !== show.venue_id) {
       $.getJSON('api/venues/' + show.venue_id,
@@ -152,7 +150,6 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
     this.setState({
       page: 'seats',
-      showid: showid,
       show: show,
       reservationExpirationTime: null,
       reservationHasExpired: null
@@ -186,19 +183,19 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   }
 
   unselectSeat(seat_id) {
-    var removeTicket = _.findIndex(this.tickets, (t: any) => t.get('seat_id') === seat_id);
+    var removeTicket = _.findIndex(this.tickets, (t: Ticket) => t.get('seat_id') === seat_id);
     this.tickets.splice(removeTicket, 1);
   }
 
   onReserveTickets() {
-    var data = _.map(this.tickets, (t: TicketModel) => {
+    var data = _.map(this.tickets, (t: Ticket) => {
       return {
         seat_id: t.get('seat_id'),
         discount_group_id: t.get('discount_group_id')
     }});
 
     $.ajax({
-      url: 'api/shows/' + this.state.showid + '/reserveSeats/',
+      url: 'api/shows/' + this.state.show.id + '/reserveSeats/',
       method: 'POST',
       data: JSON.stringify(data),
       contentType: 'application/json',
@@ -218,7 +215,6 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   }
 
   onSaveOrderInfo(info) {
-    // backend assumes id is also an attribute
     this.order.name = info.name;
     this.order.email = info.email;
     this.order.discount_code = info.discount_code;

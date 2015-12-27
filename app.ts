@@ -31,12 +31,10 @@ app.use(morgan('combined', {stream: {
   write: function(message) { log.info('HTTP: ' + message); }
 }}));
 
-var dirname = '/Users/plipsanen/personal/nappikauppa2'; // TODO
-
 app.use(compression());
-app.use('/public/', express.static(path.join(dirname, '/frontend/build/public')));
+app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));
 app.get('/', function(req, res: any) {
-  res.sendFile(dirname + '/frontend/build/index.html');
+  res.sendFile(__dirname + '/frontend/build/index.html');
 });
 app.get('/favicon.ico', function(req, res: Response) {
   res.send("");
@@ -51,7 +49,7 @@ if (config.confluence_auth.enabled) {
 }
 
 app.get('/admin/', function(req, res: Response) {
-  res.sendFile(dirname + '/frontend/build/admin.html');
+  res.sendFile(__dirname + '/frontend/build/admin.html');
 });
 
 app.use('/api', api);
