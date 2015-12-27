@@ -37,7 +37,6 @@ export interface IStoreProps {
 
 export interface IStoreState {
   page?: string;
-  showid?: string;
   show?: IShow;
   paymentBegun?: boolean;
   reservationError?: string;
