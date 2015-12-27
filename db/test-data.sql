@@ -2,7 +2,7 @@ start transaction;
 
 insert into nk2_discount_codes (code, eur, use_max, email, code_group) values
     ('TEST_123', '14', 1, 'foo@example.com', 'TEST'),
-    ('admin-code', 99, 0, 'pekko@example.com', 'ADMIN');
+    ('admin-code', 99, 9999, 'pekko@example.com', 'ADMIN');
 
 insert into nk2_venues (title, ticket_type, description) values
     ('Ulkopuolinen lipunmyynti', 'generic-tickets', ''),
