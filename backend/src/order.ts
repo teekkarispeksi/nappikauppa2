@@ -29,7 +29,7 @@ export interface IOrder {
   email: string;
   name: string;
   order_hash: string;
-  order_id: string;
+  order_id: number;
   order_price: number;
   payment_id: string;
   reserved_session_id: string;
