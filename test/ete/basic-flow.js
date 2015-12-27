@@ -1,4 +1,4 @@
-const TIMEOUT = 200;
+const TIMEOUT = 500;
 
 module.exports = {
   'Basic flow': function(browser) {
