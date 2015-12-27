@@ -21,14 +21,20 @@ var cssmin = require('gulp-minify-css');
 var plumber = require('gulp-plumber');
 var notify = require('gulp-notify');
 var lr = require('tiny-lr')();
+var nightwatch = require('gulp-nightwatch');
 
 var config = require('./config/config.js');
 
 // from http://rhumaric.com/2014/01/livereload-magic-gulp-style/
+var app;
 function startExpress() {
-  var app = require('./app.js');
+  app = require('./app.js');
   app.use(require('connect-livereload')());
   app.listen(config.port);
+}
+
+function stopExpress() {
+  app.close();
 }
 
 function startLivereload() {
@@ -174,6 +180,22 @@ gulp.task('lint-backend', function() {
   .pipe(jshint())
   .pipe(stylish.combineWithHintResults())
   .pipe(jshint.reporter('jshint-stylish'));
+});
+
+gulp.task('ete-test', function() {
+  return gulp.src('')
+    .pipe(nightwatch({
+      configFile: 'nightwatch.json'
+    }));
+});
+
+gulp.task('test', function() {
+  runSequence(
+    ['build-dev'],
+    ['start-dev'],
+    ['ete-test'],
+    stopExpress
+  );
 });
 
 gulp.task('build-dev', function(cb) {
