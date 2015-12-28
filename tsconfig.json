@@ -3,5 +3,6 @@
         "jsx": "react",
         "module": "commonjs"
     },
-    "compileOnSave": false
+    "compileOnSave": false,
+    "exclude": ["node_modules", "backend/build", "frontend/build", "test/output"]
 }
