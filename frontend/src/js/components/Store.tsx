@@ -9,7 +9,7 @@ import _ = require('underscore');
 
 import ShowSelector from './ShowSelector.tsx';
 import SeatSelector from './SeatSelector.tsx'; // for numbered seats
-import TicketCountSelector from './TicketCountSelector.jsx'; // for non-numbered seats
+import TicketCountSelector from './TicketCountSelector.tsx'; // for non-numbered seats
 import ShoppingCart from './ShoppingCart.tsx';
 import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
@@ -295,7 +295,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo.bind(this)} />;
         /* fall through */
       case 'seats':
-        if (this.venue.get('ticket_type') === 'generic-tickets') {
+        if (this.venue.ticket_type === 'generic-tickets') {
           seatSelectorElem = <TicketCountSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked.bind(this)} show={this.state.show} venue={this.venue}
             conflictingSeatIds={this.state.conflictingSeatIds} chosenSeatIds={this.state.chosenSeatIds} reservedSeatIds={this.state.reservedSeatIds} />;
         } else {

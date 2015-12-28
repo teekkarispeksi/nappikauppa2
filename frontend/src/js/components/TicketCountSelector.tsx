@@ -1,20 +1,34 @@
 'use strict';
 
-var _ = require('underscore');
-var React = require('react');
-var Seat = require('./Seat.jsx');
+import _ = require('underscore');
+import React = require('react');
+import Bootstrap = require('react-bootstrap');
 
-var Input = require('react-bootstrap/lib/Input');
+import Seat from './Seat.tsx';
+import {IShow} from "../../../../backend/src/show";
+import {ISection} from "../../../../backend/src/venue";
+import {IVenue} from "../../../../backend/src/venue";
 
-var TicketCountSelector = React.createClass({
+export interface ITicketCountSelectorProps {
+  active: boolean;
+  conflictingSeatIds: number[];
+  chosenSeatIds: number[];
+  reservedSeatIds: number[];
+  show: IShow;
+  venue: IVenue;
 
-  getInitialState: function() {
-    return {error: null};
-  },
+  onSeatClicked: Function;
+}
 
-  onChange: function(section, event) {
+export default class TicketCountSelector extends React.Component<ITicketCountSelectorProps,any>{
+  constructor(props: any) {
+    super();
+    this.state = {error: null};
+  }
+
+  onChange(section, event) {
     var newVal = event.target.value;
-    var sectionSeatIds = _.values(_.mapObject(this.props.venue.get('sections')[section.id].seats, function(seat) { return seat.id;})); // _.keys returns strings, we need ints
+    var sectionSeatIds = _.values(_.mapObject(this.props.venue.sections[section.id].seats, function(seat) { return seat.id;})); // _.keys returns strings, we need ints
     var sectionChosenSeatIds = _.intersection(this.props.chosenSeatIds, sectionSeatIds);
     var current = sectionChosenSeatIds.length;
     if (current > newVal) {
@@ -39,9 +53,9 @@ var TicketCountSelector = React.createClass({
        .each(function(id) { this.props.onSeatClicked(id, section.id); }.bind(this));
     }
     this.setState({error: null});
-  },
+  }
 
-  render: function() {
+  render() {
     if (!this.props.show) {
       return (
         <div className='shopping-stage seat-selector'></div>
@@ -57,33 +71,30 @@ var TicketCountSelector = React.createClass({
     var getBasePrice = function(section) {
       return section.discount_groups[0].price;
     };
-    var prices = _.uniq(_.values(this.props.show.get('sections')).map(getBasePrice)).sort().reverse();
+    var prices = _.uniq(_.values(this.props.show.sections).map(getBasePrice)).sort().reverse();
 
     return (
       <div className={divClass}>
         <h2>Valitse lippujen määrä <small>2/5</small></h2>
         <div>
-          {_.map(_.values(this.props.venue.get('sections')), function(section) {
-            var sectionSeatIds = _.values(_.mapObject(this.props.venue.get('sections')[section.id].seats, function(seat) { return seat.id; })); // _.keys returns strings, we need ints
+          {_.map(_.values(this.props.venue.sections), function(section) {
+            var sectionSeatIds = _.values(_.mapObject(this.props.venue.sections[section.id].seats, function(seat) { return seat.id; })); // _.keys returns strings, we need ints
             var sectionReservedSeatIds = _.intersection(this.props.reservedSeatIds, sectionSeatIds);
             var availabeSeatsCount = sectionSeatIds.length - sectionReservedSeatIds.length;
 
             return (
-              <Input key={section.id}
+              <Bootstrap.Input key={section.id}
                 label={section.section_title}
                 type='number'
                 readOnly={!this.props.active || availabeSeatsCount === 0}
                 value={this.props.chosenSeatIds.length}
                 min={0} max={availabeSeatsCount}
                 bsStyle={this.state.error ? 'error' : null}
-                onChange={this.onChange.bind(null, section)} />
+                onChange={this.onChange.bind(this, section)} />
             );
           }.bind(this))}
         </div>
       </div>
     );
   }
-
-});
-
-module.exports = TicketCountSelector;
+}
