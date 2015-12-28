@@ -28,7 +28,7 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
 
   onChange(section, event) {
     var newVal = event.target.value;
-    var sectionSeatIds = _.values(_.mapObject(this.props.venue.sections[section.id].seats, function(seat) { return seat.id;})); // _.keys returns strings, we need ints
+    var sectionSeatIds = _.values(this.props.venue.sections[section.id].seats).map((s) => s.id) // _.keys returns strings, we need ints
     var sectionChosenSeatIds = _.intersection(this.props.chosenSeatIds, sectionSeatIds);
     var current = sectionChosenSeatIds.length;
     if (current > newVal) {
@@ -38,7 +38,7 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
       }
       _.chain(this.props.chosenSeatIds)
        .last(current - newVal)
-       .each(function(id) { this.props.onSeatClicked(id, section.id); }.bind(this));
+       .each((id) => this.props.onSeatClicked(id, section.id));
     } else if (current < newVal) {
       var sectionReservedSeatIds = _.intersection(this.props.reservedSeatIds, sectionSeatIds);
       var availabeSeatsCount = sectionSeatIds.length - sectionReservedSeatIds.length;
@@ -50,7 +50,7 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
        .difference(this.props.chosenSeatIds)
        .difference(this.props.reservedSeatIds)
        .sample(newVal - current) // choose random id's to lessen the chance that another user picks the same seats
-       .each(function(id) { this.props.onSeatClicked(id, section.id); }.bind(this));
+       .each((id) => this.props.onSeatClicked(id, section.id));
     }
     this.setState({error: null});
   }
@@ -67,18 +67,18 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
       divClass += ' disabled';
     }
 
-    // different price groups among seats in this show; prices[0] is the most expensive one
-    var getBasePrice = function(section) {
+    // different price groups among seats in this show; discount_groups[0] is the most expensive one
+    var getBasePrice = function(section: any) {
       return section.discount_groups[0].price;
     };
-    var prices = _.uniq(_.values(this.props.show.sections).map(getBasePrice)).sort().reverse();
+    var prices = _.chain(this.props.show.sections).values().map(getBasePrice).unique().value().sort().reverse();
 
     return (
       <div className={divClass}>
         <h2>Valitse lippujen määrä <small>2/5</small></h2>
         <div>
-          {_.map(_.values(this.props.venue.sections), function(section) {
-            var sectionSeatIds = _.values(_.mapObject(this.props.venue.sections[section.id].seats, function(seat) { return seat.id; })); // _.keys returns strings, we need ints
+          {_.values(this.props.venue.sections).map((section) => {
+            var sectionSeatIds = _.values(this.props.venue.sections[section.id].seats).map((s) => s.id); // _.keys returns strings, we need ints
             var sectionReservedSeatIds = _.intersection(this.props.reservedSeatIds, sectionSeatIds);
             var availabeSeatsCount = sectionSeatIds.length - sectionReservedSeatIds.length;
 
@@ -92,7 +92,7 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
                 bsStyle={this.state.error ? 'error' : null}
                 onChange={this.onChange.bind(this, section)} />
             );
-          }.bind(this))}
+          })}
         </div>
       </div>
     );
