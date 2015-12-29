@@ -111,7 +111,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       showid = this.state.show.id;
     }
 
-    var chosenSeatIds = this.tickets.map((t: Ticket) => t.get('seat_id'));
+    var chosenSeatIds = this.tickets.map((t: Ticket) => t.get('seat').id);
     this.setState({chosenSeatIds: chosenSeatIds});
     $.ajax({
       url: 'api/shows/' + showid + '/reservedSeats',
@@ -179,18 +179,18 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     var section = this.venue.sections[section_id];
     var seat = section.seats[seat_id];
     var discount_groups = this.state.show.sections[section_id].discount_groups;
-    this.tickets.push(new Ticket({seat_id: seat_id, seat: seat, section: section, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
+    this.tickets.push(new Ticket({seat: seat, section: section, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
   }
 
   unselectSeat(seat_id) {
-    var removeTicket = _.findIndex(this.tickets, (t: Ticket) => t.get('seat_id') === seat_id);
+    var removeTicket = _.findIndex(this.tickets, (t: Ticket) => t.get('seat').id === seat_id);
     this.tickets.splice(removeTicket, 1);
   }
 
   onReserveTickets() {
     var data = _.map(this.tickets, (t: Ticket) => {
       return {
-        seat_id: t.get('seat_id'),
+        seat_id: t.get('seat').id,
         discount_group_id: t.get('discount_group_id')
     }});
 
