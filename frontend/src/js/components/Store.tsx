@@ -14,8 +14,8 @@ import ShoppingCart from './ShoppingCart.tsx';
 import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
 
-import {IShow} from "../../../../backend/src/show";
 import {IVenue} from "../../../../backend/src/venue";
+import {IShow, IReservedSeats} from "../../../../backend/src/show";
 import Ticket from '../models/ticket';
 
 import Router = require('../router');
@@ -111,11 +111,11 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       showid = this.state.show.id;
     }
 
-    var chosenSeatIds = this.tickets.map((t: Ticket) => t.get('seat').id);
+    var chosenSeatIds = this.tickets.map((t: Ticket): number => t.get('seat').id);
     this.setState({chosenSeatIds: chosenSeatIds});
     $.ajax({
       url: 'api/shows/' + showid + '/reservedSeats',
-      success: function(response) {
+      success: (response: IReservedSeats) => {
         var reservedSeatIds = response.reserved_seats;
         var conflictingSeatIds = _.intersection(reservedSeatIds, chosenSeatIds);
         var hasConflictingSeats = conflictingSeatIds.length > 0;
@@ -128,7 +128,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           state.reservationError = 'Osa valitsemistasi paikoista on valitettavasti jo ehditty varata.';
         }
         this.setState(state);
-      }.bind(this)
+      }
     });
   }
 

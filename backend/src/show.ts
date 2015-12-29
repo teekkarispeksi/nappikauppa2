@@ -31,6 +31,10 @@ export interface IDiscountGroup {
   title: string;
 }
 
+export interface IReservedSeats {
+  reserved_seats: number[];
+}
+
 export function getAll(): Promise<IShow[]> {
   return db.query('select \
       shows.*, \
@@ -91,7 +95,7 @@ export function get(show_id): Promise<any> {
   });
 }
 
-export function getReservedSeats(show_id): Promise<any> {
+export function getReservedSeats(show_id): Promise<IReservedSeats> {
   return order.checkExpired()
     .then(() => db.query('select distinct seat_id \
         from nk2_tickets tickets \
@@ -101,10 +105,11 @@ export function getReservedSeats(show_id): Promise<any> {
         order by seat_id',
         {show_id: show_id}))
     .then((res) => {
-      return {'reserved_seats': _.pluck(res, 'seat_id')}
+      var reserved_seats = _.map(res, (s) => s['seat_id']);
+      return {'reserved_seats': reserved_seats}
     })
-    .catch((err) => {
+    /*.catch((err) => {
       log.error('Getting reserved seats failed', {error: err, show_id: show_id});
       throw err;
-    });
+    });*/
 }
