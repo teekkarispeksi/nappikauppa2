@@ -32,11 +32,12 @@ export default class Ticket extends React.Component<ITicketProps, any> {
       <Bootstrap.Glyphicon glyph='remove' /></Bootstrap.Button>) : null;
     var disabled = !this.props.active || conflict;
     var divClass = 'ticket' + (conflict ? ' alert alert-danger' : '');
+    var info = section.row_name ? section.section_title + ', ' + section.row_name + ' ' + seat.row + ', paikka ' + seat.number : section.section_title; // for numbered or un-numbered
 
     return (
       <li key={seat.id}>
         <div className={divClass}>
-          <div className='info'>{section.section_title}, {section.row_name} {seat.row}, paikka {seat.number}</div>
+          <div className='info'>{info}</div>
           <Bootstrap.Input type='select' className='discountGroupSelect' standalone disabled={disabled} onChange={this.onChange.bind(this)} value={this.props.ticket.get('discount_group')}>
             {_.map(this.props.ticket.get('discount_groups'), (group: IDiscountGroup) => {
               return (<option key={group.id} value={group.id.toString()}>{group.title} à {group.price}€</option>);

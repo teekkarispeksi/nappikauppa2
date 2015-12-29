@@ -97,10 +97,10 @@ create table nk2_sections (
 create table nk2_seats (
   `id` int(10) unsigned not null auto_increment,
   `section_id` int(10) unsigned not null,
-  `row` smallint(6) not null,
-  `number` smallint(6) not null,
-  `x_coord` smallint(6) not null,
-  `y_coord` smallint(6) not null,
+  `row` smallint(6),
+  `number` smallint(6),
+  `x_coord` smallint(6),
+  `y_coord` smallint(6),
   `bad_seat` boolean not null default '0',
   PRIMARY KEY  (`id`),
   foreign key (section_id) references nk2_sections (id)

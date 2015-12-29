@@ -35,12 +35,6 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
   }
 
   render() {
-    if (!this.props.show || !this.props.venue) {
-      return (
-        <div className='shopping-stage seat-selector'></div>
-      );
-    }
-
     var divClass = 'shopping-stage seat-selector';
     if (!this.props.active) {
       divClass += ' disabled';
