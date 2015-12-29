@@ -295,9 +295,12 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo.bind(this)} />;
         /* fall through */
       case 'seats':
-        if (this.venue.ticket_type === 'generic-tickets') {
+        if (!this.state.show || !this.venue) {
+          seatSelectorElem = <div className='shopping-stage seat-selector'></div>
+        }
+        else if (this.venue.ticket_type === 'generic-tickets') {
           seatSelectorElem = <TicketCountSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked.bind(this)} show={this.state.show} venue={this.venue}
-            conflictingSeatIds={this.state.conflictingSeatIds} chosenSeatIds={this.state.chosenSeatIds} reservedSeatIds={this.state.reservedSeatIds} />;
+            chosenSeatIds={this.state.chosenSeatIds} reservedSeatIds={this.state.reservedSeatIds} />;
         } else {
           seatSelectorElem = <SeatSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked.bind(this)} show={this.state.show} venue={this.venue}
             conflictingSeatIds={this.state.conflictingSeatIds} chosenSeatIds={this.state.chosenSeatIds} reservedSeatIds={this.state.reservedSeatIds} />;

@@ -11,7 +11,6 @@ import {IVenue} from "../../../../backend/src/venue";
 
 export interface ITicketCountSelectorProps {
   active: boolean;
-  conflictingSeatIds: number[];
   chosenSeatIds: number[];
   reservedSeatIds: number[];
   show: IShow;
@@ -37,12 +36,6 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
   }
 
   render() {
-    if (!this.props.show) {
-      return (
-        <div className='shopping-stage seat-selector'></div>
-      );
-    }
-
     var divClass = 'shopping-stage seat-selector';
     if (!this.props.active) {
       divClass += ' disabled';
