@@ -14,8 +14,8 @@ import ShoppingCart from './ShoppingCart.tsx';
 import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
 
-import {IVenue} from "../../../../backend/src/venue";
 import {IShow, IReservedSeats} from "../../../../backend/src/show";
+import {IVenue, ISeat} from "../../../../backend/src/venue";
 import Ticket from '../models/ticket';
 
 import Router = require('../router');
@@ -125,6 +125,38 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           reservationError: null
         };
         if (hasConflictingSeats) {
+          // If we don't have numbered seats, we don't actually care about the seat id's. To keep the backend simple,
+          // we have pseudo-seats still, so in frontend we have to choose some id's. Now, if those seats happen to be
+          // taken by some concurrent buyer, our 'reserveTickets'-call will fail, but we don't need any user action.
+          // So let's just get some new free id's and retry. This will probably only happen like 0 times ever, so there
+          // is no need to worry about performance. If there isn't enough free seats left anymore, we show the error.
+          // Note that this supports multiple sections, making the code a bit more complicated.
+          if(this.venue.ticket_type === 'generic-tickets') {
+            var enoughTicketsLeft = true;
+            var conflictingTickets = _.filter(this.tickets, (t: Ticket) => _.contains(conflictingSeatIds, t.get('seat').id));
+            chosenSeatIds = this.tickets.map((t: Ticket): number => t.get('seat').id);
+            for(var i = 0; i < conflictingTickets.length; i++) {
+              var ticket = conflictingTickets[i];
+              var section = this.venue.sections[ticket.get('section').id];
+              var sectionSeatIds = _.values(section.seats).map((s: ISeat) => s.id) // _.keys returns strings, we need ints
+              var freeSeatIds = _.chain(sectionSeatIds)
+               .difference(reservedSeatIds)
+               .difference(chosenSeatIds)
+               .shuffle().value()
+              if(freeSeatIds.length === 0) {
+                enoughTicketsLeft = false;
+                break;
+              }
+              var freeSeatId = freeSeatIds[0]; // .sample() breaks type information
+              var freeSeat = section.seats[freeSeatId];
+              chosenSeatIds.push(freeSeatId);
+              ticket.set('seat', freeSeat);
+            };
+            if(enoughTicketsLeft) {
+              this.onReserveTickets();
+              return;
+            }
+          }
           state.reservationError = 'Osa valitsemistasi paikoista on valitettavasti jo ehditty varata.';
         }
         this.setState(state);
