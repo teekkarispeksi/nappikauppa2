@@ -1,9 +1,12 @@
 'use strict';
 
 import express = require('express');
+import {RequestHandler} from "express";
 import bodyParser = require('body-parser');
+import atob = require("atob");
 var router = express.Router();
 
+import confluenceAuth = require('./confluenceAuth');
 import discountCode = require('./discountCode');
 import order = require('./order');
 import show = require('./show');
@@ -22,7 +25,7 @@ var ok = (res) => {
   return (data) => {
     res.json(data);
   }
-}
+};
 
 var err = (res, errStatus=500) => {
   return (data) => {
@@ -30,7 +33,22 @@ var err = (res, errStatus=500) => {
     res.status(errStatus);
     res.json(data); // TODO don't expose these to end-users
   }
-}
+};
+
+var checkUserSilently: RequestHandler = (req: express.Request, res: express.Response, next: any) => {
+  var authHeader = req.header("Authorization");
+  if (!authHeader) {
+    next();
+  } else {
+    var creds = atob(authHeader.split(" ")[1]).split(":");
+    confluenceAuth.auth(creds[0], creds[1], config.confluence_auth.groups.base, (authOk:boolean) => {
+      if (authOk) {
+        req.user = creds[0];
+      }
+      next();
+    });
+  }
+};
 
 router.post('/log', jsonParser, function(req: Request, res: Response) {
   if (req.body.meta) {
@@ -41,7 +59,8 @@ router.post('/log', jsonParser, function(req: Request, res: Response) {
   res.end();
 });
 
-router.get('/discountCode/:code', function(req: Request, res: Response) {
+router.get('/discountCode/:code', checkUserSilently, function(req: Request, res: Response) {
+  console.log("Example: Checking discount code for user " + req.user);
   discountCode.check(req.params.code).then(ok(res), err(res));
 });
 
