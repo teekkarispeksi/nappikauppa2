@@ -135,14 +135,13 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
             var enoughTicketsLeft = true;
             var conflictingTickets = _.filter(this.tickets, (t: Ticket) => _.contains(conflictingSeatIds, t.get('seat').id));
             chosenSeatIds = this.tickets.map((t: Ticket): number => t.get('seat').id);
-            for(var i = 0; i < conflictingTickets.length; i++) {
-              var ticket = conflictingTickets[i];
+            for(var ticket of conflictingTickets) {
               var section = this.venue.sections[ticket.get('section').id];
-              var sectionSeatIds = _.values(section.seats).map((s: ISeat) => s.id) // _.keys returns strings, we need ints
+              var sectionSeatIds = _.values(section.seats).map((s: ISeat) => s.id); // _.keys returns strings, we need ints
               var freeSeatIds = _.chain(sectionSeatIds)
                .difference(reservedSeatIds)
                .difference(chosenSeatIds)
-               .shuffle().value()
+               .shuffle().value();
               if(freeSeatIds.length === 0) {
                 enoughTicketsLeft = false;
                 break;
@@ -151,7 +150,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
               var freeSeat = section.seats[freeSeatId];
               chosenSeatIds.push(freeSeatId);
               ticket.set('seat', freeSeat);
-            };
+            }
             if(enoughTicketsLeft) {
               this.onReserveTickets();
               return;

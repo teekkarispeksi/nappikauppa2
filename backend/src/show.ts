@@ -108,8 +108,9 @@ export function getReservedSeats(show_id): Promise<IReservedSeats> {
       var reserved_seats = _.map(res, (s) => s['seat_id']);
       return {'reserved_seats': reserved_seats}
     })
-    /*.catch((err) => {
+    .catch((err) => {
       log.error('Getting reserved seats failed', {error: err, show_id: show_id});
       throw err;
-    });*/
+      return null;
+    });
 }
