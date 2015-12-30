@@ -14,8 +14,8 @@ import ShoppingCart from './ShoppingCart.tsx';
 import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
 
-import {IShow} from "../../../../backend/src/show";
-import {IVenue} from "../../../../backend/src/venue";
+import {IShow, IReservedSeats} from "../../../../backend/src/show";
+import {IVenue, ISeat} from "../../../../backend/src/venue";
 import Ticket from '../models/ticket';
 
 import Router = require('../router');
@@ -111,11 +111,11 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       showid = this.state.show.id;
     }
 
-    var chosenSeatIds = this.tickets.map((t: Ticket) => t.get('seat_id'));
+    var chosenSeatIds = this.tickets.map((t: Ticket): number => t.get('seat').id);
     this.setState({chosenSeatIds: chosenSeatIds});
     $.ajax({
       url: 'api/shows/' + showid + '/reservedSeats',
-      success: function(response) {
+      success: (response: IReservedSeats) => {
         var reservedSeatIds = response.reserved_seats;
         var conflictingSeatIds = _.intersection(reservedSeatIds, chosenSeatIds);
         var hasConflictingSeats = conflictingSeatIds.length > 0;
@@ -125,10 +125,41 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           reservationError: null
         };
         if (hasConflictingSeats) {
+          // If we don't have numbered seats, we don't actually care about the seat id's. To keep the backend simple,
+          // we have pseudo-seats still, so in frontend we have to choose some id's. Now, if those seats happen to be
+          // taken by some concurrent buyer, our 'reserveTickets'-call will fail, but we don't need any user action.
+          // So let's just get some new free id's and retry. This will probably only happen like 0 times ever, so there
+          // is no need to worry about performance. If there isn't enough free seats left anymore, we show the error.
+          // Note that this supports multiple sections, making the code a bit more complicated.
+          if(this.venue.ticket_type === 'generic-tickets') {
+            var enoughTicketsLeft = true;
+            var conflictingTickets = _.filter(this.tickets, (t: Ticket) => _.contains(conflictingSeatIds, t.get('seat').id));
+            chosenSeatIds = this.tickets.map((t: Ticket): number => t.get('seat').id);
+            for(var ticket of conflictingTickets) {
+              var section = this.venue.sections[ticket.get('section').id];
+              var sectionSeatIds = _.values(section.seats).map((s: ISeat) => s.id); // _.keys returns strings, we need ints
+              var freeSeatIds = _.chain(sectionSeatIds)
+               .difference(reservedSeatIds)
+               .difference(chosenSeatIds)
+               .shuffle().value();
+              if(freeSeatIds.length === 0) {
+                enoughTicketsLeft = false;
+                break;
+              }
+              var freeSeatId = freeSeatIds[0]; // .sample() breaks type information
+              var freeSeat = section.seats[freeSeatId];
+              chosenSeatIds.push(freeSeatId);
+              ticket.set('seat', freeSeat);
+            }
+            if(enoughTicketsLeft) {
+              this.onReserveTickets();
+              return;
+            }
+          }
           state.reservationError = 'Osa valitsemistasi paikoista on valitettavasti jo ehditty varata.';
         }
         this.setState(state);
-      }.bind(this)
+      }
     });
   }
 
@@ -179,18 +210,18 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     var section = this.venue.sections[section_id];
     var seat = section.seats[seat_id];
     var discount_groups = this.state.show.sections[section_id].discount_groups;
-    this.tickets.push(new Ticket({seat_id: seat_id, seat: seat, section: section, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
+    this.tickets.push(new Ticket({seat: seat, section: section, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
   }
 
   unselectSeat(seat_id) {
-    var removeTicket = _.findIndex(this.tickets, (t: Ticket) => t.get('seat_id') === seat_id);
+    var removeTicket = _.findIndex(this.tickets, (t: Ticket) => t.get('seat').id === seat_id);
     this.tickets.splice(removeTicket, 1);
   }
 
   onReserveTickets() {
     var data = _.map(this.tickets, (t: Ticket) => {
       return {
-        seat_id: t.get('seat_id'),
+        seat_id: t.get('seat').id,
         discount_group_id: t.get('discount_group_id')
     }});
 
