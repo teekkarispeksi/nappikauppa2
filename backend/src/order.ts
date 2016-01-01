@@ -22,6 +22,7 @@ export interface IContact {
   discount_code?: string;
   name: string;
   email: string;
+  is_admin?: boolean;
 }
 
 export interface IOrder {
@@ -47,8 +48,8 @@ export function checkExpired(): Promise<any> {
     {expire_minutes: config.expire_minutes});
 }
 
-export function reserveSeats(show_id: string, seats: IReservedSeat[]): Promise<any> {
-  log.info('Reserving seats', {show_id: show_id, seats: seats});
+export function reserveSeats(show_id: string, seats: IReservedSeat[], user: string): Promise<any> {
+  log.info('Reserving seats', {show_id: show_id, seats: seats, user: user});
 
   var order_id;
   return checkExpired()
@@ -74,6 +75,9 @@ export function reserveSeats(show_id: string, seats: IReservedSeat[]): Promise<a
         return db.format('(:order_id, :show_id, :seat_id, :discount_group_id, :hash, \
       (select if(p.price >= d.eur, p.price-d.eur, 0) from nk2_prices p \
         join nk2_discount_groups d on d.id = :discount_group_id\
+          and (d.show_id = :show_id or d.show_id is null) \
+          and (:is_admin or d.admin_only = false) \
+          and d.active = true \
         where p.show_id = :show_id \
           and p.section_id = (select section_id from nk2_seats where id = :seat_id)) \
         )', {
@@ -81,7 +85,8 @@ export function reserveSeats(show_id: string, seats: IReservedSeat[]): Promise<a
           show_id: show_id,
           seat_id: e.seat_id,
           discount_group_id: e.discount_group_id,
-          hash: uuid.v4()
+          hash: uuid.v4(),
+          is_admin: typeof(user) !== 'undefined'
         });
       });
 
@@ -102,8 +107,8 @@ export function reserveSeats(show_id: string, seats: IReservedSeat[]): Promise<a
     });
 }
 
-export function updateContact(order_id: string, data: IContact): Promise<any> {
-  var discountCheck = 'select (dc.use_max - count(*)) > 0 as valid from nk2_orders o \
+export function updateContact(order_id: string, data: IContact, user): Promise<any> {
+  var discountCheck = 'select (:is_admin | ((dc.use_max - count(*)) > 0)) as valid from nk2_orders o \
     join nk2_discount_codes dc on dc.code = o.discount_code \
     where o.discount_code = :discount_code';
   // make falsy to be a real NULL
@@ -111,8 +116,8 @@ export function updateContact(order_id: string, data: IContact): Promise<any> {
     data.discount_code = null;
     discountCheck = 'select 1 as valid';
   }
-
-  log.info('Updating contact details', {order_id: order_id, contact: data});
+  data.is_admin = typeof(user) !== 'undefined';
+  log.info('Updating contact details', {order_id: order_id, contact: data, user: user});
 
   return db.query(discountCheck, data)
     .then(function(rows) {

@@ -60,12 +60,11 @@ router.post('/log', jsonParser, function(req: Request, res: Response) {
 });
 
 router.get('/discountCode/:code', checkUserSilently, function(req: Request, res: Response) {
-  console.log("Example: Checking discount code for user " + req.user);
-  discountCode.check(req.params.code).then(ok(res), err(res));
+  discountCode.check(req.params.code, req.user).then(ok(res), err(res));
 });
 
-router.get('/shows/', function(req: Request, res: Response) {
-  show.getAll().then(ok(res), err(res));
+router.get('/shows/', checkUserSilently, function(req: Request, res: Response) {
+  show.getAll(req.user).then(ok(res), err(res));
 });
 
 router.get('/shows/:showid', function(req: Request, res: Response) {
@@ -76,14 +75,14 @@ router.get('/shows/:showid/reservedSeats', function(req: Request, res: Response)
   show.getReservedSeats(req.params.showid).then(ok(res), err(res));
 });
 
-router.post('/shows/:showid/reserveSeats', jsonParser, function(req: Request, res: Response) {
-  order.reserveSeats(req.params.showid, req.body)
+router.post('/shows/:showid/reserveSeats', jsonParser, checkUserSilently, function(req: Request, res: Response) {
+  order.reserveSeats(req.params.showid, req.body, req.user)
     .then(ok(res))
     .catch((err) => { res.status(409); res.json(err); });
 });
 
-router.post('/orders/:orderid', jsonParser, function(req: Request, res: Response) {
-  order.updateContact(req.params.orderid, req.body).then(ok(res), err(res));
+router.post('/orders/:orderid', jsonParser, checkUserSilently, function(req: Request, res: Response) {
+  order.updateContact(req.params.orderid, req.body, req.user).then(ok(res), err(res));
 });
 
 router.post('/orders/:orderid/preparePayment', function(req: Request, res: Response) {

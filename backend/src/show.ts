@@ -35,7 +35,7 @@ export interface IReservedSeats {
   reserved_seats: number[];
 }
 
-export function getAll(): Promise<IShow[]> {
+export function getAll(user): Promise<IShow[]> {
   return db.query('select \
       shows.*, \
       (100.0 * reserved.seatcount / total.seatcount) as reserved_percentage, \
@@ -60,8 +60,8 @@ export function getAll(): Promise<IShow[]> {
     ) as total on total.show_id = shows.id \
     left join nk2_discount_groups groups on \
       (shows.id = groups.show_id or groups.show_id is null) \
-      and groups.admin_only = false \
-      and groups.active = true')
+      and (:is_admin or groups.admin_only = false) \
+      and groups.active = true', {is_admin: typeof(user) !== 'undefined'})
     .then((rows) => {
       var grouped = _.groupBy(rows, 'id');
       var shows = _.mapObject(grouped, function(showRows: any[]) {
@@ -74,7 +74,7 @@ export function getAll(): Promise<IShow[]> {
             return {
               'id': groupRow.discount_group_id,
               'title': groupRow.discount_group_title,
-              'price': basePrice - groupRow.discount_group_discount
+              'price': Math.max(basePrice - groupRow.discount_group_discount, 0)
             };
           });
           return section;
