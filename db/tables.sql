@@ -69,6 +69,7 @@ create table nk2_orders (
   `discount_code` varchar(32) default null,
   `time` datetime default null,
   `price` decimal(10,2) default null,
+  `payment_url` varchar(200) default null,
   `payment_id` varchar(20) default NULL,
   `reserved_until` datetime,
   `reserved_session_id` varchar(32),
