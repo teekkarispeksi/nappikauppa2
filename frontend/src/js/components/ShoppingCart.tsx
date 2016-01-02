@@ -65,10 +65,9 @@ export default class ShoppingCart extends React.Component<IShoppingCartProps, an
         <ul className='list-unstyled'>
           {tickets.map(function(ticket: TicketModel) {
             return (
-              <Ticket
-                key={ticket.get('seat_id')}
+              <Ticket key={ticket.get('seat').id}
                 ticket={ticket}
-                conflict={_.contains(this.props.conflictingSeatIds, ticket.get('seat_id'))}
+                conflict={_.contains(this.props.conflictingSeatIds, ticket.get('seat').id)}
                 active={this.props.active}
                 onDiscountSelect={this.onDiscountSelect.bind(this, ticket)}
                 onRemove={this.props.onSeatClicked.bind(this)} />
