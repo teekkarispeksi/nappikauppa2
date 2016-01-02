@@ -14,9 +14,8 @@ import ShoppingCart from './ShoppingCart.tsx';
 import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
 
-import {IShow, IReservedSeats} from "../../../../backend/src/show";
-import {IVenue, ISeat} from "../../../../backend/src/venue";
-import Ticket from '../models/ticket';
+import {IShow, IReservedSeats, IDiscountGroup} from "../../../../backend/src/show";
+import {IVenue, ISection, ISeat} from "../../../../backend/src/venue";
 
 import Router = require('../router');
 
@@ -29,6 +28,13 @@ var scrollToElem = function(elemstr) {
     scrollTop: $(elemstr)[0].offsetTop
   });
 };
+
+export interface ITicket {
+  seat: ISeat;
+  section: ISection;
+  discount_groups: IDiscountGroup[];
+  discount_group_id: number
+}
 
 export interface IStoreProps {
   action?: string;
@@ -50,7 +56,7 @@ export interface IStoreState {
 
 export default class Store extends React.Component<IStoreProps, IStoreState> {
   shows: IShow[];
-  tickets: Ticket[];
+  tickets: ITicket[];
   order: IOrder;
   venue: IVenue;
   seats: any;
@@ -111,7 +117,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       showid = this.state.show.id;
     }
 
-    var chosenSeatIds = this.tickets.map((t: Ticket): number => t.get('seat').id);
+    var chosenSeatIds = this.tickets.map((t: ITicket) => t.seat.id);
     this.setState({chosenSeatIds: chosenSeatIds});
     $.ajax({
       url: 'api/shows/' + showid + '/reservedSeats',
@@ -133,10 +139,10 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           // Note that this supports multiple sections, making the code a bit more complicated.
           if(this.venue.ticket_type === 'generic-tickets') {
             var enoughTicketsLeft = true;
-            var conflictingTickets = _.filter(this.tickets, (t: Ticket) => _.contains(conflictingSeatIds, t.get('seat').id));
-            chosenSeatIds = this.tickets.map((t: Ticket): number => t.get('seat').id);
+            var conflictingTickets = _.filter(this.tickets, (t: ITicket) => _.contains(conflictingSeatIds, t.seat.id));
+            chosenSeatIds = this.tickets.map((t: ITicket) => t.seat.id);
             for(var ticket of conflictingTickets) {
-              var section = this.venue.sections[ticket.get('section').id];
+              var section = this.venue.sections[ticket.section.id];
               var sectionSeatIds = _.values(section.seats).map((s: ISeat) => s.id); // _.keys returns strings, we need ints
               var freeSeatIds = _.chain(sectionSeatIds)
                .difference(reservedSeatIds)
@@ -149,7 +155,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
               var freeSeatId = freeSeatIds[0]; // .sample() breaks type information
               var freeSeat = section.seats[freeSeatId];
               chosenSeatIds.push(freeSeatId);
-              ticket.set('seat', freeSeat);
+              ticket.seat = freeSeat;
             }
             if(enoughTicketsLeft) {
               this.onReserveTickets();
@@ -210,19 +216,19 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     var section = this.venue.sections[section_id];
     var seat = section.seats[seat_id];
     var discount_groups = this.state.show.sections[section_id].discount_groups;
-    this.tickets.push(new Ticket({seat: seat, section: section, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT}));
+    this.tickets.push({seat: seat, section: section, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT});
   }
 
   unselectSeat(seat_id) {
-    var removeTicket = _.findIndex(this.tickets, (t: Ticket) => t.get('seat').id === seat_id);
+    var removeTicket = _.findIndex(this.tickets, (t: ITicket) => t.seat.id === seat_id);
     this.tickets.splice(removeTicket, 1);
   }
 
   onReserveTickets() {
-    var data = _.map(this.tickets, (t: Ticket) => {
+    var data = _.map(this.tickets, (t: ITicket) => {
       return {
-        seat_id: t.get('seat').id,
-        discount_group_id: t.get('discount_group_id')
+        seat_id: t.seat.id,
+        discount_group_id: t.discount_group_id
     }});
 
     $.ajax({

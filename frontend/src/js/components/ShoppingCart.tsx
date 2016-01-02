@@ -4,7 +4,7 @@ import _ = require('underscore');
 import React = require('react');
 import Bootstrap = require('react-bootstrap');
 import Ticket from './Ticket';
-import TicketModel from "../models/ticket";
+import {ITicket} from './Store';
 
 export interface IShoppingCartProps {
   active: boolean;
@@ -12,7 +12,7 @@ export interface IShoppingCartProps {
   error: string;
   reservationHasExpired: boolean;
   reservationExpirationTime: Date;
-  tickets: TicketModel[];
+  tickets: ITicket[];
 
   onSeatClicked: Function;
   onReserveTickets: Function;
@@ -20,8 +20,8 @@ export interface IShoppingCartProps {
 
 export default class ShoppingCart extends React.Component<IShoppingCartProps, any> {
 
-  onDiscountSelect(ticket, value) {
-    ticket.set('discount_group_id', value);
+  onDiscountSelect(ticket: ITicket, value) {
+    ticket.discount_group_id = value;
     this.forceUpdate();
   }
 
@@ -63,11 +63,11 @@ export default class ShoppingCart extends React.Component<IShoppingCartProps, an
         <h2>Paikkojen varaus <small>3/5</small></h2>
         {error}
         <ul className='list-unstyled'>
-          {tickets.map(function(ticket: TicketModel) {
+          {tickets.map(function(ticket: ITicket) {
             return (
-              <Ticket key={ticket.get('seat').id}
+              <Ticket key={ticket.seat.id}
                 ticket={ticket}
-                conflict={_.contains(this.props.conflictingSeatIds, ticket.get('seat').id)}
+                conflict={_.contains(this.props.conflictingSeatIds, ticket.seat.id)}
                 active={this.props.active}
                 onDiscountSelect={this.onDiscountSelect.bind(this, ticket)}
                 onRemove={this.props.onSeatClicked.bind(this)} />
