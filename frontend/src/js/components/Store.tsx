@@ -59,7 +59,6 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   tickets: ITicket[];
   order: IOrder;
   venue: IVenue;
-  seats: any;
   timer: any;
 
   constructor(props: IStoreProps) {
