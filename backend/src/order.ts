@@ -42,6 +42,21 @@ export interface IOrder {
   tickets_total_price: number;
 }
 
+export interface IAdminOrderListItem {
+  id: number;
+  name: string;
+  email: string;
+  price: number;
+  discount_code: string;
+  hash: string;
+  payment_url: string;
+  payment_id: string;
+  reserved_session_id: string;
+  reserved_until: Date;
+  status: string;
+  time: Date;
+}
+
 export function checkExpired(): Promise<any> {
   return db.query('delete from nk2_orders \
     where status = "seats-reserved" \
@@ -216,11 +231,11 @@ export function get(order_id: string): Promise<any> {
   });
 }
 
-export function getAll(): Promise<any> {
+export function getAll(): Promise<IAdminOrderListItem> {
   return db.query('select * from nk2_orders orders', null);
 }
 
-export function getAllForShow(show_id: string): Promise<any> {
+export function getAllForShow(show_id: string): Promise<IAdminOrderListItem> {
   return db.query('select distinct orders.* \
     from nk2_orders orders \
       join nk2_tickets tickets on tickets.order_id = orders.id \
@@ -441,7 +456,7 @@ export function updateNameOrEmail(order_id, data): Promise<any> {
     return;
   }
 
-  db.query('update nk2_orders set ' + query + ' where id = :id', data)
+  return db.query('update nk2_orders set ' + query + ' where id = :id', data)
   .then((res) => {
     if (res.changedRows !== 1) {
       var errmsg = 'ADMIN: Should have updated one row, updated really ' + res.changedRows + ' rows';
@@ -452,22 +467,5 @@ export function updateNameOrEmail(order_id, data): Promise<any> {
     return get(order_id);
   }).catch((err) => {
     log.error('ADMIN: Failed to update contact details', {error: err});
-  });
-}
-
-export function remove(order_id): Promise<any> {
-  log.info('ADMIN: Removing order ' + order_id);
-
-  return db.query('delete from nk2_orders where id = :id', {id: order_id})
-    .then((res) => {
-    if (res.affectedRows !== 1) {
-      var errmsg = 'ADMIN: Should have removed one row, affected really ' + res.changedRows + ' rows';
-      log.error(errmsg);
-      throw errmsg;
-    }
-    log.info('ADMIN: Removed order ' + order_id + ' successfully');
-  }).catch((err) => {
-    log.error('ADMIN: Failed to remove order ' + order_id, {error: err});
-    throw err;
   });
 }
