@@ -63,7 +63,7 @@ module.exports = {
       .click('button#reserveTickets')
       .waitForElementVisible('.contact-input', TIMEOUT)
       .setValue('input[label=Nimi]', 'testi nimi')
-      .setValue('input[label=Sähköposti]', 'testi@example.local')
+      .setValue('input[label=Sähköposti]', '@')
       .setValue('input[label=Alennuskoodi]', discountCode)
       .click('button#saveOrderInfo')
       .waitForElementVisible('.final-confirmation', TIMEOUT)

@@ -6,12 +6,12 @@ import Bootstrap = require('react-bootstrap');
 import _ = require('underscore');
 
 import {IDiscountGroup} from "../../../../backend/src/show";
-import TicketModel from "../models/ticket";
+import {ITicket} from './Store';
 
 export interface ITicketProps extends Props<any> {
   active: boolean;
   conflict: boolean;
-  ticket: TicketModel;
+  ticket: ITicket;
 
   onDiscountSelect: Function;
   onRemove: Function;
@@ -24,8 +24,8 @@ export default class Ticket extends React.Component<ITicketProps, any> {
   }
 
   render() {
-    var seat = this.props.ticket.get('seat');
-    var section = this.props.ticket.get('section');
+    var seat = this.props.ticket.seat;
+    var section = this.props.ticket.section;
     var conflict = this.props.conflict;
     var remove = this.props.active ? (
       <Bootstrap.Button bsStyle='link' className='removeSeat' onClick={this.props.onRemove.bind(null, seat.id, section.id)}>
@@ -38,8 +38,8 @@ export default class Ticket extends React.Component<ITicketProps, any> {
       <li key={seat.id}>
         <div className={divClass}>
           <div className='info'>{info}</div>
-          <Bootstrap.Input type='select' className='discountGroupSelect' standalone disabled={disabled} onChange={this.onChange.bind(this)} value={this.props.ticket.get('discount_group')}>
-            {_.map(this.props.ticket.get('discount_groups'), (group: IDiscountGroup) => {
+          <Bootstrap.Input type='select' className='discountGroupSelect' standalone disabled={disabled} onChange={this.onChange.bind(this)} value={this.props.ticket.discount_group_id}>
+            {_.map(this.props.ticket.discount_groups, (group: IDiscountGroup) => {
               return (<option key={group.id} value={group.id.toString()}>{group.title} à {group.price}€</option>);
             })}
           </Bootstrap.Input>
