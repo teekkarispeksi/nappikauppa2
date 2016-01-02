@@ -238,7 +238,7 @@ export function preparePayment(order_id: string): Promise<any> {
         var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
         params.RETURN_AUTHCODE = md5(verification).toUpperCase();
 
-        return paymentDone(order_id, params).then((res) => { return {url: '#ok'} });
+        return paymentDone(order_id, params).then((res) => { return {url: '#ok/' + order.order_id + '/' + order.order_hash} });
       }
 
       var ticket_rows = _.map(order.tickets, (ticket: ticket.ITicket) => {
