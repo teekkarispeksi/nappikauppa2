@@ -9,6 +9,7 @@ var router = express.Router();
 import auth = require('./confluenceAuth');
 import discountCode = require('./discountCode');
 import order = require('./order');
+import production = require('./production');
 import show = require('./show');
 import ticket = require('./ticket');
 import venue = require('./venue');
@@ -61,6 +62,10 @@ router.post('/log', jsonParser, function(req: Request, res: Response) {
 
 router.get('/discountCode/:code', checkUserSilently, function(req: Request, res: Response) {
   discountCode.check(req.params.code, req.user).then(ok(res), err(res));
+});
+
+router.get('/productions/latest', function(req: Request, res: Response) {
+  production.getLatestActive().then(ok(res), err(res));
 });
 
 router.get('/shows/', checkUserSilently, function(req: Request, res: Response) {
