@@ -10,7 +10,6 @@ export interface IShoppingCartProps {
   active: boolean;
   conflictingSeatIds: number[];
   error: string;
-  reservationHasExpired: boolean;
   reservationExpirationTime: Date;
   tickets: ITicket[];
 
@@ -31,11 +30,6 @@ export default class ShoppingCart extends React.Component<IShoppingCartProps, an
       return (
         <div className='shopping-stage shopping-cart'></div>
       );
-    }
-
-    var expirationText;
-    if (this.props.reservationHasExpired) {
-      expirationText = (<span>Varauksesi on rauennut.</span>);
     }
 
     var reserveTicketsButton = (this.props.active && tickets.length > 0 && !this.props.error) ?
@@ -74,7 +68,6 @@ export default class ShoppingCart extends React.Component<IShoppingCartProps, an
             );
           }.bind(this))}
         </ul>
-        {expirationText}
         {reserveTicketsButton}
         {timer}
       </div>

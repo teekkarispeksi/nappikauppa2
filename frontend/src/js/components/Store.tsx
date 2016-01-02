@@ -50,7 +50,6 @@ export interface IStoreState {
   conflictingSeatIds?: number[];
   chosenSeatIds?: number[];
   reservedSeatIds?: number[];
-  reservationHasExpired?: boolean;
   reservationExpirationTime?: Date;
 }
 
@@ -103,12 +102,12 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   }
 
   onTimeout() {
-    this.setState({page: 'seats', reservationExpirationTime: null, reservationHasExpired: true});
+    this.setState({page: 'seats', reservationError: 'Varauksesi on rauennut.'});
   }
 
   startTimer() {
-    this.timer = setTimeout(this.onTimeout, EXPIRATION_IN_MINUTES * 60 * 1000);
-    this.setState({reservationExpirationTime: new Date(Date.now() + EXPIRATION_IN_MINUTES * 60 * 1000), reservationHasExpired: false});
+    this.timer = setTimeout(this.onTimeout.bind(this), EXPIRATION_IN_MINUTES * 60 * 1000);
+    this.setState({reservationExpirationTime: new Date(Date.now() + EXPIRATION_IN_MINUTES * 60 * 1000)});
   }
 
   updateSeatStatus(showid = undefined) {
@@ -188,7 +187,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       page: 'seats',
       show: show,
       reservationExpirationTime: null,
-      reservationHasExpired: null
+      reservationError: null
     });
     Router.navigate('show/' + showid, {trigger: false});
     setTimeout(function() {
@@ -199,7 +198,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   onSeatClicked(seat_id, section_id) {
     this.setState({
       page: 'seats',
-      reservationHasExpired: false,
+      reservationExpirationTime: null,
       reservationError: null
     });
     if (this.state.chosenSeatIds.indexOf(seat_id) >= 0) {
@@ -347,7 +346,6 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
             conflictingSeatIds={this.state.conflictingSeatIds}
             active={this.state.page === 'seats'}
             reservationExpirationTime={this.state.reservationExpirationTime}
-            reservationHasExpired={this.state.reservationHasExpired}
             onReserveTickets={this.onReserveTickets.bind(this)}
             onSeatClicked={this.onSeatClicked.bind(this)}
             error={this.state.reservationError} />);
