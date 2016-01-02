@@ -72,10 +72,12 @@ var OrderList = React.createClass({
           <th>Status</th>
           <th>Edit</th>
           <th>Liput</th>
+          <th>Maksulinkki</th>
         </tr>
           {this.orders.map(function(order) {
             var editLink = order.get('status') === 'paid' ? <a href={'#orders/' + order.get('id')}>Edit</a> : null;
             var ticketLink = order.get('status') === 'paid' ? <a href={'admin-api/orders/' + order.get('id') + '/tickets/'}>Liput</a> : null;
+            var paymentLink = order.get('status') !== 'paid' ? <a href={order.get('payment_url')}>Maksulinkki</a> : null;
             //var removeLink = <a onClick={this.removeConfirmationDialog.bind(null, order.get('id'))}>X</a>;
             return (<tr key={order.get('id')}>
               <td>{order.get('name')}</td>
@@ -84,6 +86,7 @@ var OrderList = React.createClass({
               <td>{order.get('status')}</td>
               <td>{editLink}</td>
               <td>{ticketLink}</td>
+              <td>{paymentLink}</td>
             </tr>);
           }.bind(this))}
         </tbody></Table>

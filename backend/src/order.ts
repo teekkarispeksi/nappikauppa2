@@ -161,6 +161,7 @@ export function get(order_id: string): Promise<any> {
       orders.discount_code,\
       orders.time,\
       orders.price order_price,\
+      orders.payment_url, \
       orders.payment_id,\
       orders.reserved_until,\
       orders.reserved_session_id,\
@@ -191,7 +192,7 @@ export function get(order_id: string): Promise<any> {
     {id: order_id})
   .then(function(rows) {
       var first = rows[0];
-      var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'time', 'order_price', 'payment_id',
+      var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'time', 'order_price', 'payment_url', 'payment_id',
         'reserved_until', 'reserved_session_id', 'status']);
 
       res.tickets = _.map(rows, function(row) {
@@ -315,7 +316,11 @@ export function preparePayment(order_id: string): Promise<any> {
               requestHeaders: response.request.headers, requestBody: response.request.body, requestUri: response.request.uri, order_id: order_id});
             reject(err);
           }
-          resolve({url: body.url});
+          var url = body.url;
+          db.query('update nk2_orders set payment_url = :url where id = :order_id',
+            {order_id: order_id, url: url});
+
+          resolve({url: url});
         });
       });
     })
