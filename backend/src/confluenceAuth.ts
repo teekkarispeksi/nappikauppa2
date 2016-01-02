@@ -11,7 +11,11 @@ import _ = require('underscore');
 var userCache = {};
 var CACHE_INVALIDATE_MSEC = 5 * 60 * 1000;
 
-export function auth(user: string, password: string, requiredGroup: string, cb: Function) {
+export function isAdmin(user: string) {
+  return typeof(user) !== 'undefined';
+}
+
+export function authenticate(user: string, password: string, requiredGroup: string, cb: Function) {
   if (userCache[user] && userCache[user].password === password) {
     var now = new Date();
     if (now.getTime() - userCache[user].inserted.getTime() > CACHE_INVALIDATE_MSEC) {

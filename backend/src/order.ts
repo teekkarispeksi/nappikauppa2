@@ -9,6 +9,7 @@ import uuid = require('node-uuid');
 import _ = require('underscore');
 import ticket =  require("./ticket");
 import md5 = require('md5');
+import auth = require('./confluenceAuth');
 
 // Paytrail wants to charge something, so they don't support minimal payments
 const PAYTRAIL_MIN_PAYMENT = 0.65;
@@ -86,7 +87,7 @@ export function reserveSeats(show_id: string, seats: IReservedSeat[], user: stri
           seat_id: e.seat_id,
           discount_group_id: e.discount_group_id,
           hash: uuid.v4(),
-          is_admin: typeof(user) !== 'undefined'
+          is_admin: auth.isAdmin(user)
         });
       });
 
@@ -116,7 +117,7 @@ export function updateContact(order_id: string, data: IContact, user): Promise<a
     data.discount_code = null;
     discountCheck = 'select 1 as valid';
   }
-  data.is_admin = typeof(user) !== 'undefined';
+  data.is_admin = auth.isAdmin(user);
   log.info('Updating contact details', {order_id: order_id, contact: data, user: user});
 
   return db.query(discountCheck, data)

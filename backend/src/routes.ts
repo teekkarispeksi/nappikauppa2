@@ -6,7 +6,7 @@ import bodyParser = require('body-parser');
 import atob = require("atob");
 var router = express.Router();
 
-import confluenceAuth = require('./confluenceAuth');
+import auth = require('./confluenceAuth');
 import discountCode = require('./discountCode');
 import order = require('./order');
 import show = require('./show');
@@ -41,7 +41,7 @@ var checkUserSilently: RequestHandler = (req: express.Request, res: express.Resp
     next();
   } else {
     var creds = atob(authHeader.split(" ")[1]).split(":");
-    confluenceAuth.auth(creds[0], creds[1], config.confluence_auth.groups.base, (authOk:boolean) => {
+    auth.authenticate(creds[0], creds[1], config.confluence_auth.groups.base, (authOk:boolean) => {
       if (authOk) {
         req.user = creds[0];
       }
