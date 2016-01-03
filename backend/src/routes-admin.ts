@@ -1,7 +1,7 @@
 'use strict';
 
-var express = require('express');
-var bodyParser = require('body-parser');
+import express = require('express');
+import bodyParser = require('body-parser');
 var router = express.Router();
 
 import discountCode = require('./discountCode');
@@ -12,6 +12,9 @@ import venue = require('./venue');
 import log = require('./log');
 
 var jsonParser = bodyParser.json();
+
+type Request = express.Request;
+type Response = express.Response;
 
 var ok = (res) => {
   return (data) => {
@@ -27,28 +30,23 @@ var err = (res, errStatus=500) => {
   }
 }
 
-router.get('/orders', function(req, res) {
-  var responseFunc = function(data) { res.json(data); };
-  if (req.query.showid) {
-    order.getAllForShow(req.query.showid).then(responseFunc);
+router.get('/orders', function(req: Request, res: Response) {
+  if (req.query.show_id) {
+    order.getAllForShow(req.query.show_id).then(ok(res), err(res));
   } else {
-    order.getAll().then(responseFunc);
+    order.getAll().then(ok(res), err(res));
   }
 });
 
-router.get('/orders/:orderid', function(req, res) {
-  order.get(req.params.orderid).then(function(order) { res.json(order); });
+router.get('/orders/:orderid', function(req: Request, res: Response) {
+  order.get(req.params.orderid).then(ok(res), err(res));
 });
 
-router.delete('/orders/:orderid', function(req, res) {
-  order.remove(req.params.orderid).then(function(data) { res.json(data); });
+router.post('/orders/:orderid', jsonParser, function(req: Request, res: Response) {
+  order.updateNameOrEmail(req.params.orderid, req.body).then(ok(res), err(res));
 });
 
-router.patch('/orders/:orderid', jsonParser, function(req, res) {
-  order.updateNameOrEmail(req.params.orderid, req.body).then(function(data) { res.json(data); });
-});
-
-router.get('/orders/:orderid/tickets', function(req, res) {
+router.get('/orders/:orderid/tickets', function(req: Request, res: Response) {
   order.get(req.params.orderid).then(function(order) {
     var pdf = ticket.generatePdf(order.tickets);
     res.type('application/pdf');

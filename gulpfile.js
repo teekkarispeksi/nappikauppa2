@@ -135,7 +135,7 @@ function jsMin(startPath, targetFile) {
 }
 
 gulp.task('js:store', ['lint'], js('./frontend/src/js/App.tsx', 'App.js'));
-gulp.task('js:admin', js('./frontend/src/js-admin/AdminApp.jsx', 'adminApp.js'));
+gulp.task('js:admin', js('./frontend/src/js-admin/AdminApp.tsx', 'adminApp.js'));
 
 gulp.task('js', ['js:store', 'js:admin']);
 
