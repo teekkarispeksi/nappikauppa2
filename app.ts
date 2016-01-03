@@ -5,21 +5,21 @@ import {Request} from "express";
 var express = require('express');
 var path = require('path');
 var morgan = require('morgan');
-var auth = require('http-auth');
+var httpAuth = require('http-auth');
 var compression = require('compression');
 var methodOverride = require('method-override');
 
 var config = require('./config/config.js');
-var confluenceAuth = require('./backend/build/confluenceAuth.js');
+var auth = require('./backend/build/confluenceAuth.js');
 var api = require('./backend/build/routes');
 var adminApi = require('./backend/build/routes-admin');
 
 var log = require('./backend/build/log.js');
 
-var basicAuth = auth.basic({
+var basicAuth = httpAuth.basic({
     realm: 'Nappikauppa v2 - use your speksi-intra account',
   }, function(username, password, cb) {
-    confluenceAuth.auth(username, password, config.confluence_auth.groups.base, cb);
+    auth.authenticate(username, password, config.confluence_auth.groups.base, cb);
   }
 );
 
@@ -41,7 +41,7 @@ app.get('/favicon.ico', function(req, res: Response) {
 });
 
 if (config.confluence_auth.enabled) {
-  app.all('/admin*', auth.connect(basicAuth));
+  app.all('/admin*', httpAuth.connect(basicAuth));
 } else {
   log.warn('=======================================');
   log.warn('NO AUTHENTICATION ENABLED. Fine for dev, not cool for anything real.');

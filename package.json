@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "atob": "^2.0.0",
     "backbone": "^1.2.1",
     "body-parser": "1.14.0",
     "compression": "1.6.0",
