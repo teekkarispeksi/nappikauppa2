@@ -46,6 +46,8 @@
     "gulp-notify": "^2.2.0",
     "gulp-plumber": "^1.0.1",
     "gulp-react": "^3.0.1",
+    "gulp-tslint": "^4.2.2",
+    "gulp-tslint-stylish": "^1.1.1",
     "gulp-typescript": "^2.10.0",
     "gulp-uglify": "^1.2.0",
     "jshint-stylish": "^2.0.1",
@@ -55,6 +57,8 @@
     "reactify": "^1.1.1",
     "tiny-lr": "^0.1.6",
     "tsd": "^0.6.5",
+    "tslint": "^3.2.1",
+    "typescript": "^1.7.5",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }

@@ -9,12 +9,11 @@ var browserify = require('browserify');
 var reactify = require('reactify'); // for browserify
 var tsify = require('tsify');
 var ts = require('gulp-typescript');
+var tslint = require('gulp-tslint');
+var stylish = require('gulp-tslint-stylish');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
-var jshint = require('gulp-jshint');
-var jscs = require('gulp-jscs');
-var stylish = require('gulp-jscs-stylish');
 var react = require('gulp-react'); // for jshint
 var concat = require('gulp-concat');
 var cssmin = require('gulp-minify-css');
@@ -92,13 +91,15 @@ gulp.task('css:min', function() {
 gulp.task('css', ['css:store', 'css:admin']);
 
 gulp.task('lint', function() {
-  return gulp.src(['frontend/src/**/*.{js,jsx}', '!./frontend/src/bootstrap/**/*.js']) // lint reactified JS
-  .pipe(plumber())
-  .pipe(jscs())
-  .pipe(react())
-  .pipe(jshint())
-  .pipe(stylish.combineWithHintResults())
-  .pipe(jshint.reporter('jshint-stylish'));
+  return gulp.src(['frontend/src/**/*.{ts,tsx}', 'backend/src/**/*.{ts,tsx}'])
+  .pipe(tslint())
+  .pipe(tslint.report(stylish, {emitError: true}))
+  .on('error', function(err) {
+    notify.onError({
+      message: '<%= error.message %>'
+    }).apply(this, arguments);
+    this.emit('end');
+  });
 });
 
 function js(startPath, targetFile) {
@@ -172,15 +173,6 @@ gulp.task('admin', function() {
   return gulp.src('./frontend/src/admin.html')
       .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: './frontend/build/'}), {addRootSlash: false}))
       .pipe(gulp.dest('./frontend/build/'));
-});
-
-gulp.task('lint-backend', function() {
-  return gulp.src('backend/**/*.js') // lint reactified JS
-  .pipe(plumber())
-  .pipe(jscs())
-  .pipe(jshint())
-  .pipe(stylish.combineWithHintResults())
-  .pipe(jshint.reporter('jshint-stylish'));
 });
 
 gulp.task('ete-test', function() {
