@@ -4,10 +4,8 @@ import _ = require('underscore');
 import React = require('react');
 import Bootstrap = require('react-bootstrap');
 
-import Seat from './Seat.tsx';
-import {IShow} from "../../../../backend/src/show";
-import {ISection} from "../../../../backend/src/venue";
-import {IVenue} from "../../../../backend/src/venue";
+import {IShow} from '../../../../backend/src/show';
+import {IVenue} from '../../../../backend/src/venue';
 
 export interface ITicketCountSelectorProps {
   active: boolean;
@@ -19,14 +17,14 @@ export interface ITicketCountSelectorProps {
   onSeatClicked: Function;
 }
 
-export default class TicketCountSelector extends React.Component<ITicketCountSelectorProps,any>{
+export default class TicketCountSelector extends React.Component<ITicketCountSelectorProps, any> {
   constructor(props: any) {
     super();
     this.state = {error: null};
   }
 
   onAdd(section, event) {
-    var sectionSeatIds = _.values(this.props.venue.sections[section.id].seats).map((s) => s.id) // _.keys returns strings, we need ints
+    var sectionSeatIds = _.values(this.props.venue.sections[section.id].seats).map((s) => s.id); // _.keys returns strings, we need ints
 
     _.chain(sectionSeatIds)
      .difference(this.props.chosenSeatIds)
@@ -57,7 +55,7 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
             var sectionChosenSeatIds = _.intersection(this.props.chosenSeatIds, sectionSeatIds);
             var availableSeatsCount = sectionSeatIds.length - sectionReservedSeatIds.length - sectionChosenSeatIds.length;
 
-            var title = availableSeatsCount === 1 ? '1 paikka jäljellä' : '' + availableSeatsCount + ' paikkaa jäljellä'
+            var title = availableSeatsCount === 1 ? '1 paikka jäljellä' : '' + availableSeatsCount + ' paikkaa jäljellä';
             return (
               <Bootstrap.Button key={section.id} disabled={!this.props.active || availableSeatsCount === 0} title={title} onClick={this.onAdd.bind(this, section)} >
                 <Bootstrap.Glyphicon glyph='plus' /> {section.section_title} {prices} eur

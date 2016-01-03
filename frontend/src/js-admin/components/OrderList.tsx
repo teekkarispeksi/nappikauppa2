@@ -5,7 +5,7 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
-import {IAdminOrderListItem} from "../../../../backend/src/order";
+import {IAdminOrderListItem} from '../../../../backend/src/order';
 
 export interface IOrderListProps {
   show_id?: number;

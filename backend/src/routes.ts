@@ -1,9 +1,9 @@
 'use strict';
 
 import express = require('express');
-import {RequestHandler} from "express";
+import {RequestHandler} from 'express';
 import bodyParser = require('body-parser');
-import atob = require("atob");
+import atob = require('atob');
 var router = express.Router();
 
 import auth = require('./confluenceAuth');
@@ -24,24 +24,24 @@ type Response = express.Response;
 var ok = (res) => {
   return (data) => {
     res.json(data);
-  }
+  };
 };
 
-var err = (res, errStatus=500) => {
+var err = (res, errStatus = 500) => {
   return (data) => {
-    log.error("Caught error", {data});
+    log.error('Caught error', {data});
     res.status(errStatus);
     res.json(data); // TODO don't expose these to end-users
-  }
+  };
 };
 
 var checkUserSilently: RequestHandler = (req: express.Request, res: express.Response, next: any) => {
-  var authHeader = req.header("Authorization");
+  var authHeader = req.header('Authorization');
   if (!authHeader) {
     next();
   } else {
-    var creds = atob(authHeader.split(" ")[1]).split(":");
-    auth.authenticate(creds[0], creds[1], config.confluence_auth.groups.base, (authOk:boolean) => {
+    var creds = atob(authHeader.split(' ')[1]).split(':');
+    auth.authenticate(creds[0], creds[1], config.confluence_auth.groups.base, (authOk: boolean) => {
       if (authOk) {
         req.user = creds[0];
       }
@@ -78,7 +78,7 @@ router.get('/shows/:showid/reservedSeats', function(req: Request, res: Response)
 router.post('/shows/:showid/reserveSeats', jsonParser, checkUserSilently, function(req: Request, res: Response) {
   order.reserveSeats(req.params.showid, req.body, req.user)
     .then(ok(res))
-    .catch((err) => { res.status(409); res.json(err); });
+    .catch((error) => { res.status(409); res.json(error); });
 });
 
 router.post('/orders/:orderid', jsonParser, checkUserSilently, function(req: Request, res: Response) {

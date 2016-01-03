@@ -2,7 +2,7 @@
 
 import React = require('react');
 import Bootstrap = require('react-bootstrap');
-import {IShow} from "../../../../backend/src/show";
+import {IShow} from '../../../../backend/src/show';
 
 export interface IShowSelectorProps {
   selectedShow: IShow;

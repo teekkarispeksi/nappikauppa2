@@ -7,7 +7,7 @@ import mail = require('./mail');
 import request = require('request');
 import uuid = require('node-uuid');
 import _ = require('underscore');
-import ticket =  require("./ticket");
+import ticket =  require('./ticket');
 import md5 = require('md5');
 import auth = require('./confluenceAuth');
 
@@ -151,7 +151,7 @@ export function updateContact(order_id: string, data: IContact, user): Promise<a
           left join nk2_discount_codes d on d.code = :discount_code \
           where t.order_id = :order_id) \
       where id = :order_id and hash = :order_hash',
-        data)
+        data);
     }).then((res) => {
       if (res.changedRows !== 1) {
         var errmsg = 'Should have updated one row, updated really ' + res.changedRows + ' rows';
@@ -161,7 +161,7 @@ export function updateContact(order_id: string, data: IContact, user): Promise<a
       log.info('Updated contact details successfully');
       return get(order_id);
     }).catch((err) => {
-      log.error("Updating contact details failed: " + err);
+      log.error('Updating contact details failed: ' + err);
   });
 }
 
@@ -222,7 +222,7 @@ export function get(order_id: string): Promise<any> {
             'discount_group_title', 'ticket_hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_title', 'row_name']);
       });
 
-      res.tickets_total_price = _.reduce(res.tickets, function(res, ticket: any) { return res + parseFloat(ticket.ticket_price);}, 0);
+      res.tickets_total_price = _.reduce(res.tickets, (r, ticket: any) => r + parseFloat(ticket.ticket_price), 0);
       return res;
     })
   .catch((err) => {
@@ -260,7 +260,7 @@ export function preparePayment(order_id: string): Promise<any> {
         var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
         params.RETURN_AUTHCODE = md5(verification).toUpperCase();
 
-        return paymentDone(order_id, params).then((res) => { return {url: '#ok/' + order.order_id + '/' + order.order_hash} });
+        return paymentDone(order_id, params).then((res) => { return {url: '#ok/' + order.order_id + '/' + order.order_hash}; });
       }
 
       var ticket_rows = _.map(order.tickets, (ticket: ticket.ITicket) => {
@@ -297,7 +297,7 @@ export function preparePayment(order_id: string): Promise<any> {
         'urlSet': {
           'success': config.public_url + 'api/orders/' + order_id + '/success',
           'failure': config.public_url + 'api/orders/' + order_id + '/failure',
-          'notification': config.public_url + 'api/orders/' + order_id + '/notification',
+          'notification': config.public_url + 'api/orders/' + order_id + '/notification'
         },
         'orderDetails': {
           'includeVat': '1',
@@ -360,11 +360,11 @@ export function paymentCancelled(order_id, params): Promise<any> {
   if (verification_hash === params.RETURN_AUTHCODE) {
     log.info('Verification hash matches - deleting order', {order_id: order_id});
     return db.query('delete from nk2_orders where id = :order_id',
-      {order_id: order_id})
+      {order_id: order_id});
   } else {
     log.error('Hash verification failed!',
       {order_id: order_id, verification_hash: verification_hash, return_authcode: params.RETURN_AUTHCODE});
-    throw "Hash verification failed";
+    throw 'Hash verification failed';
   }
 }
 
@@ -386,7 +386,7 @@ export function paymentDone(order_id, params): Promise<any> {
         {
           order_id: order_id,
           payment_id: params.PAID
-        })
+        });
     })
     .then(() => {
       db.commit();
@@ -396,12 +396,12 @@ export function paymentDone(order_id, params): Promise<any> {
     .catch((err) => {
       log.error('Updating payment status failed - rolling back', {error: err, order_id: order_id});
       db.rollback();
-      throw "Updating payment status failed - rolling back";
+      throw 'Updating payment status failed - rolling back';
     });
   } else {
     log.error('Hash verification failed!',
       {order_id: order_id, verification_hash: verification_hash, return_authcode: params.RETURN_AUTHCODE});
-    throw "Hash verification failed!";
+    throw 'Hash verification failed!';
   }
 }
 

@@ -4,9 +4,6 @@ import db = require('./db');
 import log = require('./log');
 import order = require('./order');
 import _ = require('underscore');
-import promise = require('es6-promise');
-
-var Promise = promise.Promise;
 
 export interface IShow {
   active: boolean;
@@ -104,9 +101,9 @@ export function getReservedSeats(show_id): Promise<IReservedSeats> {
           and orders.status in ("seats-reserved", "payment-pending", "paid") \
         order by seat_id',
         {show_id: show_id}))
-    .then((res) => {
-      var reserved_seats = _.map(res, (s) => s['seat_id']);
-      return {'reserved_seats': reserved_seats}
+    .then((res: {seat_id: number}[]) => {
+      var reserved_seats = _.map(res, (s) => s.seat_id);
+      return {'reserved_seats': reserved_seats};
     })
     .catch((err) => {
       log.error('Getting reserved seats failed', {error: err, show_id: show_id});

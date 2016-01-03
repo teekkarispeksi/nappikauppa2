@@ -3,8 +3,7 @@ import ReactElement = __React.ReactElement;
 
 import React = require('react');
 import Bootstrap = require('react-bootstrap');
-import _ = require('underscore');
-import {IOrder} from "../../../../backend/src/order";
+import {IOrder} from '../../../../backend/src/order';
 
 
 export interface IFinalConfirmationProps {
@@ -17,7 +16,7 @@ export interface IFinalConfirmationProps {
 export default class FinalConfirmation extends React.Component<IFinalConfirmationProps, any> {
 
   render() {
-    if(!this.props.order) {
+    if (!this.props.order) {
       return (<div />);
     }
     var numTickets = this.props.order.tickets.length;
