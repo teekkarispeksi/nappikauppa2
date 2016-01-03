@@ -126,6 +126,7 @@ function jsMin(startPath, targetFile) {
     .add(startPath)
     .add('typings/tsd.d.ts')
     .transform(reactify)
+    .plugin(tsify)
     .bundle()
     .pipe(source(targetFile))
     .pipe(buffer())
@@ -139,8 +140,8 @@ gulp.task('js:admin', js('./frontend/src/js-admin/AdminApp.tsx', 'adminApp.js'))
 
 gulp.task('js', ['js:store', 'js:admin']);
 
-gulp.task('js:store:min', jsMin('./frontend/src/js/App.jsx', 'App.js'));
-gulp.task('js:admin:min', jsMin('./frontend/src/js-admin/AdminApp.jsx', 'adminApp.js'));
+gulp.task('js:store:min', jsMin('./frontend/src/js/App.tsx', 'App.js'));
+gulp.task('js:admin:min', jsMin('./frontend/src/js-admin/AdminApp.tsx', 'adminApp.js'));
 
 gulp.task('js:min', ['js:store:min', 'js:admin:min']);
 
