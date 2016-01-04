@@ -1,4 +1,4 @@
-import {IOrder} from "../../../../backend/src/order";
+import {IOrder} from '../../../../backend/src/order';
 'use strict';
 
 import React = require('react');
@@ -14,8 +14,8 @@ import ShoppingCart from './ShoppingCart.tsx';
 import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
 
-import {IShow, IReservedSeats, IDiscountGroup} from "../../../../backend/src/show";
-import {IVenue, ISection, ISeat} from "../../../../backend/src/venue";
+import {IShow, IReservedSeats, IDiscountGroup} from '../../../../backend/src/show';
+import {IVenue, ISection, ISeat} from '../../../../backend/src/venue';
 
 import Router = require('../router');
 
@@ -33,7 +33,7 @@ export interface ITicket {
   seat: ISeat;
   section: ISection;
   discount_groups: IDiscountGroup[];
-  discount_group_id: number
+  discount_group_id: number;
 }
 
 export interface IStoreProps {
@@ -78,7 +78,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       conflictingSeatIds: [],
       chosenSeatIds: [],
       reservedSeatIds: []
-    }
+    };
   }
 
   componentWillMount() {
@@ -135,18 +135,18 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           // So let's just get some new free id's and retry. This will probably only happen like 0 times ever, so there
           // is no need to worry about performance. If there isn't enough free seats left anymore, we show the error.
           // Note that this supports multiple sections, making the code a bit more complicated.
-          if(this.venue.ticket_type === 'generic-tickets') {
+          if (this.venue.ticket_type === 'generic-tickets') {
             var enoughTicketsLeft = true;
             var conflictingTickets = _.filter(this.tickets, (t: ITicket) => _.contains(conflictingSeatIds, t.seat.id));
             chosenSeatIds = this.tickets.map((t: ITicket) => t.seat.id);
-            for(var ticket of conflictingTickets) {
+            for (var ticket of conflictingTickets) {
               var section = this.venue.sections[ticket.section.id];
               var sectionSeatIds = _.values(section.seats).map((s: ISeat) => s.id); // _.keys returns strings, we need ints
               var freeSeatIds = _.chain(sectionSeatIds)
                .difference(reservedSeatIds)
                .difference(chosenSeatIds)
                .shuffle().value();
-              if(freeSeatIds.length === 0) {
+              if (freeSeatIds.length === 0) {
                 enoughTicketsLeft = false;
                 break;
               }
@@ -155,7 +155,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
               chosenSeatIds.push(freeSeatId);
               ticket.seat = freeSeat;
             }
-            if(enoughTicketsLeft) {
+            if (enoughTicketsLeft) {
               this.onReserveTickets();
               return;
             }
@@ -210,7 +210,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   }
 
   selectSeat(seat_id, section_id) {
-    console.log("selecting", seat_id, section_id);
+    console.log('selecting', seat_id, section_id);
     var section = this.venue.sections[section_id];
     var seat = section.seats[seat_id];
     var discount_groups = this.state.show.sections[section_id].discount_groups;
@@ -227,7 +227,8 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       return {
         seat_id: t.seat.id,
         discount_group_id: t.discount_group_id
-    }});
+      };
+    });
 
     $.ajax({
       url: 'api/shows/' + this.state.show.id + '/reserveSeats/',
@@ -316,7 +317,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
   render() {
     var seatSelectorElem, shoppingCartElem, contactsElem, finalConfirmationElem;
-
+    /* tslint:disable:no-switch-case-fall-through switch-default */
     switch (this.state.page) {
       case 'home':
         seatSelectorElem = this.helpText();
@@ -331,9 +332,8 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         /* fall through */
       case 'seats':
         if (!this.state.show || !this.venue) {
-          seatSelectorElem = <div className='shopping-stage seat-selector'></div>
-        }
-        else if (this.venue.ticket_type === 'generic-tickets') {
+          seatSelectorElem = <div className='shopping-stage seat-selector'></div>;
+        } else if (this.venue.ticket_type === 'generic-tickets') {
           seatSelectorElem = <TicketCountSelector active={this.state.page === 'seats'} onSeatClicked={this.onSeatClicked.bind(this)} show={this.state.show} venue={this.venue}
             chosenSeatIds={this.state.chosenSeatIds} reservedSeatIds={this.state.reservedSeatIds} />;
         } else {
@@ -351,6 +351,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
             error={this.state.reservationError} />);
         }
     }
+    /* tslint:enable:no-switch-case-fall-through */
 
     return (
       <div>

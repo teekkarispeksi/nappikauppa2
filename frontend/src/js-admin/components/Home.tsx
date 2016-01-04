@@ -12,7 +12,7 @@ export interface IHomeState {
   shows: IShow[];
 }
 
-export default class Home extends React.Component<any,IHomeState> {
+export default class Home extends React.Component<any, IHomeState> {
   constructor() {
     super();
     this.state = {shows: []};

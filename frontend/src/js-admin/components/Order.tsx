@@ -5,7 +5,7 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
-import {IOrder} from "../../../../backend/src/order";
+import {IOrder} from '../../../../backend/src/order';
 
 export interface IOrderProps {
   order_id: number;
@@ -18,7 +18,7 @@ export interface IOrderState {
   order?: IOrder;
 }
 
-export default class Order extends React.Component<IOrderProps,IOrderState> {
+export default class Order extends React.Component<IOrderProps, IOrderState> {
   constructor() {
     super();
     this.state = {hasEdits: false, name: null, email: null, order: null};

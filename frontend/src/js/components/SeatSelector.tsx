@@ -3,9 +3,8 @@
 import _ = require('underscore');
 import React = require('react');
 import Seat from './Seat.tsx';
-import {IShow} from "../../../../backend/src/show";
-import {ISection} from "../../../../backend/src/venue";
-import {IVenue} from "../../../../backend/src/venue";
+import {IShow} from '../../../../backend/src/show';
+import {IVenue} from '../../../../backend/src/venue';
 
 export interface ISeatSelectorProps {
   active: boolean;

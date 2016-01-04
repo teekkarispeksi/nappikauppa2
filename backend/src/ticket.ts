@@ -1,7 +1,6 @@
 'use strict';
 
 var config = require('../config/config.js');
-import db = require('./db');
 import PDFDocument = require('pdfkit');
 import qr = require('qr-image');
 
@@ -29,18 +28,19 @@ export function generatePdf(tickets: ITicket[]) {
   for (var i = 0; i < tickets.length; ++i) {
     var ticket = tickets[i];
     var discount = ticket.discount_group_title;
-    var showDate = ticket.show_date + ' klo ' + ticket.show_time; //'20.4.2015 klo 19:00';
-    var show = ticket.show_title; //'Helsinki VI';
-    var seat = ticket.row_name ? ticket.section_title + ', ' + ticket.row_name + ' ' + ticket.row + ', paikka ' + ticket.seat_number : ticket.section_title; //'PERMANTO, RIVI 8, PAIKKA 154' for numbered, 'NUMEROIMATON' for unnumbered;
+    var showDate = ticket.show_date + ' klo ' + ticket.show_time; // '20.4.2015 klo 19:00';
+    var show = ticket.show_title; // 'Helsinki VI';
+    // 'PERMANTO, RIVI 8, PAIKKA 154' for numbered, 'NUMEROIMATON' for unnumbered;
+    var seat = ticket.row_name ? ticket.section_title + ', ' + ticket.row_name + ' ' + ticket.row + ', paikka ' + ticket.seat_number : ticket.section_title;
     var venueDescription = ticket.venue_description.split('\n');
-    var venue = venueDescription[0]; //'Aleksanterin teatteri, Helsinki';
-    var address = venueDescription[1]; //'Bulevardi 23-27 / Albertinkatu 32';
+    var venue = venueDescription[0]; // 'Aleksanterin teatteri, Helsinki';
+    var address = venueDescription[1]; // 'Bulevardi 23-27 / Albertinkatu 32';
     var hash = ticket.ticket_hash;
     if (i > 0) {
       doc.addPage();
     }
     doc.rect(30, 30, 15, 135)
-        .fill("rgb(254, 240, 53)") // yellow
+        .fill('rgb(254, 240, 53)') // yellow
 
         .font('mp-bold')
         .fill('#000000')

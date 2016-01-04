@@ -1,4 +1,3 @@
-import {IError} from "mysql";
 'use strict';
 
 var config = require('../config/config.js');
@@ -45,7 +44,7 @@ export function beginTransaction(): Promise<any> {
 export function query(query: string, params?: {}): Promise<any> {
   return new Promise((resolve, reject) => {
     db.query(query, params, function(err, res) {
-      err ? reject(err): resolve(res);
+      err ? reject(err) : resolve(res);
     });
   });
 }

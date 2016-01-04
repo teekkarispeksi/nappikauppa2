@@ -9,7 +9,7 @@ class NkRouter extends Backbone.Router {
     this.routes = {
       'show/:id': 'show',
       '*url': 'default'
-    }
+    };
     super(options);
   }
 }

@@ -3,9 +3,8 @@ import EventHandler = __React.EventHandler;
 'use strict';
 
 import React = require('react');
-import _ = require('underscore');
 import Props = __React.Props;
-import {ISeat} from "../../../../backend/src/venue";
+import {ISeat} from '../../../../backend/src/venue';
 
 export interface ISeatProps extends Props<any> {
   prices: number[];
