@@ -91,7 +91,7 @@ gulp.task('css:min', function() {
 gulp.task('css', ['css:store', 'css:admin']);
 
 gulp.task('lint', function() {
-  return gulp.src(['frontend/src/**/*.{ts,tsx}', 'backend/src/**/*.{ts,tsx}'])
+  return gulp.src(['app.ts', 'frontend/src/**/*.{ts,tsx}', 'backend/src/**/*.{ts,tsx}'])
   .pipe(tslint())
   .pipe(tslint.report(stylish, {emitError: true}))
   .on('error', function(err) {
