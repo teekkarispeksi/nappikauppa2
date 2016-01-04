@@ -27,3 +27,5 @@
 /// <reference path="es6-promise/es6-promise.d.ts" />
 /// <reference path="qr-image/qr-image.d.ts" />
 /// <reference path="atob/atob.d.ts" />
+/// <reference path="moment/moment.d.ts" />
+/// <reference path="moment-timezone/moment-timezone.d.ts"/>
