@@ -27,8 +27,9 @@ export default class Home extends React.Component<any, IHomeState> {
   render() {
     return (
       <div>
+        <p><a href={'#shows/'}>Luo uusi näytös</a></p>
         <ul>
-          {this.state.shows.map((show) => <li key={show.id}><a href={'#shows/' + show.id + '/orders'}>{show.title}</a></li>)}
+          {this.state.shows.map((show) => <li key={show.id}><a href={'#shows/' + show.id}>{show.title}</a> - <a href={'#shows/' + show.id + '/orders'}>Tilaukset</a></li>)}
         </ul>
       </div>
     );
