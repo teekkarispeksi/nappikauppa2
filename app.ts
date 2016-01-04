@@ -24,6 +24,7 @@ var basicAuth = httpAuth.basic({
 );
 
 var app = express();
+app.use(require('connect-livereload')());
 
 app.use(methodOverride('X-HTTP-Method-Override'));
 

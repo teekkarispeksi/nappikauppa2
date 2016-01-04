@@ -28,7 +28,6 @@ var config = require('./config/config.js');
 var app;
 function startExpress() {
   app = require('./app.js');
-  app.use(require('connect-livereload')());
   app.listen(config.port);
 }
 
@@ -211,7 +210,8 @@ gulp.task('start-dev', function() {
   startExpress();
   startLivereload();
   gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index', 'admin']);
-  gulp.watch('frontend/src/js*/**/*.{js,jsx,ts,tsx}', ['js', 'index', 'admin']);
+  gulp.watch('frontend/src/js/**/*.{js,jsx,ts,tsx}', ['js:store', 'index']);
+  gulp.watch('frontend/src/js-admin/**/*.{js,jsx,ts,tsx}', ['js:admin', 'admin']);
   gulp.watch('frontend/src/img/**/*.{jpg,gif,png}', ['img']);
   gulp.watch('frontend/src/index.html', ['index']);
   gulp.watch('frontend/src/admin.html', ['admin']);
