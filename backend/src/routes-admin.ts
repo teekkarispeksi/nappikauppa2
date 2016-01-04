@@ -5,6 +5,7 @@ import bodyParser = require('body-parser');
 var router = express.Router();
 
 import order = require('./order');
+import venue = require('./venue');
 import ticket = require('./ticket');
 import log = require('./log');
 
@@ -49,6 +50,10 @@ router.get('/orders/:orderid/tickets', function(req: Request, res: Response) {
     res.type('application/pdf');
     pdf.pipe(res);
   });
+});
+
+router.get('/venues', function(req: Request, res: Response) {
+  venue.getAll().then(ok(res), err(res));
 });
 
 export = router;
