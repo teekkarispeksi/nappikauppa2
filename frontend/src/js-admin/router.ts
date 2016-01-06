@@ -8,7 +8,7 @@ class NkAdminRouter extends Backbone.Router {
   constructor(options?: any) {
     this.routes = {
       'orders/:orderid': 'order',
-      'shows(/:showid)': 'shows',
+      'shows(/)(:showid)': 'shows',
       'shows/:showid/orders': 'orderlist',
       'orders': 'orderlist',
       '*url': 'default'

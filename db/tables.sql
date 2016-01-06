@@ -116,6 +116,7 @@ create table nk2_prices (
   `price` decimal(10,2) not null,
   `active` boolean not null default '1',
   PRIMARY KEY  (`id`),
+  unique key section_in_show (show_id, section_id),
   foreign key (section_id) references nk2_sections (id),
   foreign key (show_id) references nk2_shows (id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;

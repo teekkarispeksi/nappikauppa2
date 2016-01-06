@@ -27,7 +27,7 @@ function deepClone<T extends {}>(obj: T): T {
 export default class Show extends React.Component<IShowProps, IShowState> {
   constructor() {
     super();
-    this.state = {venues: [], shows: [{}] as IShow[], show: {} as IShow};
+    this.state = {venues: null, shows: null, show: null};
   }
 
   reset(shows?: IShow[]) {
@@ -48,15 +48,13 @@ export default class Show extends React.Component<IShowProps, IShowState> {
     } else if (this.props.show_id) {
       show_id = this.props.show_id;
     }
-    return show_id ? _.findWhere(shows, {id: show_id}) : {} as IShow;
+    return show_id ? _.findWhere(shows, {id: show_id}) : {} as IShow; // just default to some venue
   }
 
   componentWillMount() {
-    if (this.props.show_id) {
-      $.getJSON('api/shows/', (resp: IShow[]) => {
-        this.reset(resp);
-      });
-    }
+    $.getJSON('api/shows/', (resp: IShow[]) => {
+      this.reset(resp);
+    });
     $.getJSON('admin-api/venues', (resp: IVenue[]) => {
       this.setState({venues: resp});
     });
@@ -96,11 +94,18 @@ export default class Show extends React.Component<IShowProps, IShowState> {
       this.state.shows.push(this.state.show);
     }
     $.ajax({
-      url: 'admin-api/shows/' + this.state.show.id,
+      url: 'admin-api/shows/' + (this.state.show.id ? this.state.show.id : ''),
       method: 'POST',
       data: JSON.stringify(this.state.show),
       contentType: 'application/json',
       success: (response: IShow) => {
+        var idx = _.findIndex(this.state.shows, (show: IShow) => show.id === response.id);
+        if (idx >= 0) {
+          this.state.shows[idx] = response;
+        } else {
+          this.state.shows.push(response);
+        }
+        this.setState({show_id: response.id});
         this.reset();
       },
       error: (response) => {
@@ -165,9 +170,7 @@ export default class Show extends React.Component<IShowProps, IShowState> {
       return (<div></div>);
     }
     var venue = _.findWhere(this.state.venues, {id: this.state.show.venue_id});
-    if (!venue) {
-      return (<div></div>);
-    }
+
     var hasEdits = !_.isEqual(this.state.show, this.getOriginalShow());
     return (
       <div>
@@ -176,7 +179,9 @@ export default class Show extends React.Component<IShowProps, IShowState> {
           <tr><td>ID</td><td>{this.state.show.id}</td></tr>
           <tr><td>Nimi</td><td>{this._editableString(this.state.show, 'title')}</td></tr>
           <tr><td>Aika</td><td>{this._editableDate(this.state.show, 'time')}</td></tr>
-          <tr><td>Teatteri</td><td>{this._editableSelect(this.state.show, 'venue_id', this.state.venues.map((v: IVenue) => {return {value: v.id, name: v.venue_title}; }), this.onVenueChange.bind(this))}</td></tr>
+          <tr><td>Teatteri</td>
+            <td>{this._editableSelect(this.state.show, 'venue_id', this.state.venues.map((v: IVenue) => {return {value: v.id, name: v.venue_title}; }), this.onVenueChange.bind(this))}</td>
+          </tr>
           <tr><td>Aktiivinen</td><td>{this._editableCheckbox(this.state.show, 'active')}</td></tr>
           <tr><td>Lopetusaika</td><td>{this._editableDate(this.state.show, 'inactivate_time')}</td></tr>
           <tr><td>Kuvaus</td><td>{this._editableText(this.state.show, 'description')}</td></tr>
@@ -191,7 +196,7 @@ export default class Show extends React.Component<IShowProps, IShowState> {
             <th>Hinta</th>
           </tr></thead>
           <tbody>
-          {_.values(this.state.show.sections).map((show_section: IShowSection) => {
+          {venue ? _.values(this.state.show.sections).map((show_section: IShowSection) => {
             var section = venue.sections[show_section.section_id];
             return (<tr key={section.id}>
                 <td>{section.id}</td>
@@ -200,7 +205,7 @@ export default class Show extends React.Component<IShowProps, IShowState> {
                 <td>{this._editableCheckbox(show_section, 'active')}</td>
               </tr>
             );
-          })}
+          }) : null}
         </tbody></Bootstrap.Table>
         <h2>Alennukset</h2>
         <Bootstrap.Table bordered>

@@ -5,6 +5,7 @@ import bodyParser = require('body-parser');
 var router = express.Router();
 
 import order = require('./order');
+import show = require('./show');
 import venue = require('./venue');
 import ticket = require('./ticket');
 import log = require('./log');
@@ -54,6 +55,14 @@ router.get('/orders/:orderid/tickets', function(req: Request, res: Response) {
 
 router.get('/venues', function(req: Request, res: Response) {
   venue.getAll().then(ok(res), err(res));
+});
+
+router.post('/shows', jsonParser, function(req: Request, res: Response) {
+  show.create(req.body).then(ok(res), err(res));
+});
+
+router.post('/shows/:showid', jsonParser, function(req: Request, res: Response) {
+  show.update(parseInt(req.params.showid), req.body).then(ok(res), err(res));
 });
 
 export = router;
