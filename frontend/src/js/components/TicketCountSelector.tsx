@@ -38,7 +38,7 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
     if (!this.props.active) {
       divClass += ' disabled';
     }
-
+    var discounts = _.pluck(this.props.show.discount_groups, 'discount');
     return (
       <div className={divClass}>
         <h2>Lisää lippuja ostoskoriin <small>2/5</small></h2>
@@ -48,8 +48,7 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
             if (!showSection) {
               return null; // if section is set to active=0 in DB table 'nk2_prices'
             }
-            var prices = _.pluck(showSection.discount_groups, 'price').join('/');
-
+            var prices = discounts.map((discount) => Math.max(0, showSection.price - discount)).join('/');
             var sectionSeatIds = _.values(this.props.venue.sections[section.id].seats).map((s) => s.id); // _.keys returns strings, we need ints
             var sectionReservedSeatIds = _.intersection(this.props.reservedSeatIds, sectionSeatIds);
             var sectionChosenSeatIds = _.intersection(this.props.chosenSeatIds, sectionSeatIds);

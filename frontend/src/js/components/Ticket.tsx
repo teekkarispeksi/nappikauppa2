@@ -12,7 +12,6 @@ export interface ITicketProps extends Props<any> {
   active: boolean;
   conflict: boolean;
   ticket: ITicket;
-
   onDiscountSelect: Function;
   onRemove: Function;
 }
@@ -40,7 +39,8 @@ export default class Ticket extends React.Component<ITicketProps, any> {
           <div className='info'>{info}</div>
           <Bootstrap.Input type='select' className='discountGroupSelect' standalone disabled={disabled} onChange={this.onChange.bind(this)} value={this.props.ticket.discount_group_id}>
             {_.map(this.props.ticket.discount_groups, (group: IDiscountGroup) => {
-              return (<option key={group.id} value={group.id.toString()}>{group.title} à {group.price}€</option>);
+              var price = Math.max(0, this.props.ticket.price - group.discount);
+              return (<option key={group.id} value={group.id.toString()}>{group.title} à {price}€</option>);
             })}
           </Bootstrap.Input>
           {remove}

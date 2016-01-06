@@ -39,12 +39,8 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
       divClass += ' disabled';
     }
 
-    // different price groups among seats in this show; discount_groups[0] is the most expensive one
-    var getBasePrice = function(section: any) {
-      return section.discount_groups[0].price;
-    };
-    var prices = _.chain(this.props.show.sections).values().map(getBasePrice).unique().value().sort().reverse();
-
+    var prices = _.chain(this.props.show.sections).values().pluck('price').unique().value().sort().reverse();
+    var discounts = _.pluck(this.props.show.discount_groups, 'discount');
     var statuses = this.getSeatStatuses();
 
     return (
@@ -56,8 +52,8 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
             if (!showSection) {
               return null; // if section is set to active=0 in DB table 'nk2_prices'
             }
-            var price = _.pluck(showSection.discount_groups, 'price');
-            var priceGroup = prices.indexOf(price[0]);
+            var price = showSection.price;
+            var priceGroup = prices.indexOf(price);
             return (
               <div key={section.id}>
               {_.values(section.seats).map(function(seat) {
@@ -69,7 +65,7 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
                 }
                 return <Seat key={seat.id}
                   seat={seat}
-                  prices={price}
+                  prices={discounts.map((discount) => Math.max(0, price - discount))}
                   status={status}
                   rowName={section.row_name}
                   priceClass={'price-' + priceGroup}
