@@ -15,17 +15,21 @@ export interface IShow {
   time: string;
   title: string;
   venue_id: number;
+  discount_groups: IDiscountGroup[];
 }
 
 export interface IShowSection {
   section_id: number;
-  discount_groups: IDiscountGroup[];
+  price: number;
+  active: boolean;
 }
 
 export interface IDiscountGroup {
   id: number;
-  price: number;
+  discount: number;
   title: string;
+  admin: boolean;
+  show_id: number;
 }
 
 export interface IReservedSeats {
@@ -36,10 +40,10 @@ export function getAll(user): Promise<IShow[]> {
   return db.query('select \
       shows.*, \
       (100.0 * reserved.seatcount / total.seatcount) as reserved_percentage, \
-      prices.section_id, prices.price, \
-      groups.id as discount_group_id, groups.title as discount_group_title, groups.eur as discount_group_discount \
+      prices.section_id, prices.price, prices.active, \
+      groups.id as discount_group_id, groups.title as discount_group_title, groups.eur as discount_group_discount, groups.admin_only as discount_group_admin, groups.show_id as discount_group_show_id \
     from nk2_shows shows \
-    join nk2_prices prices on shows.id = prices.show_id and prices.active = true \
+    join nk2_prices prices on shows.id = prices.show_id and (prices.active = true | :is_admin) \
     left join ( \
       select show_id, count(*) seatcount \
       from nk2_tickets tickets \
@@ -66,16 +70,18 @@ export function getAll(user): Promise<IShow[]> {
         var sections = _.groupBy(showRows, 'section_id');
         show.sections = _.mapObject(sections, function(sectionRows: any[]) {
           var basePrice = sectionRows[0].price;
-          var section = {section_id: sectionRows[0].section_id, discount_groups: null};
-          section.discount_groups = _.map(sectionRows, function(groupRow: any) {
-            return {
-              'id': groupRow.discount_group_id,
-              'title': groupRow.discount_group_title,
-              'price': Math.max(basePrice - groupRow.discount_group_discount, 0)
-            };
-          });
+          var section = _.pick(sectionRows[0], ['section_id', 'price', 'active']);
           return section;
         });
+        show.discount_groups = _.chain(showRows).groupBy('discount_group_id').values().map((discountGroupRows: any[]): IDiscountGroup => {
+          return {
+            'id': discountGroupRows[0].discount_group_id,
+            'title': discountGroupRows[0].discount_group_title,
+            'discount': discountGroupRows[0].discount_group_discount,
+            'admin': discountGroupRows[0].discount_group_admin,
+            'show_id': discountGroupRows[0].discount_group_show_id
+          };
+        }).value();
         return show;
       });
       return _.values(shows);
