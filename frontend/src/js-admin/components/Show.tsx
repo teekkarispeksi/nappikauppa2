@@ -4,7 +4,6 @@ import React = require('react');
 import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
-import MomentTZ = require('moment-timezone');
 
 import {IShow, IShowSection, IDiscountGroup} from '../../../../backend/src/show';
 import {IVenue, ISection} from '../../../../backend/src/venue';
@@ -68,8 +67,7 @@ export default class Show extends React.Component<IShowProps, IShowState> {
     } else if (type === 'checkbox') {
       obj[field] = event.target.checked ? 1 : 0;
     } else if (type === 'datetime') {
-      var utctime = MomentTZ.tz(event.target.value, 'Europe/Helsinki').utc().format();
-      obj[field] = utctime;
+      obj[field] = event.target.value;
     } else {
       obj[field] = event.target.value;
     }
@@ -130,12 +128,10 @@ export default class Show extends React.Component<IShowProps, IShowState> {
   }
 
   _editableDate(obj: {}, field: string, onChange?: (obj: {}, field: string, event, type?: string) => void) {
-    var localtime = obj[field] ? MomentTZ(obj[field]).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss') : null;
-
     if (!onChange) {
       onChange = this.onChange.bind(this);
     }
-    return (<input type='datetime-local' value={localtime} onChange={(event) => onChange(obj, field, event, 'datetime')}/>);
+    return (<input type='datetime-local' value={obj[field]} onChange={(event) => onChange(obj, field, event, 'datetime')}/>);
   }
 
   _editableCheckbox(obj: {}, field: string, onChange?: (obj: {}, field: string, event, type?: string) => void) {

@@ -4,12 +4,13 @@ import db = require('./db');
 import log = require('./log');
 import order = require('./order');
 import _ = require('underscore');
+import moment = require('moment-timezone');
 
 export interface IShow {
   active: boolean;
   description: string;
   id: number;
-  inactive_time: string;
+  inactivate_time: string;
   reserved_percentage: number;
   sections: _.Dictionary<IShowSection>; // TODO: ideally just IShowSection[] :(
   time: string;
@@ -67,6 +68,8 @@ export function getAll(user): Promise<IShow[]> {
       var grouped = _.groupBy(rows, 'id');
       var shows = _.mapObject(grouped, function(showRows: any[]) {
         var show: IShow = _.pick(showRows[0], ['id', 'title', 'venue_id', 'time', 'active', 'inactivate_time', 'description', 'reserved_percentage']);
+        show.time = moment(show.time).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss'); // convert times to local (Helsinki) time strings
+        show.inactivate_time = moment(show.inactivate_time).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss');
         var sections = _.groupBy(showRows, 'section_id');
         show.sections = _.mapObject(sections, function(sectionRows: any[]) {
           var basePrice = sectionRows[0].price;
