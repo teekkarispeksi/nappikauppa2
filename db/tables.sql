@@ -30,6 +30,7 @@ create table nk2_venues (
   `title` varchar(50) not null,
   `ticket_type` ENUM('numbered-seats', 'generic-tickets') not null,
   `description` varchar(255) not null,
+  `layout_src` varchar(50),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 

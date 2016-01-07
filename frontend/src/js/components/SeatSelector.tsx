@@ -46,7 +46,7 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
     return (
       <div className={divClass}>
         <h2>Paikkojen valinta <small>2/5</small></h2>
-        <div className='theaterLayout' style={{backgroundImage: 'url(public/img/venues/venue_1.png)'}}>
+        <div className='theaterLayout' style={{backgroundImage: 'url(public/img/venues/' + this.props.venue.layout_src + ')'}}>
           {_.values(this.props.venue.sections).map(function(section) {
             var showSection = this.props.show.sections[section.id];
             if (!showSection) {
