@@ -50,8 +50,8 @@ export function getAll(venue_id?: number): Promise<IVenue[]> {
     seat.y_coord, \
     bad_seat \
   FROM nk2_venues venue \
-  JOIN nk2_sections section ON venue.id = section.venue_id \
-  LEFT OUTER JOIN nk2_seats seat ON section.id = seat.section_id '
+  LEFT JOIN nk2_sections section ON venue.id = section.venue_id \
+  LEFT JOIN nk2_seats seat ON section.id = seat.section_id '
   + (venue_id ? 'WHERE venue.id = :venue_id' : ''), {venue_id: venue_id})
   .then((dbRows0) => {
     var venues = _.values(_.groupBy(dbRows0, (dbRow: any) => dbRow.venue_id)).map((dbRows) => {

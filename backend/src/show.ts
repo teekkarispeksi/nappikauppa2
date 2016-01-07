@@ -44,7 +44,7 @@ export function getAll(user): Promise<IShow[]> {
       prices.section_id, prices.price, prices.active, \
       groups.id as discount_group_id, groups.title as discount_group_title, groups.eur as discount_group_discount, groups.admin_only as discount_group_admin, groups.show_id as discount_group_show_id \
     from nk2_shows shows \
-    join nk2_prices prices on shows.id = prices.show_id and (prices.active = true or :is_admin) \
+    left join nk2_prices prices on shows.id = prices.show_id and (prices.active = true or :is_admin) \
     left join ( \
       select show_id, count(*) seatcount \
       from nk2_tickets tickets \
@@ -52,7 +52,7 @@ export function getAll(user): Promise<IShow[]> {
       where orders.status in ("seats-reserved", "payment-pending", "paid") \
       group by show_id \
     ) as reserved on reserved.show_id = shows.id \
-    join ( \
+    left join ( \
       select shows.id as show_id, count(*) seatcount \
       from nk2_shows shows \
       join nk2_sections sections on sections.venue_id = shows.venue_id \
@@ -72,9 +72,8 @@ export function getAll(user): Promise<IShow[]> {
         show.inactivate_time = moment(show.inactivate_time).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss');
         var sections = _.groupBy(showRows, 'section_id');
         show.sections = _.mapObject(sections, function(sectionRows: any[]) {
-          var basePrice = sectionRows[0].price;
-          var section = _.pick(sectionRows[0], ['section_id', 'price', 'active']);
-          return section;
+          var section: IShowSection = _.pick(sectionRows[0], ['section_id', 'price', 'active']);
+          return section.section_id ? section : null; // left join produces nulls
         });
         show.discount_groups = _.chain(showRows).groupBy('discount_group_id').values().map((discountGroupRows: any[]): IDiscountGroup => {
           return {
