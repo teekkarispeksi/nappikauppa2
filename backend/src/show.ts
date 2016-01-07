@@ -133,8 +133,8 @@ export function create(show: IShow): Promise<IShow> {
     })
     .catch((err) => {
       log.error('ADMIN: Creating a show failed', {error: err});
-      return null;
       throw err;
+      return null;
     });
 }
 

@@ -183,7 +183,7 @@ export default class Show extends React.Component<IShowProps, IShowState> {
             <td>{this._editableSelect(this.state.show, 'venue_id', this.state.venues.map((v: IVenue) => {return {value: v.id, name: v.venue_title}; }), this.onVenueChange.bind(this))}</td>
           </tr>
           <tr><td>Aktiivinen</td><td>{this._editableCheckbox(this.state.show, 'active')}</td></tr>
-          <tr><td>Lopetusaika</td><td>{this._editableDate(this.state.show, 'inactivate_time')}</td></tr>
+          <tr><td>Myynti loppuu</td><td>{this._editableDate(this.state.show, 'inactivate_time')}</td></tr>
           <tr><td>Kuvaus</td><td>{this._editableText(this.state.show, 'description')}</td></tr>
         </tbody></Bootstrap.Table>
         <Bootstrap.Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Bootstrap.Button>
