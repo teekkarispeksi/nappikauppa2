@@ -21,7 +21,8 @@ export interface IShowState {
   venues?: IVenue[];
 }
 
-function deepClone<T extends {}>(obj: T): T {
+// this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers
+function almostDeepClone<T extends {}>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
 
@@ -33,9 +34,9 @@ export default class Show extends React.Component<IShowProps, IShowState> {
 
   reset(shows?: IShow[]) {
     if (shows) {
-      this.setState({shows: shows, show: deepClone(this.getOriginalShow(shows))});
+      this.setState({shows: shows, show: almostDeepClone(this.getOriginalShow(shows))});
     } else {
-      this.setState({show: deepClone(this.getOriginalShow())});
+      this.setState({show: almostDeepClone(this.getOriginalShow())});
     }
   }
 

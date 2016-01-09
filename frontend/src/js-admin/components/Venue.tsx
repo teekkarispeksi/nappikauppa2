@@ -19,7 +19,8 @@ export interface IVenueState {
   venue: IVenue;
 }
 
-function deepClone<T extends {}>(obj: T): T {
+// this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers
+function almostDeepClone<T extends {}>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
 
@@ -31,9 +32,9 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
 
   reset(venue?: IVenue) {
     if (venue) {
-      this.setState({originalVenue: venue, venue: deepClone(venue)});
+      this.setState({originalVenue: venue, venue: almostDeepClone(venue)});
     } else {
-      this.setState({venue: deepClone(this.state.originalVenue)});
+      this.setState({venue: almostDeepClone(this.state.originalVenue)});
     }
   }
 
