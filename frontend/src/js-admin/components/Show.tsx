@@ -120,7 +120,9 @@ export default class Show extends React.Component<IShowProps, IShowState> {
           </tr>
           <tr><td>Aktiivinen</td><td>{editable.Checkbox(this, this.state.show, 'active')}</td></tr>
           <tr><td>Myynti loppuu</td><td>{editable.Date(this, this.state.show, 'inactivate_time')}</td></tr>
-          <tr><td>Kuvaus</td><td>{editable.Text(this, this.state.show, 'description')}</td></tr>
+          <tr><td>Kuvaus</td>
+            <td>{editable.Text(this, this.state.show, 'description')}<p>Kuvauksessa voi käyttää <a href='https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet'>Markdown-muotoiluja</a></p>
+          </td></tr>
         </tbody></Bootstrap.Table>
         <Bootstrap.Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Bootstrap.Button>
         <Bootstrap.Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Bootstrap.Button>
