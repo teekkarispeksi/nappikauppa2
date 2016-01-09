@@ -157,7 +157,7 @@ export function update(show_id: number, show: IShow): Promise<IShow> {
   })
   .catch((err) => {
     log.error('ADMIN: Updating a show failed', {error: err});
-    return null;
     throw err;
+    return null;
   });
 }
