@@ -43,24 +43,28 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
       <div className={divClass}>
         <h2>Lisää lippuja ostoskoriin <small>2/5</small></h2>
         <div>
-          {_.values(this.props.venue.sections).map((section) => {
-            var showSection = this.props.show.sections[section.id];
-            if (!showSection) {
-              return null; // if section is set to active=0 in DB table 'nk2_prices'
-            }
-            var prices = discounts.map((discount) => Math.max(0, showSection.price - discount)).join('/');
-            var sectionSeatIds = _.values(this.props.venue.sections[section.id].seats).map((s) => s.id); // _.keys returns strings, we need ints
-            var sectionReservedSeatIds = _.intersection(this.props.reservedSeatIds, sectionSeatIds);
-            var sectionChosenSeatIds = _.intersection(this.props.chosenSeatIds, sectionSeatIds);
-            var availableSeatsCount = sectionSeatIds.length - sectionReservedSeatIds.length - sectionChosenSeatIds.length;
+          <ul className='list-unstyled'>
+            {_.values(this.props.venue.sections).map((section) => {
+              var showSection = this.props.show.sections[section.id];
+              if (!showSection) {
+                return null; // if section is set to active=0 in DB table 'nk2_prices'
+              }
+              var prices = discounts.map((discount) => Math.max(0, showSection.price - discount)).join('/');
+              var sectionSeatIds = _.values(this.props.venue.sections[section.id].seats).map((s) => s.id); // _.keys returns strings, we need ints
+              var sectionReservedSeatIds = _.intersection(this.props.reservedSeatIds, sectionSeatIds);
+              var sectionChosenSeatIds = _.intersection(this.props.chosenSeatIds, sectionSeatIds);
+              var availableSeatsCount = sectionSeatIds.length - sectionReservedSeatIds.length - sectionChosenSeatIds.length;
 
-            var title = availableSeatsCount === 1 ? '1 paikka jäljellä' : '' + availableSeatsCount + ' paikkaa jäljellä';
-            return (
-              <Bootstrap.Button key={section.id} disabled={!this.props.active || availableSeatsCount === 0} title={title} onClick={this.onAdd.bind(this, section)} >
-                <Bootstrap.Glyphicon glyph='plus' /> {section.section_title} {prices} eur
-              </Bootstrap.Button>
-            );
-          })}
+              var title = availableSeatsCount === 1 ? '1 paikka jäljellä' : '' + availableSeatsCount + ' paikkaa jäljellä';
+              return (
+                <li>
+                  <Bootstrap.Button key={section.id} disabled={!this.props.active || availableSeatsCount === 0} title={title} onClick={this.onAdd.bind(this, section)} >
+                    <Bootstrap.Glyphicon glyph='plus' /> {section.section_title} {prices} eur
+                  </Bootstrap.Button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </div>
     );
