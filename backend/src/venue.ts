@@ -95,3 +95,32 @@ export function get(venue_id): Promise<IVenue> {
     return null;
   });
 }
+
+export function update(venue_id: number, venue: IVenue): Promise<IVenue> {
+  log.info('ADMIN: Beginning venue update', {id: venue.id});
+  return db.query('update nk2_venues set title = :venue_title, ticket_type = :ticket_type, layout_src = :layout_src, description = :description where id = :id', venue)
+  .then((res) => {
+    log.info('ADMIN: Venue updated, updating sections');
+    var query_start = 'insert into nk2_sections (id, venue_id, title, row_name) values ';
+    var insert_values = _.values(venue.sections).map((section: ISection) => db.format('(:id, :venue_id, :section_title, :row_name)', _.extend({venue_id: venue_id}, section)));
+    var query_end = ' on duplicate key update title = values(title), row_name = values(row_name)';
+    return db.query(query_start + insert_values.join(',') + query_end);
+  })
+  .then((res) => {
+    log.info('ADMIN: Sections updated, updating seats');
+    var query_start = 'insert into nk2_seats (id, bad_seat) values ';
+    var insert_values = _.flatten(_.values(venue.sections).map((section: ISection) => _.values(section.seats)))
+                         .map((seat: ISeat) => db.format('(:id, :bad_seat)', _.extend({venue_id: venue_id}, seat)));
+    var query_end = ' on duplicate key update bad_seat = values(bad_seat)';
+
+    return db.query(query_start + insert_values.join(',') + query_end).then(() => {
+      log.info('ADMIN: Seats updated, returning venue');
+      return get(venue_id);
+    });
+  })
+  .catch((err) => {
+    log.error('ADMIN: Updating a venue failed', {error: err});
+    throw err;
+    return null;
+  });
+}
