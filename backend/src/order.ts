@@ -407,8 +407,13 @@ export function paymentDone(order_id, params): Promise<any> {
 
 export function sendTickets(order_id) {
   log.info('Sending tickets', {order_id: order_id});
+  var order;
   get(order_id)
-  .then(function(order: IOrder) {
+  .then((order_: IOrder) => {
+    order = order_;
+    return ticket.generatePdfBuffer(order.tickets);
+  })
+  .then(function(pdf: Buffer) {
     // If we ever allow to have tickets for more than one show in an order, this will be wrong.
     var order_datetime = order.tickets[0].show_date + ' klo ' + order.tickets[0].show_time;
     var order_showtitle = order.tickets[0].show_title;
@@ -421,12 +426,11 @@ export function sendTickets(order_id) {
         'Tilaamasi liput ovat tämän viestin liitteenä pdf-muodossa. Esitäthän teatterilla liput joko tulostettuna tai mobiililaitteestasi. Voit kysyä lisätietoja vastaamalla tähän viestiin.\n\n' +
         'Esitys alkaa ' + order_datetime + '. Saavuthan paikalle ajoissa ruuhkien välttämiseksi. Nähdään näytöksessä!\n\n' +
         'Ystävällisin terveisin,\nTeekkarispeksi\n',
-      attachments: [
-        {
-          filename: config.ticket_filename,
-          content: ticket.generatePdf(order.tickets)
-        }
-      ]
+      attachment: new mail.mailer.Attachment({
+        filename: config.ticket_filename,
+        data: pdf,
+        contentType: 'application/pdf'
+      })
     }, function(error, info) {
       if (error) {
         log.error('Sending tickets failed', {error: error, order_id: order_id});
