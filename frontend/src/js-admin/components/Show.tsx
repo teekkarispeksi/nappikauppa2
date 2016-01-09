@@ -9,6 +9,7 @@ import editable = require('./editables.tsx');
 
 import {IShow, IShowSection, IDiscountGroup} from '../../../../backend/src/show';
 import {IVenue, ISection} from '../../../../backend/src/venue';
+import {IProduction} from '../../../../backend/src/production';
 
 export interface IShowProps {
   show_id?: number;
@@ -19,6 +20,7 @@ export interface IShowState {
   show?: IShow;
   show_id? : number;
   venues?: IVenue[];
+  productions?: IProduction[];
 }
 
 // this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers
@@ -59,6 +61,9 @@ export default class Show extends React.Component<IShowProps, IShowState> {
     });
     $.getJSON('admin-api/venues', (resp: IVenue[]) => {
       this.setState({venues: resp});
+    });
+    $.getJSON('admin-api/productions', (resp: IProduction[]) => {
+      this.setState({productions: resp});
     });
   }
 
@@ -102,10 +107,11 @@ export default class Show extends React.Component<IShowProps, IShowState> {
   }
 
   render() {
-    if (!this.state.venues || !this.state.show) {
+    if (!this.state.venues || !this.state.show || !this.state.productions) {
       return (<div></div>);
     }
     var venue = _.findWhere(this.state.venues, {id: this.state.show.venue_id});
+    var production = _.findWhere(this.state.productions, {id: this.state.show.production_id});
 
     var hasEdits = !_.isEqual(this.state.show, this.getOriginalShow());
     return (
@@ -115,6 +121,9 @@ export default class Show extends React.Component<IShowProps, IShowState> {
           <tr><td>ID</td><td>{this.state.show.id}</td></tr>
           <tr><td>Nimi</td><td>{editable.String(this, this.state.show, 'title')}</td></tr>
           <tr><td>Aika</td><td>{editable.Date(this, this.state.show, 'time')}</td></tr>
+          <tr><td>Produktio</td>
+            <td>{editable.Select(this, this.state.show, 'production_id', this.state.productions.map((v: IProduction) => {return {value: v.id, name: v.title}; }))}</td>
+          </tr>
           <tr><td>Teatteri</td>
             <td>{editable.Select(this, this.state.show, 'venue_id', this.state.venues.map((v: IVenue) => {return {value: v.id, name: v.venue_title}; }), this.onVenueChange)}</td>
           </tr>

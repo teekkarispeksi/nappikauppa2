@@ -12,6 +12,7 @@ export interface IShow {
   id: number;
   inactivate_time: string;
   reserved_percentage: number;
+  production_id: number;
   sections: _.Dictionary<IShowSection>; // TODO: ideally just IShowSection[] :(
   time: string;
   title: string;
@@ -67,7 +68,7 @@ export function getAll(user): Promise<IShow[]> {
     .then((rows) => {
       var grouped = _.groupBy(rows, 'id');
       var shows = _.mapObject(grouped, function(showRows: any[]) {
-        var show: IShow = _.pick(showRows[0], ['id', 'title', 'venue_id', 'time', 'active', 'inactivate_time', 'description', 'reserved_percentage']);
+        var show: IShow = _.pick(showRows[0], ['id', 'title', 'production_id', 'venue_id', 'time', 'active', 'inactivate_time', 'description', 'reserved_percentage']);
         show.time = moment(show.time).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss'); // convert times to local (Helsinki) time strings
         show.inactivate_time = moment(show.inactivate_time).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss');
         var sections = _.groupBy(showRows, 'section_id');
@@ -121,7 +122,8 @@ export function getReservedSeats(show_id): Promise<IReservedSeats> {
 
 export function create(show: IShow): Promise<IShow> {
   log.info('ADMIN: Beginning show creation', show);
-  return db.query('insert into nk2_shows (title, venue_id, time, active, inactivate_time, description) values (:title, :venue_id, :time, :active, :inactivate_time, :description)', show)
+  return db.query('insert into nk2_shows (title, production_id, venue_id, time, active, inactivate_time, description) \
+      values (:title, :production_id, :venue_id, :time, :active, :inactivate_time, :description)', show)
     .then((res) => {
       var show_id = parseInt(res.insertId);
       log.info('ADMIN: Show created, creating prices', {show_id: show_id});
@@ -142,7 +144,8 @@ export function create(show: IShow): Promise<IShow> {
 
 export function update(show_id: number, show: IShow): Promise<IShow> {
   log.info('ADMIN: Beginning show update', show);
-  return db.query('update nk2_shows set title = :title, venue_id = :venue_id, time = :time, active = :active, inactivate_time = :inactivate_time, description = :description where id = :id', show)
+  return db.query('update nk2_shows set title = :title, production_id = :production_id, venue_id = :venue_id, \
+    time = :time, active = :active, inactivate_time = :inactivate_time, description = :description where id = :id', show)
   .then((res) => {
     log.info('ADMIN: Show updated, updating prices');
     if (_.values(show.sections).length <= 0) {
