@@ -31,10 +31,6 @@ function startExpress() {
   app.listen(config.port);
 }
 
-function stopExpress() {
-  app.close();
-}
-
 function startLivereload() {
   lr.listen(35729);
 }
@@ -52,7 +48,7 @@ function notifyLivereload(event) {
 }
 
 gulp.task('clean', function(cb) {
-  return del(['./frontend/build/'], cb);
+  return del(['./frontend/build/', './backend/build/', './app.js'], cb);
 });
 
 gulp.task('img', function() {
@@ -80,7 +76,7 @@ gulp.task('css:admin', function() {
 });
 
 gulp.task('css:min', function() {
-  gulp.src(['./frontend/src/css/*.less', '!./frontend/src/css/admin*.less'])
+  return gulp.src(['./frontend/src/css/*.less', '!./frontend/src/css/admin*.less'])
       .pipe(less())
       .pipe(concat('style.css'))
       .pipe(cssmin())
@@ -150,7 +146,8 @@ gulp.task('backend', function() {
     .pipe(ts({
       module: 'commonjs'
     }))
-    .pipe(gulp.dest('backend/build/'));
+    .pipe(gulp.dest('backend/build/'))
+    .pipe(notify({message: 'backend changed and re-compiled, restart gulp with "gulp start-dev"', onLast: true}));
 });
 
 gulp.task('app', function() {
@@ -210,12 +207,13 @@ gulp.task('start-dev', function() {
   startExpress();
   startLivereload();
   gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index', 'admin']);
-  gulp.watch('frontend/src/js/**/*.{js,jsx,ts,tsx}', ['js:store', 'index']);
-  gulp.watch('frontend/src/js-admin/**/*.{js,jsx,ts,tsx}', ['js:admin', 'admin']);
+  gulp.watch('frontend/src/js/**/*.{js,jsx,ts,tsx}', ['js:store']);
+  gulp.watch('frontend/src/js-admin/**/*.{js,jsx,ts,tsx}', ['js:admin']);
   gulp.watch('frontend/src/img/**/*.{jpg,gif,png}', ['img']);
   gulp.watch('frontend/src/index.html', ['index']);
   gulp.watch('frontend/src/admin.html', ['admin']);
   gulp.watch('frontend/build/**/*.{html,css,js,jpg,gif,png}', notifyLivereload);
+  gulp.watch('backend/src/**/*.{js,jsx,ts,tsx}', ['backend']);
 });
 
 gulp.task('start', function() {
