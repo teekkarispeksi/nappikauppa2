@@ -16,10 +16,8 @@ export interface ISeat {
 
 export interface ISection {
   id: number;
-  seat_count: number;
   section_title: string;
   row_name: string;
-
   seats: Dictionary<ISeat>;
 }
 
@@ -42,7 +40,6 @@ export function getAll(venue_id?: number): Promise<IVenue[]> {
     section.id as section_id, \
     section.title as section_title, \
     section.row_name, \
-    section.seat_count, \
     seat.id as seat_id, \
     seat.row, \
     seat.number, \
@@ -67,7 +64,7 @@ export function getAll(venue_id?: number): Promise<IVenue[]> {
       res.sections = _.mapObject(sections, (dbRowsForSection: any) => {
         first = dbRowsForSection[0]; // dbRowsForSection is a list of seats
 
-        var section: ISection = _.pick(first, ['section_title', 'row_name', 'seat_count']);
+        var section: ISection = _.pick(first, ['section_title', 'row_name']);
         section.id = first.section_id; // we want to call this 'id' instead of 'section_id'
 
         // turn seats into a dictionary with indexBy and use mapObject to strip venue & section info

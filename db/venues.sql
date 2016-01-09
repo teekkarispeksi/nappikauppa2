@@ -1,29 +1,29 @@
-insert into nk2_venues (title, ticket_type, description, layout_src) values
-  ('Ulkopuolinen lipunmyynti', 'generic-tickets', '', null),
-  ('Aleksanterin teatteri', 'numbered-seats',  'Aleksanterin teatteri, Helsinki\nBulevardi 23-27 / Albertinkatu 32', 'aleksanteri.png'),
-  ('Gloria', 'generic-tickets', 'Gloria Kulttuuriareena, Helsinki, Pieni Roobertinkatu 12 \nKulkuyhteydet: raitiovaunu 6, bussit 14 ja 20', null),
-  ('Vaasan kaupunginteatteri', 'numbered-seats', 'Vaasan kaupunginteatteri\nPitkäkatu 53, Vaasa', 'vaasa-kaupunginteatteri.png'),
-  ('Lappeenrannan kaupunginteatteri', 'generic-tickets', 'Lappeenrannan kaupunginteatteri\nValtakatu 56', null),
-  ('Louhisali, Espoo', 'numbered-seats', 'Louhisali, Espoon kulttuurikeskus\nKulttuuriaukio 2, Espoo', 'louhisali.png'),
-  ('Sigyn-sali', 'generic-tickets', 'Sigyn-sali\nLinnankatu 60', null),
-  ('Kuopion kaupunginteatteri', 'numbered-seats', 'Niiralankatu 2, Kuopio', 'kuopio-kaupunginteatteri.png');
+insert into nk2_venues (id, title, ticket_type, description, layout_src) values
+  (1, 'Ulkopuolinen lipunmyynti',        'generic-tickets', '', null),
+  (2, 'Aleksanterin teatteri',           'numbered-seats',  'Aleksanterin teatteri, Helsinki\nBulevardi 23-27 / Albertinkatu 32', 'aleksanteri.png'),
+  (3, 'Gloria',                          'generic-tickets', 'Gloria Kulttuuriareena, Helsinki, Pieni Roobertinkatu 12 \nKulkuyhteydet: raitiovaunu 6, bussit 14 ja 20', null),
+  (4, 'Vaasan kaupunginteatteri',        'numbered-seats',  'Vaasan kaupunginteatteri\nPitkäkatu 53, Vaasa', 'vaasa-kaupunginteatteri.png'),
+  (5, 'Lappeenrannan kaupunginteatteri', 'generic-tickets', 'Lappeenrannan kaupunginteatteri\nValtakatu 56', null),
+  (6, 'Louhisali, Espoo',                'numbered-seats',  'Louhisali, Espoon kulttuurikeskus\nKulttuuriaukio 2, Espoo', 'louhisali.png'),
+  (7, 'Sigyn-sali',                      'generic-tickets', 'Sigyn-sali\nLinnankatu 60', null),
+  (8, 'Kuopion kaupunginteatteri',       'numbered-seats',  'Niiralankatu 2, Kuopio', 'kuopio-kaupunginteatteri.png');
 
-insert into nk2_sections (venue_id, title, row_name, sort) values
-  (2, 'Permanto', 'rivi', 1), -- Aleksanteri -- ID 1 -- 1
-  (2, 'Permanto, parhaat paikat', 'rivi', 1), -- ID 2 -- 11
-  (2, '1. Parvi', 'rivi', 2), -- ID 3 -- 14
-  (2, '1. parvi', 'rivi', 3), -- ID 4 -- 2
-  (2, 'Aitiot', 'aitio', 4), -- ID 5 -- 3
-  (2, 'Aitiot', 'aitio', 5), -- ID 6 -- 4
-  (2, '2. parvi', 'rivi', 7), -- ID 7 -- 6
-  (2, 'Aitiot', 'aitio', 8), -- ID 8 -- 7
-  (2, 'Aitiot', 'aitio', 9), -- ID 9 -- 8
-  (3, 'Numeroimaton', '', 5), -- Gloria -- ID 10 -- 5
-  (4, 'Permanto', 'rivi', 9), -- Vaasa -- ID 11 -- 9
-  (5, 'Numeroimaton', '', 10), -- Lappenranta -- ID 12 -- 10
-  (6, 'Permanto', 'rivi', 12), -- Louhisali -- ID 13 -- 12
-  (7, 'Numeroimaton', '', 13), -- Turku Sigyn-sali -- ID 14 -- 13
-  (8, 'Permanto', 'rivi', 0); -- Kuopio -- ID 15 -- 15
+insert into nk2_sections (id, venue_id, title, row_name) values
+  ( 1, 2, 'Permanto',     'rivi'), -- Aleksanteri
+  ( 2, 2, 'Permanto, parhaat paikat', 'rivi'),
+  ( 3, 2, '1. parvi',     'rivi'),
+  ( 4, 2, '1. parvi',     'rivi'),
+  ( 5, 2, 'Aitiot',       'aitio'),
+  ( 6, 2, 'Aitiot',       'aitio'),
+  ( 7, 2, '2. parvi',     'rivi'),
+  ( 8, 2, 'Aitiot',       'aitio'),
+  ( 9, 2, 'Aitiot',       'aitio'),
+  (10, 3, 'Numeroimaton', ''), -- Gloria
+  (11, 4, 'Permanto',     'rivi'), -- Vaasa
+  (12, 5, 'Numeroimaton', ''), -- Lappenranta
+  (13, 6, 'Permanto',     'rivi'), -- Louhisali
+  (14, 7, 'Numeroimaton', ''), -- Turku Sigyn-sali
+  (15, 8, 'Permanto',     'rivi'); -- Kuopio
 
 -- NOTE: to "easily" edit the seat coordinates, one can for example copy all the seats of a venue into a file 't', and then run
 -- cat t|awk '{print "  "$1, $2, $3, $4-33 ",", $5+32",",$6}' to change x-coordinates to x = x-33 and y-coordinates to y = y+32

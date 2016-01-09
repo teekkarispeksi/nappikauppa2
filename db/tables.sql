@@ -5,12 +5,50 @@ drop table if exists
   nk2_tickets,
   nk2_orders,
   nk2_prices,
-  nk2_seats,
   nk2_discount_codes,
   nk2_discount_groups,
+  nk2_shows;
+
+drop table if exists
+  nk2_seats,
   nk2_sections,
-  nk2_shows,
   nk2_venues;
+
+-- ----------------------------------------------------------
+
+create table nk2_venues (
+  `id` smallint(6) not null auto_increment,
+  `title` varchar(50) not null,
+  `ticket_type` ENUM('numbered-seats', 'generic-tickets') not null,
+  `description` varchar(255) not null,
+  `layout_src` varchar(50),
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- ----------------------------------------------------------
+
+create table nk2_sections (
+  `id` int(10) unsigned not null auto_increment,
+  `venue_id` smallint(6) not null,
+  `title` varchar(255) not null,
+  `row_name` varchar(20) not null,
+  PRIMARY KEY  (`id`),
+  foreign key (venue_id) references nk2_venues (id)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+create table nk2_seats (
+  `id` int(10) unsigned not null auto_increment,
+  `section_id` int(10) unsigned not null,
+  `row` smallint(6),
+  `number` smallint(6),
+  `x_coord` smallint(6),
+  `y_coord` smallint(6),
+  `bad_seat` boolean not null default '0',
+  PRIMARY KEY  (`id`),
+  foreign key (section_id) references nk2_sections (id)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -22,17 +60,6 @@ create table nk2_discount_codes (
   `code_group` varchar(255) not null,
   PRIMARY KEY  (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
-create table nk2_venues (
-  `id` smallint(6) not null auto_increment,
-  `title` varchar(50) not null,
-  `ticket_type` ENUM('numbered-seats', 'generic-tickets') not null,
-  `description` varchar(255) not null,
-  `layout_src` varchar(50),
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -81,34 +108,7 @@ create table nk2_orders (
   on delete cascade
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
--- --------------------------------------------------------
 
-create table nk2_sections (
-  `id` int(10) unsigned not null auto_increment,
-  `venue_id` smallint(6),
-  `title` varchar(255) not null,
-  `row_name` varchar(20) not null,
-  `sort` int(11) not null default '0',
-  `seat_count` int(11) default null,
-  PRIMARY KEY  (`id`),
-  foreign key (venue_id) references nk2_venues (id)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
-create table nk2_seats (
-  `id` int(10) unsigned not null auto_increment,
-  `section_id` int(10) unsigned not null,
-  `row` smallint(6),
-  `number` smallint(6),
-  `x_coord` smallint(6),
-  `y_coord` smallint(6),
-  `bad_seat` boolean not null default '0',
-  PRIMARY KEY  (`id`),
-  foreign key (section_id) references nk2_sections (id)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
 
 create table nk2_prices (
   `id` smallint(6) not null auto_increment,
