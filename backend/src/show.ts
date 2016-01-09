@@ -71,10 +71,10 @@ export function getAll(user): Promise<IShow[]> {
         show.time = moment(show.time).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss'); // convert times to local (Helsinki) time strings
         show.inactivate_time = moment(show.inactivate_time).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss');
         var sections = _.groupBy(showRows, 'section_id');
-        show.sections = _.mapObject(sections, function(sectionRows: any[]) {
-          var section: IShowSection = _.pick(sectionRows[0], ['section_id', 'price', 'active']);
-          return section.section_id ? section : null; // left join produces nulls
-        });
+        show.sections = _.mapObject(sections, (sectionRows: any[]) => _.pick(sectionRows[0], ['section_id', 'price', 'active']));
+        if ('null' in show.sections) {
+          delete show.sections['null']; // left join produces nulls when there are no sections
+        }
         show.discount_groups = _.chain(showRows).groupBy('discount_group_id').values().map((discountGroupRows: any[]): IDiscountGroup => {
           return {
             'id': discountGroupRows[0].discount_group_id,
@@ -145,6 +145,10 @@ export function update(show_id: number, show: IShow): Promise<IShow> {
   return db.query('update nk2_shows set title = :title, venue_id = :venue_id, time = :time, active = :active, inactivate_time = :inactivate_time, description = :description where id = :id', show)
   .then((res) => {
     log.info('ADMIN: Show updated, updating prices');
+    if (_.values(show.sections).length <= 0) {
+      log.info('ADMIN: No prices, returning show');
+      return get(show_id, 'backend');
+    }
     var query_start = 'insert into nk2_prices (show_id, section_id, price, active) values ';
     var insert_values = _.values(show.sections).map((section: IShowSection) => db.format('(:show_id, :section_id, :price, :active)', _.extend({show_id: show_id}, section)));
     var query_end = ' on duplicate key update price = values(price), active = values(active)';
