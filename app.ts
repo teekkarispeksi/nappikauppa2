@@ -1,5 +1,5 @@
-import {Response} from "express";
-import {Request} from "express";
+import {Response} from 'express';
+import {Request} from 'express';
 'use strict';
 
 var express = require('express');
@@ -17,13 +17,14 @@ var adminApi = require('./backend/build/routes-admin');
 var log = require('./backend/build/log.js');
 
 var basicAuth = httpAuth.basic({
-    realm: 'Nappikauppa v2 - use your speksi-intra account',
+    realm: 'Nappikauppa v2 - use your speksi-intra account'
   }, function(username, password, cb) {
     auth.authenticate(username, password, config.confluence_auth.groups.base, cb);
   }
 );
 
 var app = express();
+app.use(require('connect-livereload')());
 
 app.use(methodOverride('X-HTTP-Method-Override'));
 
@@ -37,7 +38,7 @@ app.get('/', function(req, res: any) {
   res.sendFile(__dirname + '/frontend/build/index.html');
 });
 app.get('/favicon.ico', function(req, res: Response) {
-  res.send("");
+  res.send('');
 });
 
 if (config.confluence_auth.enabled) {
@@ -58,14 +59,14 @@ app.use('/admin-api', adminApi);
 // catch 404 and forward to error handler
 app.use(function(req: Request, res, next) {
   var err = new Error('Not Found: ' + req.url);
-  //err.status = 404; TODO
+  // err.status = 404; TODO
   next(err);
 });
 
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err: any, req: any, res: any, next) {
-  log.error("Unhandled error:", err);
+  log.error('Unhandled error:', err);
   res.status(err.status || 500);
   res.send({
     message: err.message,

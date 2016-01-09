@@ -42,7 +42,7 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
           <th>Maksulinkki</th>
         </tr>
           {this.state.orders.map((order) => {
-            var editLink = order.status === 'paid' ? <a href={'#orders/' + order.id}>Edit</a> : null;
+            var editLink = <a href={'#orders/' + order.id}>Edit</a> ;
             var ticketLink = order.status === 'paid' ? <a href={'admin-api/orders/' + order.id + '/tickets/'}>Liput</a> : null;
             var paymentLink = order.status !== 'paid' ? <a href={order.payment_url}>Maksulinkki</a> : null;
 

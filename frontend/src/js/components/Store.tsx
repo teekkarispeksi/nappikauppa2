@@ -32,6 +32,7 @@ var scrollToElem = function(elemstr) {
 export interface ITicket {
   seat: ISeat;
   section: ISection;
+  price: number;
   discount_groups: IDiscountGroup[];
   discount_group_id: number;
 }
@@ -213,8 +214,9 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     console.log('selecting', seat_id, section_id);
     var section = this.venue.sections[section_id];
     var seat = section.seats[seat_id];
-    var discount_groups = this.state.show.sections[section_id].discount_groups;
-    this.tickets.push({seat: seat, section: section, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT});
+    var price = this.state.show.sections[section_id].price;
+    var discount_groups = this.state.show.discount_groups;
+    this.tickets.push({seat: seat, section: section, price: price, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT});
   }
 
   unselectSeat(seat_id) {
