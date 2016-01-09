@@ -6,7 +6,7 @@ insert into nk2_venues (id, title, ticket_type, description, layout_src) values
   (5, 'Lappeenrannan kaupunginteatteri', 'generic-tickets', 'Lappeenrannan kaupunginteatteri\nValtakatu 56', null),
   (6, 'Louhisali, Espoo',                'numbered-seats',  'Louhisali, Espoon kulttuurikeskus\nKulttuuriaukio 2, Espoo', 'louhisali.png'),
   (7, 'Sigyn-sali',                      'generic-tickets', 'Sigyn-sali\nLinnankatu 60', null),
-  (8, 'Kuopion kaupunginteatteri',       'numbered-seats',  'Niiralankatu 2, Kuopio', 'kuopio-kaupunginteatteri.png');
+  (8, 'Kuopion kaupunginteatteri',       'numbered-seats',  'Kuopion kaupunginteatteri\nNiiralankatu 2, Kuopio', 'kuopio-kaupunginteatteri.png');
 
 insert into nk2_sections (id, venue_id, title, row_name) values
   ( 1, 2, 'Permanto',     'rivi'), -- Aleksanteri
