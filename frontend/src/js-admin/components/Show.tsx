@@ -5,6 +5,8 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
+import editable = require('./editables.tsx');
+
 import {IShow, IShowSection, IDiscountGroup} from '../../../../backend/src/show';
 import {IVenue, ISection} from '../../../../backend/src/venue';
 
@@ -59,32 +61,17 @@ export default class Show extends React.Component<IShowProps, IShowState> {
     });
   }
 
-  onChange(obj: {}, field: string, event, type?: string) {
-    if (type === 'number') {
-      obj[field] = parseInt(event.target.value);
-    } else if (type === 'select') {
-      obj[field] = parseInt(event.target.value);
-    } else if (type === 'checkbox') {
-      obj[field] = event.target.checked ? 1 : 0;
-    } else if (type === 'datetime') {
-      obj[field] = event.target.value;
-    } else {
-      obj[field] = event.target.value;
-    }
-    this.forceUpdate();
-  }
-
-  onVenueChange(obj: {}, field: string, event, type?: string) {
-    this.state.show[field] = parseInt(event.target.value);
-    var venue = _.findWhere(this.state.venues, {id: this.state.show[field]});
-    this.state.show.sections = _.mapObject(venue.sections, (section: ISection): IShowSection => {
+  onVenueChange(_this: any, obj: {}, field: string, event, type?: string) {
+    _this.state.show[field] = parseInt(event.target.value);
+    var venue = _.findWhere(_this.state.venues, {id: _this.state.show[field]}) as IVenue;
+    _this.state.show.sections = _.mapObject(venue.sections, (section: ISection): IShowSection => {
       return {
         section_id: section.id,
         active: true,
         price: 0
       };
     });
-    this.forceUpdate();
+    _this.forceUpdate();
   }
 
   saveChanges() {
@@ -113,54 +100,6 @@ export default class Show extends React.Component<IShowProps, IShowState> {
 
   }
 
-  _editableString(obj: {}, field: string, onChange?: (obj: {}, field: string, event, type?: string) => void) {
-    if (!onChange) {
-      onChange = this.onChange.bind(this);
-    }
-    return (<input type='text' value={obj[field]} onChange={(event) => onChange(obj, field, event)}/>);
-  }
-
-  _editableNumber(obj: {}, field: string, onChange?: (obj: {}, field: string, event, type?: string) => void) {
-    if (!onChange) {
-      onChange = this.onChange.bind(this);
-    }
-    return (<input type='number' value={obj[field]} onChange={(event) => onChange(obj, field, event, 'number')}/>);
-  }
-
-  _editableDate(obj: {}, field: string, onChange?: (obj: {}, field: string, event, type?: string) => void) {
-    if (!onChange) {
-      onChange = this.onChange.bind(this);
-    }
-    return (<input type='datetime-local' value={obj[field]} onChange={(event) => onChange(obj, field, event, 'datetime')}/>);
-  }
-
-  _editableCheckbox(obj: {}, field: string, onChange?: (obj: {}, field: string, event, type?: string) => void) {
-    if (!onChange) {
-      onChange = this.onChange.bind(this);
-    }
-    return (<input type='checkbox' checked={obj[field]} onChange={(event) => onChange(obj, field, event, 'checkbox')}/>);
-  }
-
-  _editableText(obj: {}, field: string, onChange?: (obj: {}, field: string, event, type?: string) => void) {
-    if (!onChange) {
-      onChange = this.onChange.bind(this);
-    }
-    return (<textarea value={obj[field]} onChange={(event) => onChange(obj, field, event)} rows={5} cols={40}/>);
-  }
-
-  _editableSelect(obj: {}, field: string, options: {value: any, name: string}[], onChange?: (obj: {}, field: string, event, type?: string) => void) {
-    if (!onChange) {
-      onChange = this.onChange.bind(this);
-    }
-    return (
-      <Bootstrap.Input type='select' standalone onChange={(event) => onChange(obj, field, event, 'select')} value={obj[field]}>
-        {options.map((option) => {
-          return (<option key={option.value} value={option.value}>{option.name}</option>);
-        })}
-      </Bootstrap.Input>
-    );
-  }
-
   render() {
     if (!this.state.venues || !this.state.show) {
       return (<div></div>);
@@ -173,14 +112,14 @@ export default class Show extends React.Component<IShowProps, IShowState> {
         <h2>Näytöksen tiedot</h2>
         <Bootstrap.Table bordered><tbody>
           <tr><td>ID</td><td>{this.state.show.id}</td></tr>
-          <tr><td>Nimi</td><td>{this._editableString(this.state.show, 'title')}</td></tr>
-          <tr><td>Aika</td><td>{this._editableDate(this.state.show, 'time')}</td></tr>
+          <tr><td>Nimi</td><td>{editable.String(this, this.state.show, 'title')}</td></tr>
+          <tr><td>Aika</td><td>{editable.Date(this, this.state.show, 'time')}</td></tr>
           <tr><td>Teatteri</td>
-            <td>{this._editableSelect(this.state.show, 'venue_id', this.state.venues.map((v: IVenue) => {return {value: v.id, name: v.venue_title}; }), this.onVenueChange.bind(this))}</td>
+            <td>{editable.Select(this, this.state.show, 'venue_id', this.state.venues.map((v: IVenue) => {return {value: v.id, name: v.venue_title}; }), this.onVenueChange)}</td>
           </tr>
-          <tr><td>Aktiivinen</td><td>{this._editableCheckbox(this.state.show, 'active')}</td></tr>
-          <tr><td>Myynti loppuu</td><td>{this._editableDate(this.state.show, 'inactivate_time')}</td></tr>
-          <tr><td>Kuvaus</td><td>{this._editableText(this.state.show, 'description')}</td></tr>
+          <tr><td>Aktiivinen</td><td>{editable.Checkbox(this, this.state.show, 'active')}</td></tr>
+          <tr><td>Myynti loppuu</td><td>{editable.Date(this, this.state.show, 'inactivate_time')}</td></tr>
+          <tr><td>Kuvaus</td><td>{editable.Text(this, this.state.show, 'description')}</td></tr>
         </tbody></Bootstrap.Table>
         <Bootstrap.Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Bootstrap.Button>
         <Bootstrap.Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Bootstrap.Button>
@@ -197,8 +136,8 @@ export default class Show extends React.Component<IShowProps, IShowState> {
             return (<tr key={section.id}>
                 <td>{section.id}</td>
                 <td>{section.section_title}</td>
-                <td>{this._editableNumber(show_section, 'price')}</td>
-                <td>{this._editableCheckbox(show_section, 'active')}</td>
+                <td>{editable.Number(this, show_section, 'price')}</td>
+                <td>{editable.Checkbox(this, show_section, 'active')}</td>
               </tr>
             );
           }) : null}
@@ -213,12 +152,12 @@ export default class Show extends React.Component<IShowProps, IShowState> {
           </tr></thead>
           <tbody>
           {_.values(this.state.show.discount_groups).map((discount_group: IDiscountGroup) => {
-            var editable = discount_group.show_id !== null;
+            var thisShowOnly = discount_group.show_id !== null;
             return (<tr key={discount_group.id}>
                 <td>{discount_group.id}</td>
-                <td>{editable ? this._editableString(discount_group, 'title') : discount_group.title}</td>
-                <td>{editable ? this._editableNumber(discount_group, 'discount') : discount_group.discount}</td>
-                <td>{editable ? this._editableCheckbox(discount_group, 'admin') : discount_group.admin}</td>
+                <td>{thisShowOnly ? editable.String(this, discount_group, 'title') : discount_group.title}</td>
+                <td>{thisShowOnly ? editable.Number(this, discount_group, 'discount') : discount_group.discount}</td>
+                <td>{thisShowOnly ? editable.Checkbox(this, discount_group, 'admin') : discount_group.admin}</td>
               </tr>
             );
           })}

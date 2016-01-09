@@ -6,7 +6,7 @@ import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
 import SeatSelector from './SeatSelector.tsx';
-
+import editable = require('./editables.tsx');
 import {IVenue, ISection, ISeat} from '../../../../backend/src/venue';
 
 
@@ -43,21 +43,6 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
     });
   }
 
-  onChange(obj: {}, field: string, event, type?: string) {
-    if (type === 'number') {
-      obj[field] = parseInt(event.target.value);
-    } else if (type === 'select') {
-      obj[field] = event.target.value;
-    } else if (type === 'checkbox') {
-      obj[field] = event.target.checked ? 1 : 0;
-    } else if (type === 'datetime') {
-      obj[field] = event.target.value;
-    } else {
-      obj[field] = event.target.value;
-    }
-    this.forceUpdate();
-  }
-
   saveChanges() {
     $.ajax({
       url: 'admin-api/venues/' + this.state.venue.id,
@@ -72,33 +57,6 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
       }
     });
 
-  }
-
-  _editableString(obj: {}, field: string, onChange?: (obj: {}, field: string, event, type?: string) => void) {
-    if (!onChange) {
-      onChange = this.onChange.bind(this);
-    }
-    return (<input type='text' value={obj[field]} onChange={(event) => onChange(obj, field, event)}/>);
-  }
-
-  _editableText(obj: {}, field: string, onChange?: (obj: {}, field: string, event, type?: string) => void) {
-    if (!onChange) {
-      onChange = this.onChange.bind(this);
-    }
-    return (<textarea value={obj[field]} onChange={(event) => onChange(obj, field, event)} rows={5} cols={40}/>);
-  }
-
-  _editableSelect(obj: {}, field: string, options: {value: any, name: string}[], onChange?: (obj: {}, field: string, event, type?: string) => void) {
-    if (!onChange) {
-      onChange = this.onChange.bind(this);
-    }
-    return (
-      <Bootstrap.Input type='select' standalone onChange={(event) => onChange(obj, field, event, 'select')} value={obj[field]}>
-        {options.map((option) => {
-          return (<option key={option.value} value={option.value}>{option.name}</option>);
-        })}
-      </Bootstrap.Input>
-    );
   }
 
   onSeatClicked(seat_id, section_id) {
@@ -118,12 +76,12 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
         <h2>Teatterin tiedot</h2>
         <Bootstrap.Table bordered><tbody>
           <tr><td>ID</td><td>{this.state.venue.id}</td></tr>
-          <tr><td>Nimi</td><td>{this._editableString(this.state.venue, 'venue_title')}</td></tr>
+          <tr><td>Nimi</td><td>{editable.String(this, this.state.venue, 'venue_title')}</td></tr>
           <tr><td>Lipputyyppi</td>
-            <td>{this._editableSelect(this.state.venue, 'ticket_type', [{value: 'generic-tickets', name: 'Numeroimaton'}, {value: 'numbered-seats', name: 'Numeroitu'}])}</td>
+            <td>{editable.Select(this, this.state.venue, 'ticket_type', [{value: 'generic-tickets', name: 'Numeroimaton'}, {value: 'numbered-seats', name: 'Numeroitu'}])}</td>
           </tr>
-          <tr><td>Layout-kuva</td><td>{this._editableString(this.state.venue, 'layout_src')}</td></tr>
-          <tr><td>Kuvaus</td><td>{this._editableText(this.state.venue, 'description')}</td></tr>
+          <tr><td>Layout-kuva</td><td>{editable.String(this, this.state.venue, 'layout_src')}</td></tr>
+          <tr><td>Kuvaus</td><td>{editable.Text(this, this.state.venue, 'description')}</td></tr>
         </tbody></Bootstrap.Table>
         <Bootstrap.Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Bootstrap.Button>
         <Bootstrap.Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Bootstrap.Button>
@@ -139,8 +97,8 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
           {_.values(this.state.venue.sections).map((section: ISection) => {
             return (<tr key={section.id}>
                 <td>{section.id}</td>
-                <td>{this._editableString(section, 'section_title')}</td>
-                <td>{this._editableString(section, 'row_name')}</td>
+                <td>{editable.String(this, section, 'section_title')}</td>
+                <td>{editable.String(this, section, 'row_name')}</td>
                 <td>{_.keys(section.seats).length}</td>
               </tr>
             );
