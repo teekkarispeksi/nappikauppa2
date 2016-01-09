@@ -9,6 +9,7 @@ import show = require('./show');
 import venue = require('./venue');
 import ticket = require('./ticket');
 import log = require('./log');
+import production = require('./production');
 
 var jsonParser = bodyParser.json();
 
@@ -67,6 +68,22 @@ router.post('/shows', jsonParser, function(req: Request, res: Response) {
 
 router.post('/shows/:showid', jsonParser, function(req: Request, res: Response) {
   show.update(parseInt(req.params.showid), req.body).then(ok(res), err(res));
+});
+
+router.get('/productions/:productionid', function(req: Request, res: Response) {
+  production.get(parseInt(req.params.productionid)).then(ok(res), err(res));
+});
+
+router.get('/productions', function(req: Request, res: Response) {
+  production.getAll().then(ok(res), err(res));
+});
+
+router.post('/productions', jsonParser, function(req: Request, res: Response) {
+  production.create(req.body).then(ok(res), err(res));
+});
+
+router.post('/productions/:productionid', jsonParser, function(req: Request, res: Response) {
+  production.update(parseInt(req.params.productionid), req.body).then(ok(res), err(res));
 });
 
 export = router;

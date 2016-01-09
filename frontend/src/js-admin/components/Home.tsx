@@ -7,16 +7,18 @@ import _ = require('underscore');
 
 import {IShow, IReservedSeats, IDiscountGroup} from '../../../../backend/src/show';
 import {IVenue, ISection, ISeat} from '../../../../backend/src/venue';
+import {IProduction} from '../../../../backend/src/production';
 
 export interface IHomeState {
   shows?: IShow[];
   venues?: IVenue[];
+  productions?: IProduction[];
 }
 
 export default class Home extends React.Component<any, IHomeState> {
   constructor() {
     super();
-    this.state = {shows: [], venues: []};
+    this.state = {shows: [], venues: [], productions: []};
   }
 
   componentWillMount() {
@@ -25,6 +27,9 @@ export default class Home extends React.Component<any, IHomeState> {
     });
     $.getJSON('admin-api/venues', (resp: IVenue[]) => {
       this.setState({venues: resp});
+    });
+    $.getJSON('admin-api/productions', (resp: IProduction[]) => {
+      this.setState({productions: resp});
     });
   }
 
@@ -39,6 +44,11 @@ export default class Home extends React.Component<any, IHomeState> {
         <h2>Teatterit</h2>
         <ul>
           {this.state.venues.map((venue) => <li key={venue.id}><a href={'#venues/' + venue.id}>{venue.venue_title}</a></li>)}
+        </ul>
+        <h2>Produktiot</h2>
+        <p><a href={'#productions/'}>Luo uusi produktio</a></p>
+        <ul>
+          {this.state.productions.map((production) => <li key={production.id}><a href={'#productions/' + production.id}>{production.performer} - {production.title}</a></li>)}
         </ul>
       </div>
     );
