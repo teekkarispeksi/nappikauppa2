@@ -11,6 +11,7 @@ class NkAdminRouter extends Backbone.Router {
       'shows(/)(:showid)': 'shows',
       'shows/:showid/orders': 'orderlist',
       'orders': 'orderlist',
+      'venues(/)(:venueid)': 'venues',
       '*url': 'default'
     };
     super();

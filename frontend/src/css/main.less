@@ -133,6 +133,9 @@ a.seat {
     background-color: @red;
     border: 1px solid @almost-black;
   }
+  &.seat-inactive {
+    display: none;
+  }
 }
 
 .show-selector {
@@ -214,7 +217,7 @@ a.seat {
 .seat-selector {
   div.theaterLayout {
     position: relative;
-    background-size: cover;
+    background-size: auto;
     background-repeat: no-repeat;
     width: 356px;
     height: 470px;

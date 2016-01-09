@@ -57,6 +57,10 @@ router.get('/venues', function(req: Request, res: Response) {
   venue.getAll().then(ok(res), err(res));
 });
 
+router.post('/venues/:venueid', jsonParser, function(req: Request, res: Response) {
+  venue.update(parseInt(req.params.venueid), req.body).then(ok(res), err(res));
+});
+
 router.post('/shows', jsonParser, function(req: Request, res: Response) {
   show.create(req.body).then(ok(res), err(res));
 });
