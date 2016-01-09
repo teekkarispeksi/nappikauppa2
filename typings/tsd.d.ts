@@ -30,3 +30,4 @@
 /// <reference path="moment/moment.d.ts" />
 /// <reference path="moment-timezone/moment-timezone.d.ts"/>
 /// <reference path="marked/marked.d.ts" />
+/// <reference path="jsdom/jsdom.d.ts" />

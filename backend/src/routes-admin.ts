@@ -64,6 +64,13 @@ router.get('/orders/:orderid/tickets/:ticketid/delete', function(req: Request, r
   order.removeTicket(parseInt(req.params.orderid), parseInt(req.params.ticketid)).then(ok(res), err(res));
 });
 
+router.get('/orders/:orderid/status', function(req: Request, res: Response) {
+  order.checkPaytrailStatus(req.params.orderid).then((result) => {
+    res.write(result);
+    res.end();
+  }, err(res));
+});
+
 router.get('/venues', function(req: Request, res: Response) {
   venue.getAll().then(ok(res), err(res));
 });
