@@ -61,7 +61,7 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
                 if (statuses[seat.id]) {
                   status = statuses[seat.id];
                 } else {
-                  status = seat.bad_seat ? 'bad' : 'free';
+                  status = seat.inactive ? 'inactive' : 'free';
                 }
                 return <Seat key={seat.id}
                   seat={seat}

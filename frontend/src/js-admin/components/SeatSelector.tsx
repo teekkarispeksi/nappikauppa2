@@ -23,7 +23,7 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
             return (
               <div key={section.id}>
               {_.values(section.seats).map((seat) => {
-                var status = seat.bad_seat ? 'bad' : 'free';
+                var status = seat.inactive ? 'inactive' : 'free';
                 return <Seat key={seat.id}
                   seat={seat}
                   prices={[]}

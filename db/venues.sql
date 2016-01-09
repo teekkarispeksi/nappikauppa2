@@ -30,7 +30,7 @@ insert into nk2_sections (id, venue_id, title, row_name) values
 
 
 -- Aleksanteri, lots of numbered seats
-insert into nk2_seats (number, row, section_id, x_coord, y_coord, bad_seat) values
+insert into nk2_seats (number, row, section_id, x_coord, y_coord, inactive) values
   (1, 1, 1, 115, 37, false),
   (2, 1, 1, 123, 40, false),
   (3, 1, 1, 131, 42, false),
@@ -524,7 +524,7 @@ insert into nk2_seats (number, row, section_id, x_coord, y_coord, bad_seat) valu
   (2, 20, 9, 323, 281, false);
 
 -- Gloria, 350 seats
-insert into nk2_seats (section_id, bad_seat) values
+insert into nk2_seats (section_id, inactive) values
   (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false),
   (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false),
   (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false),
@@ -562,7 +562,7 @@ insert into nk2_seats (section_id, bad_seat) values
   (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false), (10, false);
 
 -- vaasa, 370 numbered seats
-insert into nk2_seats (number, row, section_id, x_coord, y_coord, bad_seat) values
+insert into nk2_seats (number, row, section_id, x_coord, y_coord, inactive) values
   (1, 1, 11, 52, 53, false),
   (2, 1, 11, 61, 53, false),
   (3, 1, 11, 70, 53, false),
@@ -935,7 +935,7 @@ insert into nk2_seats (number, row, section_id, x_coord, y_coord, bad_seat) valu
   (370, 15, 11, 262, 323, false);
 
 -- lappenranta, 300 seats
-insert into nk2_seats (section_id, bad_seat) values
+insert into nk2_seats (section_id, inactive) values
   (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false),
   (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false),
   (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false),
@@ -968,7 +968,7 @@ insert into nk2_seats (section_id, bad_seat) values
   (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false), (12, false);
 
 -- louhisali, 296 numbered seats
-insert into nk2_seats (number, row, section_id, x_coord, y_coord, bad_seat) values
+insert into nk2_seats (number, row, section_id, x_coord, y_coord, inactive) values
   (1, 1, 13, 257, 53, false),
   (2, 1, 13, 246, 53, false),
   (3, 1, 13, 235, 53, false),
@@ -1267,7 +1267,7 @@ insert into nk2_seats (number, row, section_id, x_coord, y_coord, bad_seat) valu
   (296, 15, 13, 30, 305, false);
 
 -- sigyn, 326 seats
-insert into nk2_seats (section_id, bad_seat) values
+insert into nk2_seats (section_id, inactive) values
   (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false),
   (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false),
   (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false), (14, false),
@@ -1303,7 +1303,7 @@ insert into nk2_seats (section_id, bad_seat) values
   (14, false), (14, false), (14, false), (14, false), (14, false), (14, false);
 
 -- kuopio, 212 numbered seats
-insert into nk2_seats (number, row, section_id, x_coord, y_coord, bad_seat) values
+insert into nk2_seats (number, row, section_id, x_coord, y_coord, inactive) values
   (1, 1, 15, 83, 66, false),
   (2, 1, 15, 95, 66, false),
   (3, 1, 15, 107, 66, false),

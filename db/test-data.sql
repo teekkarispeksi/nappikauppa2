@@ -84,7 +84,7 @@ select
     orders.*,
     shows.title, shows.time,
     venues.title,
-    seats.row, seats.number, seats.bad_seat,
+    seats.row, seats.number, seats.inactive,
     sections.title
 from nk2_tickets tickets
     join nk2_orders orders on tickets.order_id = orders.id

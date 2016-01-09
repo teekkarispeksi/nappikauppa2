@@ -60,7 +60,7 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
   }
 
   onSeatClicked(seat_id, section_id) {
-    this.state.venue.sections[section_id].seats[seat_id].bad_seat = !this.state.venue.sections[section_id].seats[seat_id].bad_seat;
+    this.state.venue.sections[section_id].seats[seat_id].inactive = !this.state.venue.sections[section_id].seats[seat_id].inactive;
     this.forceUpdate();
   }
 

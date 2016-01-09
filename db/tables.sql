@@ -45,7 +45,7 @@ create table nk2_seats (
   `number` smallint(6),
   `x_coord` smallint(6),
   `y_coord` smallint(6),
-  `bad_seat` boolean not null default '0',
+  `inactive` boolean not null default '0',
   PRIMARY KEY  (`id`),
   foreign key (section_id) references nk2_sections (id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;

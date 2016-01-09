@@ -11,7 +11,7 @@ export interface ISeat {
   number: string;
   x_coord: number;
   y_coord: number;
-  bad_seat: boolean;
+  inactive: boolean;
 }
 
 export interface ISection {
@@ -45,7 +45,7 @@ export function getAll(venue_id?: number): Promise<IVenue[]> {
     seat.number, \
     seat.x_coord, \
     seat.y_coord, \
-    bad_seat \
+    inactive \
   FROM nk2_venues venue \
   LEFT JOIN nk2_sections section ON venue.id = section.venue_id \
   LEFT JOIN nk2_seats seat ON section.id = seat.section_id '
@@ -70,7 +70,7 @@ export function getAll(venue_id?: number): Promise<IVenue[]> {
         // turn seats into a dictionary with indexBy and use mapObject to strip venue & section info
         var seats = _.indexBy(dbRowsForSection, (dbRow: any) => dbRow.seat_id);
         section.seats = _.mapObject(seats, (dbRowForSeat: any) => {
-          var seat: ISeat = _.pick(dbRowForSeat, ['seat_id', 'row', 'number', 'x_coord', 'y_coord', 'bad_seat']);
+          var seat: ISeat = _.pick(dbRowForSeat, ['seat_id', 'row', 'number', 'x_coord', 'y_coord', 'inactive']);
           seat.id = dbRowForSeat.seat_id; // we want to call this 'id' instead of 'seat_id'
           return seat;
         });
@@ -108,10 +108,10 @@ export function update(venue_id: number, venue: IVenue): Promise<IVenue> {
   })
   .then((res) => {
     log.info('ADMIN: Sections updated, updating seats');
-    var query_start = 'insert into nk2_seats (id, bad_seat) values ';
+    var query_start = 'insert into nk2_seats (id, inactive) values ';
     var insert_values = _.flatten(_.values(venue.sections).map((section: ISection) => _.values(section.seats)))
-                         .map((seat: ISeat) => db.format('(:id, :bad_seat)', _.extend({venue_id: venue_id}, seat)));
-    var query_end = ' on duplicate key update bad_seat = values(bad_seat)';
+                         .map((seat: ISeat) => db.format('(:id, :inactive)', _.extend({venue_id: venue_id}, seat)));
+    var query_end = ' on duplicate key update inactive = values(inactive)';
 
     return db.query(query_start + insert_values.join(',') + query_end).then(() => {
       log.info('ADMIN: Seats updated, returning venue');
