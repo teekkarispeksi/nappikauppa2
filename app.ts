@@ -24,6 +24,7 @@ var basicAuth = httpAuth.basic({
 );
 
 var app = express();
+app.enable('trust proxy'); // so that our mod_rewrites doesn't mess up the req.ip address
 app.use(require('connect-livereload')());
 
 app.use(methodOverride('X-HTTP-Method-Override'));
