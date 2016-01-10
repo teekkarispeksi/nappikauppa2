@@ -71,6 +71,10 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
     });
   }
 
+  sendTickets() {
+    $.get('admin-api/orders/' + this.state.order.order_id + '/tickets/send');
+  }
+
   render() {
     if (!this.state.order) {
       return (<div></div>);
@@ -86,10 +90,12 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
           <tr><td>Email</td><td>{editable.String(this, this.state.order, 'email')}</td></tr>
           <tr><td>Alennuskoodi</td><td>{this.state.order.discount_code}</td></tr>
           <tr><td>Aika</td><td>{this.state.order.time}</td></tr>
+          <tr><td>Status</td><td>{this.state.order.status}</td></tr>
         </tbody></Bootstrap.Table>
         <Bootstrap.Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Bootstrap.Button>
         <Bootstrap.Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Bootstrap.Button>
         <h2>Liput</h2>
+        <Bootstrap.Button disabled={this.state.order.status !== 'paid'} onClick={this.sendTickets.bind(this)}>Lähetä liput uudelleen</Bootstrap.Button>
         <Bootstrap.Table bordered>
           <thead><tr>
             <th>Näytös</th>

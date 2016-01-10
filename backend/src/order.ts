@@ -406,9 +406,9 @@ export function paymentDone(order_id: number, params): Promise<any> {
   }
 }
 
-export function sendTickets(order_id: number) {
+export function sendTickets(order_id: number): Promise<any> {
   log.info('Sending tickets', {order_id: order_id});
-  get(order_id)
+  return get(order_id)
   .then(function(order: IOrder) {
     // If we ever allow to have tickets for more than one show in an order, this will be wrong.
     var order_datetime = order.tickets[0].show_date + ' klo ' + order.tickets[0].show_time;

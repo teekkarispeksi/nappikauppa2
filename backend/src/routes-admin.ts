@@ -54,10 +54,13 @@ router.get('/orders/:orderid/tickets', function(req: Request, res: Response) {
   });
 });
 
+router.get('/orders/:orderid/tickets/send', function(req: Request, res: Response) {
+  order.sendTickets(parseInt(req.params.orderid)).then(() => res.sendStatus(200));
+});
+
 router.delete('/orders/:orderid/tickets/:ticketid', function(req: Request, res: Response) {
   order.removeTicket(parseInt(req.params.orderid), parseInt(req.params.ticketid)).then(ok(res), err(res));
 });
-
 
 router.get('/venues', function(req: Request, res: Response) {
   venue.getAll().then(ok(res), err(res));
