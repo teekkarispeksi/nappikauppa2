@@ -64,7 +64,7 @@ export function checkExpired(): Promise<any> {
     {expire_minutes: config.expire_minutes});
 }
 
-export function reserveSeats(show_id: string, seats: IReservedSeat[], user: string): Promise<any> {
+export function reserveSeats(show_id: number, seats: IReservedSeat[], user: string): Promise<any> {
   log.info('Reserving seats', {show_id: show_id, seats: seats, user: user});
 
   var order_id;
@@ -123,7 +123,7 @@ export function reserveSeats(show_id: string, seats: IReservedSeat[], user: stri
     });
 }
 
-export function updateContact(order_id: string, data: IContact, user): Promise<any> {
+export function updateContact(order_id: number, data: IContact, user): Promise<any> {
   var discountCheck = 'select (:is_admin | ((dc.use_max - count(*)) > 0)) as valid from nk2_orders o \
     join nk2_discount_codes dc on dc.code = o.discount_code \
     where o.discount_code = :discount_code';
@@ -165,7 +165,7 @@ export function updateContact(order_id: string, data: IContact, user): Promise<a
   });
 }
 
-export function get(order_id: string): Promise<any> {
+export function get(order_id: number): Promise<IOrder> {
   return db.query('select \
       tickets.id ticket_id,  \
       tickets.show_id,\
@@ -228,6 +228,7 @@ export function get(order_id: string): Promise<any> {
   .catch((err) => {
     log.error('Failed to get order', {order_id: order_id, error: err});
     throw err;
+    return null;
   });
 }
 
@@ -235,7 +236,7 @@ export function getAll(): Promise<IAdminOrderListItem> {
   return db.query('select * from nk2_orders orders', null);
 }
 
-export function getAllForShow(show_id: string): Promise<IAdminOrderListItem> {
+export function getAllForShow(show_id: number): Promise<IAdminOrderListItem> {
   return db.query('select distinct orders.* \
     from nk2_orders orders \
       join nk2_tickets tickets on tickets.order_id = orders.id \
@@ -243,7 +244,7 @@ export function getAllForShow(show_id: string): Promise<IAdminOrderListItem> {
     {show_id: show_id});
 }
 
-export function preparePayment(order_id: string): Promise<any> {
+export function preparePayment(order_id: number): Promise<any> {
   log.info('Preparing payment', {order_id: order_id});
 
   return db.query('update nk2_orders set status = "payment-pending" where id = :order_id',
@@ -351,7 +352,7 @@ export function preparePayment(order_id: string): Promise<any> {
     });
 }
 
-export function paymentCancelled(order_id, params): Promise<any> {
+export function paymentCancelled(order_id: number, params): Promise<any> {
   log.info('Payment was cancelled', {order_id: order_id});
 
   var verification = [order_id, params.TIMESTAMP, config.paytrail.password].join('|');
@@ -368,7 +369,7 @@ export function paymentCancelled(order_id, params): Promise<any> {
   }
 }
 
-export function paymentDone(order_id, params): Promise<any> {
+export function paymentDone(order_id: number, params): Promise<any> {
   log.info('Payment done - verifying', {order_id: order_id});
 
   var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
@@ -405,7 +406,7 @@ export function paymentDone(order_id, params): Promise<any> {
   }
 }
 
-export function sendTickets(order_id) {
+export function sendTickets(order_id: number) {
   log.info('Sending tickets', {order_id: order_id});
   get(order_id)
   .then(function(order: IOrder) {
@@ -437,7 +438,7 @@ export function sendTickets(order_id) {
   });
 }
 
-export function update(order_id, order: IOrder): Promise<IOrder> {
+export function update(order_id: number, order: IOrder): Promise<IOrder> {
   log.info('ADMIN: Updating order details', order);
   return db.query('update nk2_orders set name = :name, email = :email where id = :order_id', order)
   .then((res) => {

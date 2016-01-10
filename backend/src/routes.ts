@@ -73,39 +73,39 @@ router.get('/shows/', checkUserSilently, function(req: Request, res: Response) {
 });
 
 router.get('/shows/:showid', function(req: Request, res: Response) {
-  show.get(req.params.showid).then(ok(res), err(res));
+  show.get(parseInt(req.params.showid)).then(ok(res), err(res));
 });
 
 router.get('/shows/:showid/reservedSeats', function(req: Request, res: Response) {
-  show.getReservedSeats(req.params.showid).then(ok(res), err(res));
+  show.getReservedSeats(parseInt(req.params.showid)).then(ok(res), err(res));
 });
 
 router.post('/shows/:showid/reserveSeats', jsonParser, checkUserSilently, function(req: Request, res: Response) {
-  order.reserveSeats(req.params.showid, req.body, req.user)
+  order.reserveSeats(parseInt(req.params.showid), req.body, req.user)
     .then(ok(res))
     .catch((error) => { res.status(409); res.json(error); });
 });
 
 router.post('/orders/:orderid', jsonParser, checkUserSilently, function(req: Request, res: Response) {
-  order.updateContact(req.params.orderid, req.body, req.user).then(ok(res), err(res));
+  order.updateContact(parseInt(req.params.orderid), req.body, req.user).then(ok(res), err(res));
 });
 
 router.post('/orders/:orderid/preparePayment', function(req: Request, res: Response) {
-  order.preparePayment(req.params.orderid).then(ok(res), err(res));
+  order.preparePayment(parseInt(req.params.orderid)).then(ok(res), err(res));
 });
 
 router.get('/orders/:orderid/success', function(req: Request, res: Response) {
-  order.paymentDone(req.params.orderid, req.query).then(function(order) {
+  order.paymentDone(parseInt(req.params.orderid), req.query).then(function(order) {
     res.redirect(config.public_url + '#ok/' + order.order_id + '/' + order.order_hash);
   });
 });
 
 router.get('/orders/:orderid/failure', function(req: Request, res: Response) {
-  order.paymentCancelled(req.params.orderid, req.query).then(function() { res.redirect(config.public_url + '#fail'); });
+  order.paymentCancelled(parseInt(req.params.orderid), req.query).then(function() { res.redirect(config.public_url + '#fail'); });
 });
 
 router.get('/orders/:orderid/:orderhash/tickets', function(req: Request, res: Response) {
-  order.get(req.params.orderid).then(function(order: order.IOrder) {
+  order.get(parseInt(req.params.orderid)).then(function(order: order.IOrder) {
     if (order.order_hash === req.params.orderhash) {
       var pdf = ticket.generatePdf(order.tickets);
       res.type('application/pdf');

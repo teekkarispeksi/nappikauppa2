@@ -100,7 +100,7 @@ export function get(show_id: number, user?: string): Promise<IShow> {
   });
 }
 
-export function getReservedSeats(show_id): Promise<IReservedSeats> {
+export function getReservedSeats(show_id: number): Promise<IReservedSeats> {
   return order.checkExpired()
     .then(() => db.query('select distinct seat_id \
         from nk2_tickets tickets \
