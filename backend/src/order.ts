@@ -437,35 +437,19 @@ export function sendTickets(order_id) {
   });
 }
 
-export function updateNameOrEmail(order_id, data): Promise<any> {
-
-  data.id = order_id;
-
-  log.info('ADMIN: Updating contact details', {order_id: order_id, name: data});
-  var query = '';
-  if (data.name) {
-    if (data.email) {
-      query = 'name = :name, email = :email';
-    } else {
-      query = 'name = :name';
-    }
-  } else if (data.email) {
-    query = 'email = :email';
-  } else {
-    log.error('ADMIN: Nothing to update!');
-    return;
-  }
-
-  return db.query('update nk2_orders set ' + query + ' where id = :id', data)
+export function update(order_id, order: IOrder): Promise<IOrder> {
+  log.info('ADMIN: Updating order details', order);
+  return db.query('update nk2_orders set name = :name, email = :email where id = :order_id', order)
   .then((res) => {
     if (res.changedRows !== 1) {
       var errmsg = 'ADMIN: Should have updated one row, updated really ' + res.changedRows + ' rows';
       log.error(errmsg);
       throw errmsg;
     }
-    log.info('ADMIN: Updated contact details successfully');
+    log.info('ADMIN: Updated order successfully');
     return get(order_id);
   }).catch((err) => {
-    log.error('ADMIN: Failed to update contact details', {error: err});
+    log.error('ADMIN: Failed to update order', {error: err});
+    return null;
   });
 }

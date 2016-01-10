@@ -43,7 +43,7 @@ router.get('/orders/:orderid', function(req: Request, res: Response) {
 });
 
 router.post('/orders/:orderid', jsonParser, function(req: Request, res: Response) {
-  order.updateNameOrEmail(req.params.orderid, req.body).then(ok(res), err(res));
+  order.update(req.params.orderid, req.body).then(ok(res), err(res));
 });
 
 router.get('/orders/:orderid/tickets', function(req: Request, res: Response) {
