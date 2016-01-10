@@ -8,6 +8,7 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Marked = require('marked');
 import Moment = require('moment-timezone');
+import Bootstrap = require('react-bootstrap');
 
 import ShowSelector from './ShowSelector.tsx';
 import SeatSelector from './SeatSelector.tsx'; // for numbered seats
@@ -47,6 +48,7 @@ export interface IStoreProps {
 }
 
 export interface IStoreState {
+  auth?: string; // authenticated user
   page?: string;
   show?: IShow;
   paymentBegun?: boolean;
@@ -103,7 +105,11 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       }
       this.forceUpdate();
     });
-
+    $.get('api/auth', (resp: string) => {
+      if (resp) {
+        this.setState({auth: resp});
+      }
+    });
   }
 
   componentWillUnmount() {
@@ -329,7 +335,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       return <div></div>;
     }
     var opens = Moment(this.production.opens);
-    if (opens > Moment()) {
+    if (opens > Moment() && !this.state.auth) {
       return <div className='shopping-stage'>Lippukauppa aukeaa {opens.format('DD.MM. [klo] H:mm')}.</div>;
     }
     /* tslint:disable:no-switch-case-fall-through switch-default */
@@ -368,6 +374,14 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     }
     /* tslint:enable:no-switch-case-fall-through */
 
+    var admin = this.state.auth ? (
+      <div id='admin' className='shopping-stage'>
+      <h4>Hei, {this.state.auth}!</h4>
+      <p>Siirry admin-puolelle <a href='admin'>tästä</a>.</p>
+      <p><Bootstrap.Button disabled={this.tickets.length === 0} onClick={() => {this.tickets.forEach((t) => t.discount_group_id = 3); this.forceUpdate();}}>Ilmaislipuiksi</Bootstrap.Button></p>
+      </div>
+    ) : null;
+
     return (
       <div>
         <ShowSelector onShowSelect={this.onShowSelect.bind(this)} shows={this.shows} selectedShow={this.state.show} />
@@ -375,6 +389,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         {shoppingCartElem}
         {contactsElem}
         {finalConfirmationElem}
+        {admin}
       </div>
     );
   }

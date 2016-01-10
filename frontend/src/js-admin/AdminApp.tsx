@@ -13,7 +13,7 @@ import Production from './components/Production.tsx';
 
 import Router = require('./router.ts');
 
-ReactDOM.render(<h1>Nappikauppa 2 - admin</h1>, document.getElementsByTagName('header')[0]);
+ReactDOM.render(<div><h1>Nappikauppa 2 - admin</h1><a href=''>Admin-etusivulle</a> - <a href='../'>Lippukauppaan</a></div>, document.getElementsByTagName('header')[0]);
 
 Router.on('route:default', function(url) {
   ReactDOM.render(<Home action={url} />, document.getElementsByTagName('main')[0]);
