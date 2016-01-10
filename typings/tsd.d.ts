@@ -29,3 +29,4 @@
 /// <reference path="atob/atob.d.ts" />
 /// <reference path="moment/moment.d.ts" />
 /// <reference path="moment-timezone/moment-timezone.d.ts"/>
+/// <reference path="marked/marked.d.ts" />
