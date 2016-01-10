@@ -7,6 +7,7 @@ import Bootstrap = require('react-bootstrap');
 
 import editable = require('./editables.tsx');
 import {IOrder} from '../../../../backend/src/order';
+import {ITicket} from '../../../../backend/src/ticket';
 
 export interface IOrderProps {
   order_id: number;
@@ -57,6 +58,19 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
     });
   }
 
+  removeTicket(ticket: ITicket) {
+    $.ajax({
+      url: 'admin-api/orders/' + this.state.order.order_id + '/tickets/' + ticket.ticket_id,
+      method: 'DELETE',
+      success: (response: IOrder) => {
+        this.reset(response);
+      },
+      error: (response) => {
+        console.log('removing ticket failed', ticket); // TODO
+      }
+    });
+  }
+
   render() {
     if (!this.state.order) {
       return (<div></div>);
@@ -83,15 +97,18 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
             <th>Rivi</th>
             <th>Paikka</th>
             <th>Hinta</th>
+            <th>Poista</th>
           </tr></thead>
           <tbody>
           {this.state.order.tickets.map((ticket) => {
+            var remove = ticket.ticket_price === 0 ? <Bootstrap.Button onClick={this.removeTicket.bind(this, ticket)}>X</Bootstrap.Button> : null;
             return (<tr key={ticket.ticket_id}>
               <td>{ticket.show_title}</td>
               <td>{ticket.section_title}</td>
               <td>{ticket.row_name} {ticket.row}</td>
               <td>Paikka {ticket.seat_number}</td>
               <td>{ticket.ticket_price}</td>
+              <td>{remove}</td>
             </tr>);
           })}
         </tbody></Bootstrap.Table>

@@ -54,6 +54,11 @@ router.get('/orders/:orderid/tickets', function(req: Request, res: Response) {
   });
 });
 
+router.delete('/orders/:orderid/tickets/:ticketid', function(req: Request, res: Response) {
+  order.removeTicket(parseInt(req.params.orderid), parseInt(req.params.ticketid)).then(ok(res), err(res));
+});
+
+
 router.get('/venues', function(req: Request, res: Response) {
   venue.getAll().then(ok(res), err(res));
 });
@@ -85,5 +90,6 @@ router.post('/productions', jsonParser, function(req: Request, res: Response) {
 router.post('/productions/:productionid', jsonParser, function(req: Request, res: Response) {
   production.update(parseInt(req.params.productionid), req.body).then(ok(res), err(res));
 });
+
 
 export = router;
