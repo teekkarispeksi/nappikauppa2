@@ -7,7 +7,8 @@ drop table if exists
   nk2_prices,
   nk2_discount_codes,
   nk2_discount_groups,
-  nk2_shows;
+  nk2_shows,
+  nk2_productions;
 
 drop table if exists
   nk2_seats,
@@ -63,15 +64,29 @@ create table nk2_discount_codes (
 
 -- --------------------------------------------------------
 
+create table nk2_productions (
+  `id` int(10) unsigned not null auto_increment,
+  `title` varchar(255) not null,
+  `performer` varchar(255) not null,
+  `opens` datetime not null,
+  `active` boolean not null default '1',
+  `description` mediumtext not null,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
 create table nk2_shows (
   `id` int(10) unsigned not null auto_increment,
   `title` varchar(255) not null,
+  `production_id` int(10) unsigned not null,
   `venue_id` smallint(6),
   `time` datetime not null,
   `active` boolean not null default '1',
   `inactivate_time` datetime not null,
   `description` mediumtext not null,
   PRIMARY KEY  (`id`),
+  foreign key (production_id) references nk2_productions (id),
   foreign key (venue_id) references nk2_venues (id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 

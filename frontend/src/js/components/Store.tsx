@@ -6,6 +6,8 @@ import Backbone = require('backbone');
 Backbone.emulateHTTP = true; // PATCH's don't work with our mod_rewrites
 import $ = require('jquery');
 import _ = require('underscore');
+import Marked = require('marked');
+import Moment = require('moment-timezone');
 
 import ShowSelector from './ShowSelector.tsx';
 import SeatSelector from './SeatSelector.tsx'; // for numbered seats
@@ -14,6 +16,7 @@ import ShoppingCart from './ShoppingCart.tsx';
 import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
 
+import {IProduction} from '../../../../backend/src/production';
 import {IShow, IReservedSeats, IDiscountGroup} from '../../../../backend/src/show';
 import {IVenue, ISection, ISeat} from '../../../../backend/src/venue';
 
@@ -55,6 +58,7 @@ export interface IStoreState {
 }
 
 export default class Store extends React.Component<IStoreProps, IStoreState> {
+  production: IProduction;
   shows: IShow[];
   tickets: ITicket[];
   order: IOrder;
@@ -66,6 +70,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
     this.shows = [];
     this.tickets = [];
+    this.production = null;
 
     this.state = this._getInitialState(props);
   }
@@ -87,12 +92,15 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       // clean the ok/fail hash in the url
       window.history.pushState('', '', window.location.pathname);
     }
+    $.getJSON('api/productions/latest', (resp: IProduction) => {
+      this.production = resp;
+      this.forceUpdate();
+    });
     $.getJSON('api/shows', (resp: IShow[]) => {
       this.shows = resp;
       if (this.props.showid) {
         this.onShowSelect(this.props.showid);
       }
-
       this.forceUpdate();
     });
 
@@ -306,19 +314,24 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     } else if (this.props.action === 'fail') {
       result = (<div className='alert alert-warning'>Keskeytit tilauksesi ja varaamasi paikat on vapautettu myyntiin.</div>);
     }
-
-    return (<div className='shopping-stage help-text'>
-      {result}
-      <h2>Tervetuloa katsomaan NääsPeksin Helsingin-näytöstä!</h2>
-      <p>Näytös järjestetään Aleksanterin teatterissa, Albertinkatu 32. Teatteri perii eteispalvelumaksun.</p>
-      <p>Lipunmyynti sulkeutuu 23.11. klo 04:00. Mikäli lippuja on tällöin vielä jäljellä, niitä saa ostaa teatterin
-        ovelta tuntia ennen näytöstä, niin kauan kuin niitä on jäljellä.</p>
-      <p>Mikäli koet ongelmia lippukaupan toiminnassa, voit ottaa yhteyttä lipunmyyntivastaavaan osoitteessa liput@teekkarispeksi.fi.</p>
-    </div>);
+    var rawProductionDescriptionMarkup = Marked(this.production.description, {sanitize: true}); // should be safe to inject
+    return (
+      <div className='shopping-stage help-text'>
+        {result}
+        <span dangerouslySetInnerHTML={{__html: rawProductionDescriptionMarkup}} />
+      </div>
+    );
   }
 
   render() {
     var seatSelectorElem, shoppingCartElem, contactsElem, finalConfirmationElem;
+    if (!this.production) {
+      return <div></div>;
+    }
+    var opens = Moment(this.production.opens);
+    if (opens > Moment()) {
+      return <div className='shopping-stage'>Lippukauppa aukeaa {opens.format('DD.MM. [klo] H:mm')}.</div>;
+    }
     /* tslint:disable:no-switch-case-fall-through switch-default */
     switch (this.state.page) {
       case 'home':
