@@ -75,7 +75,7 @@ gulp.task('css:admin', function() {
       .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
-gulp.task('css:min', function() {
+gulp.task('css:store:min', function() {
   return gulp.src(['./frontend/src/css/*.less', '!./frontend/src/css/admin*.less'])
       .pipe(less())
       .pipe(concat('style.css'))
@@ -83,7 +83,17 @@ gulp.task('css:min', function() {
       .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
+gulp.task('css:admin:min', function() {
+  return gulp.src('./frontend/src/css/admin*.less')
+      .pipe(less())
+      .pipe(concat('admin.css'))
+      .pipe(cssmin())
+      .pipe(gulp.dest('./frontend/build/public/css/'));
+});
+
 gulp.task('css', ['css:store', 'css:admin']);
+
+gulp.task('css:min', ['css:store:min', 'css:admin:min']);
 
 gulp.task('lint', function() {
   return gulp.src(['app.ts', 'frontend/src/**/*.{ts,tsx}', 'backend/src/**/*.{ts,tsx}'])
