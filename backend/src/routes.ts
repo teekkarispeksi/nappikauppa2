@@ -51,6 +51,10 @@ var checkUserSilently: RequestHandler = (req: express.Request, res: express.Resp
   }
 };
 
+router.get('/auth', checkUserSilently, function(req: Request, res: Response) {
+  res.send(req.user);
+});
+
 router.post('/log', jsonParser, function(req: Request, res: Response) {
   if (req.body.meta) {
     log.log(req.body.level, 'FRONTEND: ' + req.body.msg, req.body.meta);
