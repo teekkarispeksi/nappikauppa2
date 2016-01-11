@@ -12,6 +12,8 @@ function _onChange(_this: any, obj: {}, field: string, event, type?: string) {
     obj[field] = event.target.checked ? 1 : 0;
   } else if (type === 'datetime') {
     obj[field] = event.target.value;
+  } else if (type === 'stringList') {
+    obj[field] = event.target.value.split('\n');
   } else {
     obj[field] = event.target.value;
   }
@@ -23,6 +25,13 @@ export function String(_this: any, obj: {}, field: string, onChange?: (_this: an
     onChange = _onChange;
   }
   return (<input type='text' value={obj[field]} onChange={(event) => onChange(_this, obj, field, event)}/>);
+}
+
+export function StringList(_this: any, obj: {}, field: string, onChange?: (_this: any, obj: {}, field: string, event, type?: string) => void) {
+  if (!onChange) {
+    onChange = _onChange;
+  }
+  return (<textarea value={obj[field] ? obj[field].join('\n') : ''} onChange={(event) => onChange(_this, obj, field, event, 'stringList')} rows={5} cols={40}/>);
 }
 
 export function Text(_this: any, obj: {}, field: string, onChange?: (_this: any, obj: {}, field: string, event, type?: string) => void) {
