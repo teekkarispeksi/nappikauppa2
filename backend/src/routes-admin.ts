@@ -32,26 +32,34 @@ var err = (res, errStatus = 500) => {
 
 router.get('/orders', function(req: Request, res: Response) {
   if (req.query.show_id) {
-    order.getAllForShow(req.query.show_id).then(ok(res), err(res));
+    order.getAllForShow(parseInt(req.query.show_id)).then(ok(res), err(res));
   } else {
     order.getAll().then(ok(res), err(res));
   }
 });
 
 router.get('/orders/:orderid', function(req: Request, res: Response) {
-  order.get(req.params.orderid).then(ok(res), err(res));
+  order.get(parseInt(req.params.orderid)).then(ok(res), err(res));
 });
 
 router.post('/orders/:orderid', jsonParser, function(req: Request, res: Response) {
-  order.updateNameOrEmail(req.params.orderid, req.body).then(ok(res), err(res));
+  order.update(parseInt(req.params.orderid), req.body).then(ok(res), err(res));
 });
 
 router.get('/orders/:orderid/tickets', function(req: Request, res: Response) {
-  order.get(req.params.orderid).then(function(order) {
+  order.get(parseInt(req.params.orderid)).then(function(order) {
     var pdf = ticket.generatePdf(order.tickets);
     res.type('application/pdf');
     pdf.pipe(res);
   });
+});
+
+router.get('/orders/:orderid/tickets/send', function(req: Request, res: Response) {
+  order.sendTickets(parseInt(req.params.orderid)).then(() => res.sendStatus(200));
+});
+
+router.delete('/orders/:orderid/tickets/:ticketid', function(req: Request, res: Response) {
+  order.removeTicket(parseInt(req.params.orderid), parseInt(req.params.ticketid)).then(ok(res), err(res));
 });
 
 router.get('/venues', function(req: Request, res: Response) {
@@ -85,5 +93,6 @@ router.post('/productions', jsonParser, function(req: Request, res: Response) {
 router.post('/productions/:productionid', jsonParser, function(req: Request, res: Response) {
   production.update(parseInt(req.params.productionid), req.body).then(ok(res), err(res));
 });
+
 
 export = router;
