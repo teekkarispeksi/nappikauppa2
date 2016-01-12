@@ -192,6 +192,10 @@ export function get(order_id: number): Promise<IOrder> {
       date_format(shows.time, "%e.%c.%Y") show_date,  \
       time_format(shows.time, "%k:%i") show_time, \
       \
+      productions.ticket_image_src ticket_image_src, \
+      productions.performer production_performer, \
+      productions.title production_title, \
+      \
       seats.row row, \
       seats.number seat_number, \
       \
@@ -205,6 +209,7 @@ export function get(order_id: number): Promise<IOrder> {
     from nk2_orders orders \
     join nk2_tickets tickets on orders.id = tickets.order_id \
     join nk2_shows shows on tickets.show_id = shows.id \
+    join nk2_productions productions on shows.production_id = productions.id \
     join nk2_seats seats on tickets.seat_id = seats.id \
     join nk2_sections sections on seats.section_id = sections.id \
     join nk2_venues venues on sections.venue_id = venues.id \
@@ -219,7 +224,8 @@ export function get(order_id: number): Promise<IOrder> {
       res.tickets = _.map(rows, function(row) {
         return _.pick(row,
           ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id',
-            'discount_group_title', 'ticket_hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_title', 'row_name']);
+            'discount_group_title', 'ticket_hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_title', 'row_name',
+            'production_performer', 'production_title', 'ticket_image_src']);
       });
 
       res.tickets_total_price = _.reduce(res.tickets, (r, ticket: any) => r + parseFloat(ticket.ticket_price), 0);
@@ -266,7 +272,7 @@ export function preparePayment(order_id: number): Promise<any> {
 
       var ticket_rows = _.map(order.tickets, (ticket: ticket.ITicket) => {
         return {
-          'title': 'Pääsylippu: ' + config.title + ' / ' + ticket.show_title,
+          'title': 'Pääsylippu: ' + ticket.production_performer + ' / ' + ticket.production_title + ' / ' + ticket.show_title,
           'code': ticket.ticket_id,
           'amount': '1.00',
           'price': ticket.ticket_price,
@@ -413,18 +419,20 @@ export function sendTickets(order_id: number): Promise<any> {
     // If we ever allow to have tickets for more than one show in an order, this will be wrong.
     var order_datetime = order.tickets[0].show_date + ' klo ' + order.tickets[0].show_time;
     var order_showtitle = order.tickets[0].show_title;
-
+    var order_production_title = order.tickets[0].production_title;
+    var order_production_performer = order.tickets[0].production_performer;
+    var filename = 'lippu_' + order_production_performer.toLowerCase().replace(/[\W]+/g, '') + '.pdf';
     mail.sendMail({
       from: config.email.from,
       to: order.email,
-      subject: 'Kiitos tilauksestasi - ' + config.title + ' / ' + order_showtitle,
+      subject: 'Kiitos tilauksestasi - ' + order_production_performer + ' / ' + order_production_title + ' / ' + order_showtitle,
       text: 'Kiitos tilauksestasi!\n\n' +
         'Tilaamasi liput ovat tämän viestin liitteenä pdf-muodossa. Esitäthän teatterilla liput joko tulostettuna tai mobiililaitteestasi. Voit kysyä lisätietoja vastaamalla tähän viestiin.\n\n' +
         'Esitys alkaa ' + order_datetime + '. Saavuthan paikalle ajoissa ruuhkien välttämiseksi. Nähdään näytöksessä!\n\n' +
         'Ystävällisin terveisin,\nTeekkarispeksi\n',
       attachments: [
         {
-          filename: config.ticket_filename,
+          filename: filename,
           content: ticket.generatePdf(order.tickets)
         }
       ]

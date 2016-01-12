@@ -6,6 +6,9 @@ import qr = require('qr-image');
 
 export interface ITicket {
   discount_group_title: string;
+  production_performer: string;
+  production_title: string;
+  ticket_image_src: string;
   row: string;
   row_name: string;
   seat_number: string;
@@ -20,13 +23,17 @@ export interface ITicket {
 }
 
 export function generatePdf(tickets: ITicket[]) {
-
-  var doc = new PDFDocument();
+  var margin = 50;
+  var options = {size: 'A4', margins: {left: margin, right: margin, top: 72, bottom: 0}}; // A4: [595.28, 841.89]
+  var width = 595.28;
+  var height = 841.89;
+  var doc = new PDFDocument(options);
   doc.registerFont('mp-bold', 'assets/fonts/MYRIADPRO-BOLD.ttf');
   doc.registerFont('mp', 'assets/fonts/MYRIADPRO-REGULAR.ttf');
 
   for (var i = 0; i < tickets.length; ++i) {
     var ticket = tickets[i];
+    var title = ticket.production_performer + ' - ' + ticket.production_title;
     var discount = ticket.discount_group_title;
     var showDate = ticket.show_date + ' klo ' + ticket.show_time; // '20.4.2015 klo 19:00';
     var show = ticket.show_title; // 'Helsinki VI';
@@ -44,14 +51,14 @@ export function generatePdf(tickets: ITicket[]) {
 
         .font('mp-bold')
         .fill('#000000')
-        .fontSize(21)
-        .text(config.title.toUpperCase(), 60, 30)
+        .fontSize(19)
+        .text(title.toUpperCase(), 60, 30)
 
         .font('mp')
         .text(discount, 60, 30, {align: 'right'})
 
-        .moveUp(0.2)
         .font('mp-bold')
+        .fontSize(21)
         .text(show)
 
         .moveUp(0.2)
@@ -69,11 +76,11 @@ export function generatePdf(tickets: ITicket[]) {
         .moveUp(0.2)
         .fontSize(9)
         .text(address)
-        .image(qr.imageSync(hash, {type: 'png', margin: 0, size: 3}), 600 - 30 - (39 * 3), 75, {})
-        // QR code right align: page is 600 wide, margin is 30, qr code has 39 blocks of width 3
+        .image(qr.imageSync(hash, {type: 'png', margin: 0, size: 3}), width - margin - (29 * 3), 77, {})
+        // QR code has 29 blocks of width 3
         // bottom align: trial-and-error
 
-        .image('assets/images/' + config.ticket_image, 100, 210, {width: 400});
+        .image('assets/images/' + ticket.ticket_image_src, 0, height / 4, {width: width});
   }
   doc.end();
   return doc;

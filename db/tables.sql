@@ -71,6 +71,7 @@ create table nk2_productions (
   `opens` datetime not null,
   `active` boolean not null default '1',
   `description` mediumtext not null,
+  `ticket_image_src` varchar(50) not null,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 

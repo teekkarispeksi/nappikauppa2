@@ -14,11 +14,12 @@ export interface IProduction {
   opens: string;
   active: boolean;
   description: string;
+  ticket_image_src: string;
 }
 
 export function getLatestActive(): Promise<IProduction> {
   return db.query('SELECT \
-      id, title, performer, opens, active, description \
+      id, title, performer, opens, active, description, ticket_image_src \
     FROM nk2_productions \
     WHERE active = TRUE \
     ORDER BY opens DESC \
@@ -37,7 +38,7 @@ export function getLatestActive(): Promise<IProduction> {
 
 export function getAll(production_id?: number): Promise<IProduction[]> {
   return db.query('SELECT \
-      id, title, performer, opens, active, description \
+      id, title, performer, opens, active, description, ticket_image_src \
     FROM nk2_productions ' +
     (production_id ? 'WHERE id = :id' : ''), {id: production_id})
   .then((rows) => {
@@ -65,7 +66,8 @@ export function get(production_id): Promise<IProduction> {
 
 export function create(production: IProduction): Promise<IProduction> {
   log.info('ADMIN: Beginning production creation', production);
-  return db.query('insert into nk2_productions (title, performer, opens, active, description) values (:title, :performer, :opens, :active, :description)', production)
+  return db.query('insert into nk2_productions (title, performer, opens, active, description, ticket_image_src) \
+    values (:title, :performer, :opens, :active, :description, :ticket_image_src)', production)
   .then((res) => {
     var production_id = parseInt(res.insertId);
     log.info('ADMIN: Production created, returning production', {production_id: production_id});
@@ -80,7 +82,8 @@ export function create(production: IProduction): Promise<IProduction> {
 
 export function update(production_id: number, production: IProduction): Promise<IProduction> {
   log.info('ADMIN: Beginning production update', production);
-  return db.query('update nk2_productions set title = :title, performer = :performer, opens = :opens, active = :active, description = :description where id = :id', production)
+  return db.query('update nk2_productions set title = :title, performer = :performer, opens = :opens, active = :active, \
+    description = :description, ticket_image_src = :ticket_image_src where id = :id', production)
   .then((res) => {
     log.info('ADMIN: Production updated', {production_id: production_id});
     return get(production_id);
