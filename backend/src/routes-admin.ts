@@ -1,5 +1,6 @@
 'use strict';
 
+import util = require('util');
 import express = require('express');
 import bodyParser = require('body-parser');
 var router = express.Router();
@@ -25,9 +26,8 @@ var ok = (res) => {
 
 var err = (res, errStatus = 500) => {
   return (data) => {
-    log.error('Caught error', {data});
-    res.status(errStatus);
-    res.json(data); // TODO don't expose these to end-users
+    log.error('Caught error', util.inspect(data, {showHidden: true, depth: null}));
+    res.sendStatus(errStatus);
   };
 };
 
