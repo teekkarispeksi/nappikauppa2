@@ -27,7 +27,9 @@ export interface IDiscountCodeState {
 export default class DiscountCode extends React.Component<IDiscountCodeProps, IDiscountCodeState> {
   constructor() {
     super();
-    this.state = {discountCodes: null, newDiscountCodes: [], new_email_subject: 'Alennuskoodisi', new_email_text: '$CODE$'};
+    var defaultEmailSubject = 'Alennuskoodisi Teekkarispeksin näytökseen';
+    var defaultEmailText = 'Hei,\n\ntällä koodilla saat $EUR$ eur alennusta ostaessasi lipun osoitteessa $URL$:\n\n$CODE$\n\nTervetuloa katsomaan esityksiämme!';
+    this.state = {discountCodes: null, newDiscountCodes: [], new_email_subject: defaultEmailSubject, new_email_text: defaultEmailText};
   }
 
   reset(discountCodes?: IDiscountCode[]) {
@@ -134,7 +136,8 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
         <Bootstrap.Table bordered>
           <tbody>
             <tr><td>Viestin otsikko</td><td>{editable.String(this, this.state, 'new_email_subject')}</td></tr>
-            <tr><td>Viestin teksti<br/>$CODE$ korvataan alennuskoodilla.</td><td>{editable.Text(this, this.state, 'new_email_text')}</td></tr>
+            <tr><td>Viestin teksti<br/><br/>$CODE$ korvataan alennuskoodilla,<br/>$EUR$ koodin arvolla ja<br/>$URL$ lippukaupan osoitteella.</td>
+              <td>{editable.Text(this, this.state, 'new_email_text')}</td></tr>
           </tbody>
         </Bootstrap.Table>
         <Bootstrap.Button onClick={this.createCodes.bind(this, false)} disabled={this.state.newDiscountCodes.length === 0}>Tallenna koodit</Bootstrap.Button>

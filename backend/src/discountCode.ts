@@ -51,7 +51,7 @@ export function create(codes: IDiscountCode[], send: boolean): Promise<IDiscount
           from: config.email.from,
           to: code.email,
           subject: code.email_subject,
-          text: code.email_text.replace('$CODE$', code.code)
+          text: code.email_text.replace('$CODE$', code.code).replace('$EUR$', code.eur.toString()).replace('$URL$', config.public_url)
         }, (error, info) => {
           if (error) {
             log.error('ADMIN: Sending code failed', {error: error, code: code});
