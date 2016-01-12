@@ -15,6 +15,7 @@ export interface IContactsState {
   name?: string;
   email?: string;
   discount_code?: string;
+  wants_email?: boolean;
   errors?: string[];
 }
 
@@ -27,6 +28,7 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
       name: '',
       email: '',
       discount_code: '',
+      wants_email: false,
       errors: []
     };
   }
@@ -38,9 +40,13 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
     // So at least for now, kepe these in this state and save them to the Order in
     // onSave().
     // This also allows validation here.
-    var stateUpdate: IContactsState = {};
-    stateUpdate[field] = event.target.value;
-    this.setState(stateUpdate);
+    if (field === 'wants_email') {
+      this.setState({wants_email: event.target.checked});
+    } else {
+      var stateUpdate: IContactsState = {};
+      stateUpdate[field] = event.target.value;
+      this.setState(stateUpdate);
+    }
   }
 
   onSave() {
@@ -108,7 +114,14 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
             onChange={this.onValueChange.bind(this, 'discount_code')}
             value={this.state.discount_code} />
         </div>
-
+        <div style={{maxWidth: '200px'}}>
+          <Bootstrap.Input
+            label='Haluan tiedon ensi vuoden lipunmyynnin alkamisesta'
+            type='checkbox'
+            readOnly={!active}
+            onChange={this.onValueChange.bind(this, 'wants_email')}
+            value={this.state.wants_email} />
+        </div>
         <div>
           <Bootstrap.Button id='saveOrderInfo' disabled={!active} onClick={active ? this.onSave.bind(this) : null}>Tallenna</Bootstrap.Button>
         </div>
