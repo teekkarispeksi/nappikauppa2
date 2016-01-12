@@ -6,6 +6,8 @@ import order = require('./order');
 import _ = require('underscore');
 import moment = require('moment-timezone');
 
+import {IDiscountGroup} from './discountGroup';
+
 export interface IShow {
   active: boolean;
   description: string;
@@ -24,14 +26,6 @@ export interface IShowSection {
   section_id: number;
   price: number;
   active: boolean;
-}
-
-export interface IDiscountGroup {
-  id: number;
-  discount: number;
-  title: string;
-  admin: boolean;
-  show_id: number;
 }
 
 export interface IReservedSeats {

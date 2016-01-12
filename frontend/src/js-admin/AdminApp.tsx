@@ -11,6 +11,7 @@ import Show from './components/Show.tsx';
 import Venue from './components/Venue.tsx';
 import Production from './components/Production.tsx';
 import DiscountCodes from './components/DiscountCodes.tsx';
+import DiscountGroups from './components/DiscountGroups.tsx';
 
 import Router = require('./router.ts');
 
@@ -42,6 +43,10 @@ Router.on('route:productions', function(production_id) {
 
 Router.on('route:discountCodes', function() {
   ReactDOM.render(<DiscountCodes />, document.getElementsByTagName('main')[0]);
-})
+});
+
+Router.on('route:discountGroups', function() {
+  ReactDOM.render(<DiscountGroups />, document.getElementsByTagName('main')[0]);
+});
 
 Backbone.history.start();

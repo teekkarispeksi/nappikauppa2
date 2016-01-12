@@ -12,6 +12,7 @@ import ticket = require('./ticket');
 import log = require('./log');
 import production = require('./production');
 import discountCode = require('./discountCode');
+import discountGroup = require('./discountGroup');
 
 var jsonParser = bodyParser.json();
 
@@ -107,5 +108,12 @@ router.post('/discountCodes/send', jsonParser, function(req: Request, res: Respo
   discountCode.create(req.body, true).then(ok(res), err(res));
 });
 
+router.get('/discountGroups', function(req: Request, res: Response) {
+  discountGroup.getAll().then(ok(res), err(res));
+});
+
+router.post('/discountGroups', jsonParser, function(req: Request, res: Response) {
+  discountGroup.update(req.body).then(ok(res), err(res));
+});
 
 export = router;

@@ -5,7 +5,7 @@ import Backbone = require('backbone');
 import $ = require('jquery');
 import _ = require('underscore');
 
-import {IShow, IReservedSeats, IDiscountGroup} from '../../../../backend/src/show';
+import {IShow, IReservedSeats} from '../../../../backend/src/show';
 import {IVenue, ISection, ISeat} from '../../../../backend/src/venue';
 import {IProduction} from '../../../../backend/src/production';
 
@@ -37,6 +37,7 @@ export default class Home extends React.Component<any, IHomeState> {
     return (
       <div>
         <a href={'#discountCodes/'}><h2>Alennuskoodit</h2></a>
+        <a href={'#discountGroups/'}><h2>Alennusryhmät</h2></a>
         <h2>Näytökset</h2>
         <p><a href={'#shows/'}>Luo uusi näytös</a></p>
         <ul>
