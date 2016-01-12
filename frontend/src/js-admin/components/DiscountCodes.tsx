@@ -28,7 +28,7 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
   constructor() {
     super();
     var defaultEmailSubject = 'Alennuskoodisi Teekkarispeksin näytökseen';
-    var defaultEmailText = 'Hei,\n\ntällä koodilla saat $EUR$ eur alennusta ostaessasi lipun osoitteessa $URL$:\n\n$CODE$\n\nTervetuloa katsomaan esityksiämme!';
+    var defaultEmailText = 'Hei,\n\ntällä koodilla saat $EUR$ eur alennusta ostaessasi lipun osoitteessa $URL$\n\n$CODE$\n\nTervetuloa katsomaan esityksiämme!';
     this.state = {discountCodes: null, newDiscountCodes: [], new_email_subject: defaultEmailSubject, new_email_text: defaultEmailText};
   }
 
