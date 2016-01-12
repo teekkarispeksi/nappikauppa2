@@ -36,6 +36,7 @@ export default class Home extends React.Component<any, IHomeState> {
   render() {
     return (
       <div>
+        <a href={'#discountCodes/'}><h2>Alennuskoodit</h2></a>
         <h2>Näytökset</h2>
         <p><a href={'#shows/'}>Luo uusi näytös</a></p>
         <ul>
