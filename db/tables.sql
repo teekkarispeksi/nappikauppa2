@@ -103,6 +103,11 @@ create table nk2_discount_groups (
   foreign key (show_id) references nk2_shows(id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+insert into nk2_discount_groups (show_id, title, eur, admin_only, active) values
+    (null, 'Normaalilippu', 0, false, true),
+    (null, 'Opiskelija', 0, false, true),
+    (null, 'Ilmaislippu', 999, true, true);
+-- our code expects that these exists
 -- --------------------------------------------------------
 
 create table nk2_orders (
