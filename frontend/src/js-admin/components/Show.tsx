@@ -7,7 +7,8 @@ import Bootstrap = require('react-bootstrap');
 
 import editable = require('./editables.tsx');
 
-import {IShow, IShowSection, IDiscountGroup} from '../../../../backend/src/show';
+import {IShow, IShowSection} from '../../../../backend/src/show';
+import {IDiscountGroup} from '../../../../backend/src/discountGroup';
 import {IVenue, ISection} from '../../../../backend/src/venue';
 import {IProduction} from '../../../../backend/src/production';
 
