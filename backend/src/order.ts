@@ -13,6 +13,7 @@ import auth = require('./confluenceAuth');
 
 // Paytrail wants to charge something, so they don't support minimal payments
 const PAYTRAIL_MIN_PAYMENT = 0.65;
+const PAYTRAIL_PREFIX = 'LIPPUKAUPPA';
 
 export interface IReservedSeat {
   seat_id: number;
@@ -262,7 +263,7 @@ export function preparePayment(order_id: number): Promise<any> {
           {amount: order.order_price, minimum_amount: PAYTRAIL_MIN_PAYMENT, order_id: order_id});
 
         var params = {PAID: 'free', TIMESTAMP: '',  METHOD: '', RETURN_AUTHCODE: null};
-        var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
+        var verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
         params.RETURN_AUTHCODE = md5(verification).toUpperCase();
 
         return paymentDone(order_id, params).then((res) => { return {url: '#ok/' + order.order_id + '/' + order.order_hash}; });
@@ -296,7 +297,7 @@ export function preparePayment(order_id: number): Promise<any> {
       }
 
       var payment = {
-        'orderNumber': order_id,
+        'orderNumber': PAYTRAIL_PREFIX + order_id,
         'currency': 'EUR',
         'locale': 'fi_FI',
         'urlSet': {
@@ -359,7 +360,7 @@ export function preparePayment(order_id: number): Promise<any> {
 export function paymentCancelled(order_id: number, params): Promise<any> {
   log.info('Payment was cancelled', {order_id: order_id});
 
-  var verification = [order_id, params.TIMESTAMP, config.paytrail.password].join('|');
+  var verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, config.paytrail.password].join('|');
   var verification_hash = md5(verification).toUpperCase();
 
   if (verification_hash === params.RETURN_AUTHCODE) {
@@ -376,7 +377,7 @@ export function paymentCancelled(order_id: number, params): Promise<any> {
 export function paymentDone(order_id: number, params): Promise<any> {
   log.info('Payment done - verifying', {order_id: order_id});
 
-  var verification = [order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
+  var verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
   var verification_hash = md5(verification).toUpperCase();
 
   if (verification_hash === params.RETURN_AUTHCODE) {
