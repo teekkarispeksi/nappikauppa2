@@ -2,9 +2,6 @@ module.exports = {
     port: 3000,
     public_url: 'http://127.0.0.1:3000/',
     expire_minutes: 15,
-    ticket_filename: 'lippu_teekkarispeksi_20xx.pdf',
-    ticket_image: 'invalid.png',
-    title: 'Teekkarispeksi 20xx',
     db: {
         host: "localhost",
         user: "root",
