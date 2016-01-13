@@ -1,11 +1,11 @@
 insert into nk2_venues (id, title, ticket_type, description, layout_src) values
   (1, 'Ulkopuolinen lipunmyynti',        'generic-tickets', '', null),
-  (2, 'Aleksanterin teatteri',           'numbered-seats',  'Aleksanterin teatteri, Helsinki\nBulevardi 23-27 / Albertinkatu 32', 'aleksanteri.png'),
-  (3, 'Gloria',                          'generic-tickets', 'Gloria Kulttuuriareena, Helsinki, Pieni Roobertinkatu 12 \nKulkuyhteydet: raitiovaunu 6, bussit 14 ja 20', null),
+  (2, 'Aleksanterin teatteri',           'numbered-seats',  'Aleksanterin teatteri\nBulevardi 23-27 / Albertinkatu 32, Helsinki', 'aleksanteri.png'),
+  (3, 'Gloria',                          'generic-tickets', 'Gloria Kulttuuriareena\nPieni Roobertinkatu 12, Helsinki', null),
   (4, 'Vaasan kaupunginteatteri',        'numbered-seats',  'Vaasan kaupunginteatteri\nPitkäkatu 53, Vaasa', 'vaasa-kaupunginteatteri.png'),
-  (5, 'Lappeenrannan kaupunginteatteri', 'generic-tickets', 'Lappeenrannan kaupunginteatteri\nValtakatu 56', null),
+  (5, 'Lappeenrannan kaupunginteatteri', 'generic-tickets', 'Lappeenrannan kaupunginteatteri\nValtakatu 56, Lappenranta', null),
   (6, 'Louhisali, Espoo',                'numbered-seats',  'Louhisali, Espoon kulttuurikeskus\nKulttuuriaukio 2, Espoo', 'louhisali.png'),
-  (7, 'Sigyn-sali',                      'generic-tickets', 'Sigyn-sali\nLinnankatu 60', null),
+  (7, 'Sigyn-sali',                      'generic-tickets', 'Sigyn-sali, Turun konservatorio\nLinnankatu 60, Turku', null),
   (8, 'Kuopion kaupunginteatteri',       'numbered-seats',  'Kuopion kaupunginteatteri\nNiiralankatu 2, Kuopio', 'kuopio-kaupunginteatteri.png');
 
 insert into nk2_sections (id, venue_id, title, row_name) values
