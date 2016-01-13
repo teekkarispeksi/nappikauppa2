@@ -115,6 +115,7 @@ create table nk2_orders (
   `name` varchar(255) default null,
   `email` varchar(255) default null,
   `discount_code` varchar(32) default null,
+  `wants_email` boolean default null,
   `time` datetime default null,
   `price` decimal(10,2) default null,
   `payment_url` varchar(200) default null,

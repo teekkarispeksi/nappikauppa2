@@ -270,6 +270,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     this.order.name = info.name;
     this.order.email = info.email;
     this.order.discount_code = info.discount_code;
+    this.order.wants_email = info.wants_email;
 
     $.ajax({
       url: 'api/orders/' + this.order.order_id,

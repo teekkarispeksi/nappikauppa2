@@ -23,6 +23,7 @@ export interface IContact {
   discount_code?: string;
   name: string;
   email: string;
+  wants_email: boolean;
   is_admin?: boolean;
 }
 
@@ -30,6 +31,7 @@ export interface IOrder {
   discount_code: string;
   email: string;
   name: string;
+  wants_email: boolean;
   order_hash: string;
   order_id: number;
   order_price: number;
@@ -146,6 +148,7 @@ export function updateContact(order_id: number, data: IContact, user): Promise<a
         name = :name, \
         email = :email, \
         discount_code = :discount_code, \
+        wants_email = :wants_email, \
         price = (select if(sum(price) - ifnull(d.eur,0) >= 0, sum(price)-ifnull(d.eur,0), 0) \
           from nk2_tickets t \
           left join nk2_discount_codes d on d.code = :discount_code \
@@ -180,6 +183,7 @@ export function get(order_id: number): Promise<IOrder> {
       orders.name,\
       orders.email,\
       orders.discount_code,\
+      orders.wants_email, \
       orders.time,\
       orders.price order_price,\
       orders.payment_url, \
@@ -213,7 +217,7 @@ export function get(order_id: number): Promise<IOrder> {
     {id: order_id})
   .then(function(rows) {
       var first = rows[0];
-      var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'time', 'order_price', 'payment_url', 'payment_id',
+      var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'wants_email', 'time', 'order_price', 'payment_url', 'payment_id',
         'reserved_until', 'reserved_session_id', 'status']);
 
       res.tickets = _.map(rows, function(row) {
