@@ -47,19 +47,20 @@ export function generatePdf(tickets: ITicket[]) {
       doc.addPage();
     }
     doc.rect(30, 30, 15, 135)
-        .fill('rgb(254, 240, 53)') // yellow
+        .fill('#FEF035') // yellow
 
         .font('mp-bold')
         .fill('#000000')
-        .fontSize(19)
-        .text(title.toUpperCase(), 60, 30)
+        .fontSize(21)
+        .text(ticket.production_performer.toUpperCase(), 60, 30)
 
         .font('mp')
         .text(discount, 60, 30, {align: 'right'})
 
+        .moveUp(0.2)
         .font('mp-bold')
         .fontSize(21)
-        .text(show)
+        .text(ticket.production_title.toUpperCase())
 
         .moveUp(0.2)
         .font('mp')
@@ -74,7 +75,7 @@ export function generatePdf(tickets: ITicket[]) {
         .font('mp')
         .text(venue)
         .moveUp(0.2)
-        .fontSize(9)
+        .fontSize(12)
         .text(address)
         .image(qr.imageSync(hash, {type: 'png', margin: 0, size: 3}), width - margin - (29 * 3), 77, {})
         // QR code has 29 blocks of width 3
