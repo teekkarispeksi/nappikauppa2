@@ -5,7 +5,7 @@ import Props = __React.Props;
 import Bootstrap = require('react-bootstrap');
 import _ = require('underscore');
 
-import {IDiscountGroup} from '../../../../backend/src/show';
+import {IDiscountGroup} from '../../../../backend/src/discountGroup';
 import {ITicket} from './Store';
 
 export interface ITicketProps extends Props<any> {

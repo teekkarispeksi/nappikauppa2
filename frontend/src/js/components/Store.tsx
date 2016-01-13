@@ -18,7 +18,8 @@ import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
 
 import {IProduction} from '../../../../backend/src/production';
-import {IShow, IReservedSeats, IDiscountGroup} from '../../../../backend/src/show';
+import {IShow, IReservedSeats} from '../../../../backend/src/show';
+import {IDiscountGroup} from '../../../../backend/src/discountGroup';
 import {IVenue, ISection, ISeat} from '../../../../backend/src/venue';
 
 import Router = require('../router');
