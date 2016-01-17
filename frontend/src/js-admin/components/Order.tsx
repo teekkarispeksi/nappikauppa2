@@ -60,8 +60,8 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
 
   removeTicket(ticket: ITicket) {
     $.ajax({
-      url: 'admin-api/orders/' + this.state.order.order_id + '/tickets/' + ticket.ticket_id,
-      method: 'DELETE',
+      url: 'admin-api/orders/' + this.state.order.order_id + '/tickets/' + ticket.ticket_id + '/delete',
+      method: 'GET', // DELETE doesn't work with our mod_rewrites, and X-HTTP-Method-Override didn't seem to work either
       success: (response: IOrder) => {
         this.reset(response);
       },
