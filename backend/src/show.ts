@@ -141,8 +141,11 @@ export function update(show_id: number, show: IShow): Promise<IShow> {
   return db.query('update nk2_shows set title = :title, production_id = :production_id, venue_id = :venue_id, \
     time = :time, active = :active, inactivate_time = :inactivate_time, description = :description where id = :id', show)
   .then((res) => {
-    log.info('ADMIN: Show updated, updating prices');
-    if (_.values(show.sections).length <= 0) {
+    log.info('ADMIN: Show updated, removing previous sections');
+    return db.query('delete from nk2_prices where show_id = :show_id', {show_id: show_id});
+  })
+  .then((res) => {
+    log.info('ADMIN: Sections removed, creating new prices');
       log.info('ADMIN: No prices, returning show');
       return get(show_id, 'backend');
     }
