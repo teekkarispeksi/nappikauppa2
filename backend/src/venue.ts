@@ -76,6 +76,9 @@ export function getAll(venue_id?: number): Promise<IVenue[]> {
         });
         return section;
       });
+      if ('null' in res.sections) {
+        delete res.sections['null']; // left join produces nulls when there are no sections
+      }
       return res;
     });
     return venues;

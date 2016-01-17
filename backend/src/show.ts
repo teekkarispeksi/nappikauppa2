@@ -121,8 +121,13 @@ export function create(show: IShow): Promise<IShow> {
     .then((res) => {
       var show_id = parseInt(res.insertId);
       log.info('ADMIN: Show created, creating prices', {show_id: show_id});
+      var sections = _.values(show.sections);
+      if (sections.length === 0) {
+        log.info('ADMIN: No prices to create, returning show');
+        return get(show_id, 'backend');
+      }
       var query_start = 'insert into nk2_prices (show_id, section_id, price, active) values ';
-      var insert_values = _.values(show.sections).map((section: IShowSection) => db.format('(:show_id, :section_id, :price, :active)', _.extend({show_id: show_id}, section)));
+      var insert_values = sections.map((section: IShowSection) => db.format('(:show_id, :section_id, :price, :active)', _.extend({show_id: show_id}, section)));
       return db.query(query_start + insert_values.join(','))
       .then(() => {
         log.info('ADMIN: Prices created, returning show');
@@ -146,11 +151,13 @@ export function update(show_id: number, show: IShow): Promise<IShow> {
   })
   .then((res) => {
     log.info('ADMIN: Sections removed, creating new prices');
+    var sections = _.values(show.sections);
+    if (sections.length === 0) {
       log.info('ADMIN: No prices, returning show');
       return get(show_id, 'backend');
     }
     var query_start = 'insert into nk2_prices (show_id, section_id, price, active) values ';
-    var insert_values = _.values(show.sections).map((section: IShowSection) => db.format('(:show_id, :section_id, :price, :active)', _.extend({show_id: show_id}, section)));
+    var insert_values = sections.map((section: IShowSection) => db.format('(:show_id, :section_id, :price, :active)', _.extend({show_id: show_id}, section)));
     var query_end = ' on duplicate key update price = values(price), active = values(active)';
 
     return db.query(query_start + insert_values.join(',') + query_end).then(() => {
