@@ -15,7 +15,11 @@ import DiscountGroups from './components/DiscountGroups.tsx';
 
 import Router = require('./router.ts');
 
-ReactDOM.render(<div><h1>Nappikauppa 2 - admin</h1><a href=''>Admin-etusivulle</a> - <a href='../'>Lippukauppaan</a></div>, document.getElementsByTagName('header')[0]);
+var currentUrl = window.location.href;
+var storeUrl = currentUrl.substring(0, currentUrl.indexOf('admin') - 1);
+var adminUrl = storeUrl + '/admin';
+
+ReactDOM.render(<div><h1>Nappikauppa 2 - admin</h1><a href={adminUrl}>Admin-etusivulle</a> - <a href={storeUrl}>Lippukauppaan</a></div>, document.getElementsByTagName('header')[0]);
 
 Router.on('route:default', function(url) {
   ReactDOM.render(<Home action={url} />, document.getElementsByTagName('main')[0]);
