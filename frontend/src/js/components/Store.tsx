@@ -317,7 +317,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         <div className='alert alert-success'><p>Tilaus onnistui!</p>
           <p>Lähetimme liput sähköpostitse. Mikäli lippuja ei näy, tarkistathan roskapostikansiosi.
           Ongelmatapauksissa auttaa <a className='alert-link' href='mailto:liput@teekkarispeksi.fi'>liput@teekkarispeksi.fi</a>.
-          Voit myös <a className='alert-link' href={'api/orders/' + order_id + '/' + order_hash + '/tickets'}>ladata liput tästä.</a></p>
+          Voit myös <a className='alert-link' href={'api/orders/' + order_id + '/' + order_hash + '/tickets.pdf'}>ladata liput tästä.</a></p>
         </div>
       );
     } else if (this.props.action === 'fail') {
