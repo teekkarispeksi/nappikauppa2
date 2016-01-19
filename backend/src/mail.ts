@@ -1,8 +1,13 @@
 'use strict';
 
-import nodemailer = require('nodemailer');
 var config = require('../config/config.js');
+var mailgun = require('mailgun-js');
 
-// TODO: for now gmail, because it's easiest to test with. Something real soon.
-var transporter = nodemailer.createTransport(config.email);
-export = transporter;
+export var mailer = mailgun({
+  apiKey: config.email.mailgun.api_key,
+  domain: config.email.mailgun.domain
+});
+
+export function sendMail(data, cb) {
+  mailer.messages().send(data, cb);
+}
