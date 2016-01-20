@@ -2,6 +2,7 @@ import {Response} from 'express';
 import {Request} from 'express';
 'use strict';
 
+import util = require('util');
 var express = require('express');
 var path = require('path');
 var morgan = require('morgan');
@@ -57,22 +58,15 @@ app.get('/admin/', function(req, res: Response) {
 app.use('/api', api);
 app.use('/admin-api', adminApi);
 
-// catch 404 and forward to error handler
 app.use(function(req: Request, res, next) {
-  var err = new Error('Not Found: ' + req.url);
-  // err.status = 404; TODO
-  next(err);
+  res.sendStatus(404);
 });
 
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err: any, req: any, res: any, next) {
-  log.error('Unhandled error:', err);
-  res.status(err.status || 500);
-  res.send({
-    message: err.message,
-    error: {}
-  });
+  log.error('Unhandled error:',  util.inspect(err, {showHidden: true, depth: null}));
+  res.sendStatus(err.status || 500);
 });
 
 export = app;
