@@ -48,7 +48,7 @@ router.post('/orders/:orderid', jsonParser, function(req: Request, res: Response
   order.update(parseInt(req.params.orderid), req.body).then(ok(res), err(res));
 });
 
-router.get('/orders/:orderid/tickets', function(req: Request, res: Response) {
+router.get('/orders/:orderid/tickets(.pdf)?', function(req: Request, res: Response) {
   order.get(parseInt(req.params.orderid)).then(function(order) {
     var pdf = ticket.generatePdf(order.tickets);
     res.type('application/pdf');
