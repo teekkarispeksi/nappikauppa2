@@ -57,6 +57,7 @@ export interface IAdminOrderListItem {
   reserved_session_id: string;
   reserved_until: Date;
   status: string;
+  tickets_count: number;
   time: Date;
 }
 
@@ -248,10 +249,11 @@ export function getAll(): Promise<IAdminOrderListItem> {
 }
 
 export function getAllForShow(show_id: number): Promise<IAdminOrderListItem> {
-  return db.query('select distinct orders.* \
+  return db.query('select orders.*, count(*) as tickets_count \
     from nk2_orders orders \
       join nk2_tickets tickets on tickets.order_id = orders.id \
-    where tickets.show_id = :show_id',
+    where tickets.show_id = :show_id \
+    group by orders.id',
     {show_id: show_id});
 }
 
