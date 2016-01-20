@@ -38,13 +38,14 @@ export function getAll(): Promise<IDiscountCode[]> {
     group by code');
 }
 
-export function create(codes: IDiscountCode[], send: boolean): Promise<IDiscountCode[]> {
-  log.info('ADMIN: creating ' + codes.length + ' discount codes');
+export function createOrUpdate(codes: IDiscountCode[], send: boolean): Promise<IDiscountCode[]> {
+  log.info('ADMIN: creating or updating ' + codes.length + ' discount codes');
   var query_start = 'insert into nk2_discount_codes (code, eur, use_max, email, code_group) values ';
   var insert_values = codes.map((code) => db.format('(:code, :eur, :use_max, :email, :code_group)', code));
-  return db.query(query_start + insert_values)
+  var query_end = ' on duplicate key update eur = values(eur), use_max = values(use_max), email = values(email), code_group = values(code_group)';
+  return db.query(query_start + insert_values.join(',') + query_end)
   .then((res) => {
-    log.info('ADMIN: discount codes created');
+    log.info('ADMIN: discount codes created or updated');
     if (send) {
       codes.forEach((code) => {
         mail.sendMail({

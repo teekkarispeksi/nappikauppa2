@@ -101,11 +101,11 @@ router.get('/discountCodes', function(req: Request, res: Response) {
 });
 
 router.post('/discountCodes', jsonParser, function(req: Request, res: Response) {
-  discountCode.create(req.body, false).then(ok(res), err(res));
+  discountCode.createOrUpdate(req.body, false).then(ok(res), err(res));
 });
 
 router.post('/discountCodes/send', jsonParser, function(req: Request, res: Response) {
-  discountCode.create(req.body, true).then(ok(res), err(res));
+  discountCode.createOrUpdate(req.body, true).then(ok(res), err(res));
 });
 
 router.get('/discountGroups', function(req: Request, res: Response) {
