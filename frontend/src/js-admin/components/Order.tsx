@@ -107,7 +107,7 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
           </tr></thead>
           <tbody>
           {this.state.order.tickets.map((ticket) => {
-            var remove = ticket.ticket_price === 0 ? <Bootstrap.Button onClick={this.removeTicket.bind(this, ticket)}>X</Bootstrap.Button> : null;
+            var remove = (ticket.ticket_price === 0 || this.state.order.order_price === 0) ? <Bootstrap.Button onClick={this.removeTicket.bind(this, ticket)}>X</Bootstrap.Button> : null;
             return (<tr key={ticket.ticket_id}>
               <td>{ticket.show_title}</td>
               <td>{ticket.section_title}</td>
