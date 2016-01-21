@@ -108,7 +108,7 @@ router.get('/orders/:orderid/failure', function(req: Request, res: Response) {
   order.paymentCancelled(parseInt(req.params.orderid), req.query).then(function() { res.redirect(config.public_url + '#fail'); });
 });
 
-router.get('/orders/:orderid/:orderhash/tickets', function(req: Request, res: Response) {
+router.get('/orders/:orderid/:orderhash/tickets(.pdf)?', function(req: Request, res: Response) {
   order.get(parseInt(req.params.orderid)).then(function(order: order.IOrder) {
     if (order.order_hash === req.params.orderhash) {
       var pdf = ticket.generatePdf(order.tickets);
