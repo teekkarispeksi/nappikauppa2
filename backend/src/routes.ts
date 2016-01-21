@@ -104,6 +104,12 @@ router.get('/orders/:orderid/success', function(req: Request, res: Response) {
   });
 });
 
+router.get('/orders/:orderid/notification', function(req: Request, res: Response) {
+  order.paymentDone(parseInt(req.params.orderid), req.query).then(function(order) {
+    res.sendStatus(200);
+  });
+});
+
 router.get('/orders/:orderid/failure', function(req: Request, res: Response) {
   order.paymentCancelled(parseInt(req.params.orderid), req.query).then(function() { res.redirect(config.public_url + '#fail'); });
 });
