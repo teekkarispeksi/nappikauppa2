@@ -388,35 +388,36 @@ export function paymentDone(order_id: number, params): Promise<any> {
   var verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
   var verification_hash = md5(verification).toUpperCase();
 
-  if (verification_hash === params.RETURN_AUTHCODE) {
-    log.info('Verification ok', {order_id: order_id});
+  if (verification_hash !== params.RETURN_AUTHCODE) {
+    log.error('Hash verification failed!',
+      {order_id: order_id, verification_hash: verification_hash, return_authcode: params.RETURN_AUTHCODE});
+    throw 'Hash verification failed!';
+  }
 
+  log.info('Verification ok', {order_id: order_id});
+
+  return db.query('select status from nk2_orders where id = :order_id', {order_id: order_id})
+  .then((rows) => {
+    if (rows[0].status === 'paid') {
+      log.info('Order was already paid', {order_id: order_id});
+      return null;
+    }
     return db.beginTransaction()
-    .then(function() {
-      return db.query('update nk2_orders set \
-        status = "paid", \
-        payment_id = :payment_id \
-      where id = :order_id',
-        {
-          order_id: order_id,
-          payment_id: params.PAID
-        });
-    })
+    .then(() => db.query('update nk2_orders set status = "paid", payment_id = :payment_id where id = :order_id', { order_id: order_id, payment_id: params.PAID}))
     .then(() => {
       db.commit();
       sendTickets(order_id);
-      return get(order_id);
     })
     .catch((err) => {
       log.error('Updating payment status failed - rolling back', {error: err, order_id: order_id});
       db.rollback();
       throw 'Updating payment status failed - rolling back';
     });
-  } else {
-    log.error('Hash verification failed!',
-      {order_id: order_id, verification_hash: verification_hash, return_authcode: params.RETURN_AUTHCODE});
-    throw 'Hash verification failed!';
-  }
+  })
+  .then(() => {
+    return get(order_id);
+  });
+
 }
 
 export function sendTickets(order_id: number): Promise<any> {
