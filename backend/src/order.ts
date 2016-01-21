@@ -440,7 +440,7 @@ export function sendTickets(order_id: number): Promise<any> {
         'Ystävällisin terveisin,\nTeekkarispeksi\n',
       attachments: [
         {
-          filename: config.ticket_filename,
+          filename: filename,
           content: ticket.generatePdf(order.tickets)
         }
       ]
