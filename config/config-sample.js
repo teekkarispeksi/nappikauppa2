@@ -9,9 +9,14 @@ module.exports = {
         database: "nappikauppa2"
     },
     email: {
-        mailgun: {
-          api_key: '',
-          domain: ''
+        // these are passed straight to nodemailer
+        // https://github.com/andris9/nodemailer-smtp-transport#usage
+        // for dev/test check service: 'gmail'
+        host: '',
+        secure: true,
+        auth: {
+            user: '',
+            pass: ''
         },
         from: ''
     },
