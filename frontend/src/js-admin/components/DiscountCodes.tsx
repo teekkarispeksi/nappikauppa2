@@ -13,6 +13,7 @@ export interface IDiscountCodeProps {
 }
 
 export interface IDiscountCodeState {
+  originalDiscountCodes?: IDiscountCode[];
   discountCodes?: IDiscountCode[];
   newDiscountCodes?: IDiscountCode[];
   new_code_base?: string;
@@ -24,26 +25,35 @@ export interface IDiscountCodeState {
   new_email_text?: string;
 }
 
+// this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers
+function almostDeepClone<T extends {}>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 export default class DiscountCode extends React.Component<IDiscountCodeProps, IDiscountCodeState> {
   constructor() {
     super();
     var defaultEmailSubject = 'Alennuskoodisi Teekkarispeksin näytökseen';
     var defaultEmailText = 'Hei,\n\ntällä koodilla saat $EUR$ eur alennusta ostaessasi lipun osoitteessa $URL$\n\n$CODE$\n\nTervetuloa katsomaan esityksiämme!';
-    this.state = {discountCodes: null, newDiscountCodes: [], new_email_subject: defaultEmailSubject, new_email_text: defaultEmailText};
+    this.state = {originalDiscountCodes: [], discountCodes: null, newDiscountCodes: [], new_email_subject: defaultEmailSubject, new_email_text: defaultEmailText};
   }
 
   reset(discountCodes?: IDiscountCode[]) {
-    if (discountCodes) {
-      this.setState({discountCodes: discountCodes});
-    }
-    this.setState({
+    var newState: IDiscountCodeState = {
       newDiscountCodes: [],
       new_code_base: null,
       new_code_eur: null,
       new_code_group: null,
       new_code_emails: [],
       new_code_use_max: 1
-    });
+    };
+    if (discountCodes) {
+      newState.originalDiscountCodes = discountCodes;
+      newState.discountCodes = almostDeepClone(discountCodes);
+    } else {
+      newState.discountCodes = almostDeepClone(this.state.originalDiscountCodes);
+    }
+    this.setState(newState);
   }
 
   componentWillMount() {
@@ -52,11 +62,11 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
     });
   }
 
-  createCodes(send: boolean) {
+  saveChanges(newCodes = false, send = false) {
     $.ajax({
-      url: 'admin-api/discountCodes' + (send ? '/send' : ''),
+      url: 'admin-api/discountCodes' + ((newCodes && send) ? '/send' : ''),
       method: 'POST',
-      data: JSON.stringify(this.state.newDiscountCodes),
+      data: JSON.stringify(newCodes ? this.state.newDiscountCodes : this.state.discountCodes),
       contentType: 'application/json',
       success: (response: IDiscountCode[]) => {
         this.reset(response);
@@ -68,11 +78,8 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
   }
 
   generateNewCodes() {
-    var randoms = [''];
-    if (this.state.new_code_emails.length > 1) {
-      var s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      randoms = this.state.new_code_emails.map(() => '_' + Array(6).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join(''));
-    }
+    var s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var randoms = this.state.new_code_emails.map(() => '_' + Array(6).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join(''));
     var newCodes = this.state.new_code_emails.map((email, i): IDiscountCode => {
       return {
         code: this.state.new_code_base + randoms[i],
@@ -97,6 +104,8 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
       this.state.new_code_eur != null && this.state.new_code_group && this.state.new_code_group.length > 0 &&
       this.state.new_code_emails && this.state.new_code_emails.length > 0;
 
+    var hasChanges = !_.isEqual(this.state.discountCodes, this.state.originalDiscountCodes);
+
     return (
       <div>
         <h2>Luo alennuskoodeja</h2>
@@ -105,7 +114,7 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
             <tr><td>Koodi</td><td>{editable.String(this, this.state, 'new_code_base')}</td></tr>
             <tr><td>Arvo (eur)</td><td>{editable.Number(this, this.state, 'new_code_eur')}</td></tr>
             <tr><td>Ryhmä</td><td>{editable.String(this, this.state, 'new_code_group')}</td></tr>
-            <tr><td>Sähköpostit <br/>(jos osoitteita on enemmän kuin yksi,<br/> jokaiselle luodaan oma koodi muotoa <br/>{this.state.new_code_base}_XXXXXX)</td>
+            <tr><td>Sähköpostit <br/><br/>(jokaiselle luodaan oma koodi muotoa <br/>{this.state.new_code_base}_XXXXXX)</td>
               <td>{editable.StringList(this, this.state, 'new_code_emails')}</td>
             </tr>
             <tr><td>Käyttökertoja</td><td>{editable.Number(this, this.state, 'new_code_use_max')}</td></tr>
@@ -140,9 +149,9 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
               <td>{editable.Text(this, this.state, 'new_email_text')}</td></tr>
           </tbody>
         </Bootstrap.Table>
-        <Bootstrap.Button onClick={this.createCodes.bind(this, false)} disabled={this.state.newDiscountCodes.length === 0}>Tallenna koodit</Bootstrap.Button>
+        <Bootstrap.Button onClick={() => this.saveChanges(true, false)} disabled={this.state.newDiscountCodes.length === 0}>Tallenna koodit</Bootstrap.Button>
         <span style={{marginLeft: '5px', marginRight: '5px'}}>tai</span>
-        <Bootstrap.Button onClick={this.createCodes.bind(this, true)} disabled={this.state.newDiscountCodes.length === 0}>Tallenna ja lähetä koodit</Bootstrap.Button>
+        <Bootstrap.Button onClick={() => this.saveChanges(true, true)} disabled={this.state.newDiscountCodes.length === 0}>Tallenna ja lähetä koodit</Bootstrap.Button>
         <h2>Alennuskoodit</h2>
         <Bootstrap.Table bordered>
           <thead><tr>
@@ -155,17 +164,19 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
           </tr></thead>
           <tbody>
           {this.state.discountCodes.map((code) => {
-            return (<tr key={code.code}>
+            return (<tr key={code.code} className={code.used === code.use_max ? 'success' : ''}>
                 <td>{code.code}</td>
-                <td>{code.eur}</td>
-                <td>{code.code_group}</td>
-                <td>{code.email}</td>
-                <td>{code.use_max}</td>
+                <td>{editable.Number(this, code, 'eur')}</td>
+                <td>{editable.String(this, code, 'code_group')}</td>
+                <td>{editable.String(this, code, 'email')}</td>
+                <td>{editable.Number(this, code, 'use_max')}</td>
                 <td>{code.used}</td>
               </tr>
             );
           })}
         </tbody></Bootstrap.Table>
+        <Bootstrap.Button onClick={() => this.saveChanges()} disabled={!hasChanges}>Tallenna muutokset</Bootstrap.Button>
+        <Bootstrap.Button onClick={() => this.reset()} disabled={!hasChanges}>Peru</Bootstrap.Button>
       </div>
     );
   }
