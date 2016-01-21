@@ -474,7 +474,7 @@ export function update(order_id: number, order: IOrder): Promise<IOrder> {
 
 export function removeTicket(order_id: number, ticket_id: number): Promise<IOrder> {
   log.info('ADMIN: removing ticket ', {ticket_id: ticket_id, order_id: order_id});
-  return db.query('delete from nk2_tickets where id = :ticket_id and order_id = :order_id', {ticket_id: ticket_id, order_id: order_id}) // only remove free tickets
+  return db.query('delete from nk2_tickets where id = :ticket_id and order_id = :order_id', {ticket_id: ticket_id, order_id: order_id})
   .then((rows) => {
     log.info('ADMIN: ticket removed');
     return get(order_id);
