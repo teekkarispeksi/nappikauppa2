@@ -3,6 +3,7 @@
 var config = require('../config/config.js');
 import PDFDocument = require('pdfkit');
 import qr = require('qr-image');
+var toArray = require('stream-to-array');
 
 export interface ITicket {
   discount_group_title: string;
@@ -85,4 +86,16 @@ export function generatePdf(tickets: ITicket[]) {
   }
   doc.end();
   return doc;
+}
+
+export function generatePdfBuffer(tickets: ITicket[]): Promise<Buffer> {
+  return toArray(generatePdf(tickets))
+    .then(function (parts) {
+      var buffers = [];
+      for (var i = 0, l = parts.length; i < l ; ++i) {
+        var part = parts[i];
+        buffers.push((part instanceof Buffer) ? part : new Buffer(part));
+      }
+      return Buffer.concat(buffers);
+    });
 }
