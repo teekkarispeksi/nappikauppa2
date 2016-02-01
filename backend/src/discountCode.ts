@@ -25,10 +25,7 @@ export function check(code: string, user: string): Promise<any> {
   .then((rows) => {
     var ok = (rows[0].valid) === 1;
     log.info('Pre-order validation, discount code "' + code + '" is ' + (ok ? 'valid' : 'invalid') + ' for user ' + user);
-    if (!ok) {
-      throw 'Discount code validation failed';
-    }
-    return {ok: true};
+    return {ok: ok};
   });
 }
 
