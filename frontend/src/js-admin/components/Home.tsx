@@ -58,7 +58,7 @@ export default class Home extends React.Component<any, IHomeState> {
 
 }
 
-function ISOToDate(dateString) {
+export function ISOToDate(dateString) {
   var dateObj = new Date(dateString);
   return dateObj.getDate()+"."+dateObj.getMonth();
 }

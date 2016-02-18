@@ -37,16 +37,11 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
   }
 
   render() {
-    var showName = "";
-    var showTime = "";
-    if(this.state.show){
-      showName = this.state.show.title;
-      var timeObj = new Date(this.state.show.time);
-      showTime = timeObj.getDate()+"."+timeObj.getMonth();
-    }
     return (
       <div>
-        <h2>Tilaukset - {showTime} {showName}</h2>
+        <h2>
+          {this.state.show ? "Tilaukset - "+require('./Home.tsx').ISOToDate(this.state.show.time)+" "+this.state.show.title : ""}
+        </h2>
         <Bootstrap.Table bordered striped condensed><tbody>
         <tr>
           <th>Nimi</th>
