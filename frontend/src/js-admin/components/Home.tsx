@@ -41,7 +41,7 @@ export default class Home extends React.Component<any, IHomeState> {
         <h2>Näytökset</h2>
         <p><a href={'#shows/'}>Luo uusi näytös</a></p>
         <ul>
-          {this.state.shows.map((show) => <li key={show.id}><a href={'#shows/' + show.id}>{this.ISOToDate(show.time)} {show.title}</a> - <a href={'#shows/' + show.id + '/orders'}>Tilaukset</a></li>)}
+          {this.state.shows.map((show) => <li key={show.id}><a href={'#shows/' + show.id}>{ISOToDate(show.time)} {show.title}</a> - <a href={'#shows/' + show.id + '/orders'}>Tilaukset</a></li>)}
         </ul>
         <h2>Teatterit</h2>
         <ul>
@@ -56,9 +56,9 @@ export default class Home extends React.Component<any, IHomeState> {
     );
   }
 
-  ISOToDate(dateString) {
-    var dateObj = new Date(dateString);
-    return dateObj.getDate()+"."+dateObj.getMonth();
-  }
+}
 
+function ISOToDate(dateString) {
+  var dateObj = new Date(dateString);
+  return dateObj.getDate()+"."+dateObj.getMonth();
 }
