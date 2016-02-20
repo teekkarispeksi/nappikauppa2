@@ -6,6 +6,8 @@ import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
 import {IAdminOrderListItem} from '../../../../backend/src/order';
+import {IShow} from '../../../../backend/src/show';
+import {ISOToDateString} from '../utils';
 
 export interface IOrderListProps {
   show_id?: number;
@@ -13,12 +15,16 @@ export interface IOrderListProps {
 
 export interface IOrderListState {
   orders?: IAdminOrderListItem[];
+  show?: IShow;
 }
 
 export default class OrderList extends React.Component<IOrderListProps, IOrderListState> {
   constructor() {
     super();
-    this.state = {orders: []};
+    this.state = {
+      orders: [],
+      show: null
+    };
   }
 
   componentWillMount() {
@@ -26,11 +32,17 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
     $.getJSON('admin-api/orders/', data, (resp: IAdminOrderListItem[]) => {
       this.setState({orders: resp});
     });
+    $.getJSON('api/shows/' + this.props.show_id, (resp: IShow) => {
+      this.setState({show: resp});
+    });
   }
 
   render() {
     return (
       <div>
+        <h2>
+          {this.state.show ? 'Tilaukset - ' + ISOToDateString(this.state.show.time) + ' ' + this.state.show.title : ''}
+        </h2>
         <Bootstrap.Table bordered striped condensed><tbody>
         <tr>
           <th>Nimi</th>

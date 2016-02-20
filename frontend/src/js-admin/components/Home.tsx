@@ -8,6 +8,7 @@ import _ = require('underscore');
 import {IShow, IReservedSeats} from '../../../../backend/src/show';
 import {IVenue, ISection, ISeat} from '../../../../backend/src/venue';
 import {IProduction} from '../../../../backend/src/production';
+import {ISOToDateString} from '../utils';
 
 export interface IHomeState {
   shows?: IShow[];
@@ -41,7 +42,7 @@ export default class Home extends React.Component<any, IHomeState> {
         <h2>Näytökset</h2>
         <p><a href={'#shows/'}>Luo uusi näytös</a></p>
         <ul>
-          {this.state.shows.map((show) => <li key={show.id}><a href={'#shows/' + show.id}>{show.title}</a> - <a href={'#shows/' + show.id + '/orders'}>Tilaukset</a></li>)}
+          {this.state.shows.map((show) => <li key={show.id}><a href={'#shows/' + show.id}>{ISOToDateString(show.time)} {show.title}</a> - <a href={'#shows/' + show.id + '/orders'}>Tilaukset</a></li>)}
         </ul>
         <h2>Teatterit</h2>
         <ul>
