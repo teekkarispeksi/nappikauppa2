@@ -39,14 +39,14 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
   }
 
   componentWillMount() {
-    $.getJSON('api/venues/' + this.props.venue_id, (resp: IVenue) => {
+    $.getJSON('/api/venues/' + this.props.venue_id, (resp: IVenue) => {
       this.reset(resp);
     });
   }
 
   saveChanges() {
     $.ajax({
-      url: 'admin-api/venues/' + this.state.venue.id,
+      url: '/admin-api/venues/' + this.state.venue.id,
       method: 'POST',
       data: JSON.stringify(this.state.venue),
       contentType: 'application/json',

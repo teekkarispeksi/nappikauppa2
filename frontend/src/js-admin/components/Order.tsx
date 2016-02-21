@@ -38,14 +38,14 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
   }
 
   componentWillMount() {
-    $.getJSON('admin-api/orders/' + this.props.order_id, (resp: IOrder) => {
+    $.getJSON('/admin-api/orders/' + this.props.order_id, (resp: IOrder) => {
       this.reset(resp);
     });
   }
 
   saveChanges() {
     $.ajax({
-      url: 'admin-api/orders/' + this.state.order.order_id,
+      url: '/admin-api/orders/' + this.state.order.order_id,
       method: 'POST',
       data: JSON.stringify(this.state.order),
       contentType: 'application/json',
@@ -75,7 +75,7 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
 
   removeTicketUnsafe(ticket: ITicket) {
     $.ajax({
-      url: 'admin-api/orders/' + this.state.order.order_id + '/tickets/' + ticket.ticket_id + '/' + ticket.ticket_hash + '/delete',
+      url: '/admin-api/orders/' + this.state.order.order_id + '/tickets/' + ticket.ticket_id + '/' + ticket.ticket_hash + '/delete',
       method: 'GET', // DELETE doesn't work with our mod_rewrites, and X-HTTP-Method-Override didn't seem to work either
       success: (response: IOrder) => {
         this.reset(response);
@@ -87,7 +87,7 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
   }
 
   sendTickets() {
-    $.get('admin-api/orders/' + this.state.order.order_id + '/tickets/send');
+    $.get('/admin-api/orders/' + this.state.order.order_id + '/tickets/send');
   }
 
   render() {

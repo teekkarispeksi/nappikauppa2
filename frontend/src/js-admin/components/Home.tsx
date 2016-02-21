@@ -23,13 +23,13 @@ export default class Home extends React.Component<any, IHomeState> {
   }
 
   componentWillMount() {
-    $.getJSON('api/shows', (resp: IShow[]) => {
+    $.getJSON('/api/shows', (resp: IShow[]) => {
       this.setState({shows: resp});
     });
-    $.getJSON('admin-api/venues', (resp: IVenue[]) => {
+    $.getJSON('/admin-api/venues', (resp: IVenue[]) => {
       this.setState({venues: resp});
     });
-    $.getJSON('admin-api/productions', (resp: IProduction[]) => {
+    $.getJSON('/admin-api/productions', (resp: IProduction[]) => {
       this.setState({productions: resp});
     });
   }

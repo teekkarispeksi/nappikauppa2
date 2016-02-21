@@ -29,18 +29,18 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
 
   componentWillMount() {
     var data = this.props.show_id ? {show_id: this.props.show_id} : null;
-    $.getJSON('admin-api/orders/', data, (resp: IAdminOrderListItem[]) => {
+    $.getJSON('/admin-api/orders/', data, (resp: IAdminOrderListItem[]) => {
       this.setState({orders: resp});
     });
-    $.getJSON('api/shows/' + this.props.show_id, (resp: IShow) => {
+    $.getJSON('/api/shows/' + this.props.show_id, (resp: IShow) => {
       this.setState({show: resp});
     });
   }
 
   checkStatus(order: IAdminOrderListItem) {
-    $.getJSON('admin-api/orders/' + order.id + '/checkAndUpdateStatus', (resp) => {
+    $.getJSON('/admin-api/orders/' + order.id + '/checkAndUpdateStatus', (resp) => {
       window.alert('Tilauksen tila: ' + resp.status);
-      $.getJSON('admin-api/orders/', this.props.show_id ? {show_id: this.props.show_id} : null, (resp2: IAdminOrderListItem[]) => {
+      $.getJSON('/admin-api/orders/', this.props.show_id ? {show_id: this.props.show_id} : null, (resp2: IAdminOrderListItem[]) => {
         this.setState({orders: resp2});
       });
     });
@@ -65,7 +65,7 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
         </tr>
           {this.state.orders.map((order) => {
             var editLink = <a href={'#orders/' + order.id}>Edit</a> ;
-            var ticketLink = order.status === 'paid' ? <a href={'admin-api/orders/' + order.id + '/tickets.pdf'}>Liput</a> : null;
+            var ticketLink = order.status === 'paid' ? <a href={'/admin-api/orders/' + order.id + '/tickets.pdf'}>Liput</a> : null;
             var paymentLink = order.status === 'payment-pending' ? <a href={order.payment_url}>Maksulinkki</a> : null;
             var checkStatus = order.status === 'payment-pending' ? <Bootstrap.Button onClick={this.checkStatus.bind(this, order)}>Tarkista</Bootstrap.Button> : null;
             return (<tr key={order.id} className={order.status === 'paid' ? 'success' : ''}>

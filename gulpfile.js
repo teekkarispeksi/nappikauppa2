@@ -177,7 +177,7 @@ gulp.task('index', function() {
 
 gulp.task('admin', function() {
   return gulp.src('./frontend/src/admin.html')
-      .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: './frontend/build/'}), {addRootSlash: false}))
+      .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: './frontend/build/'})))
       .pipe(gulp.dest('./frontend/build/'));
 });
 

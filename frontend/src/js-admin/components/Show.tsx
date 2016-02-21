@@ -57,13 +57,13 @@ export default class Show extends React.Component<IShowProps, IShowState> {
   }
 
   componentWillMount() {
-    $.getJSON('api/shows/', (resp: IShow[]) => {
+    $.getJSON('/api/shows/', (resp: IShow[]) => {
       this.reset(resp);
     });
-    $.getJSON('admin-api/venues', (resp: IVenue[]) => {
+    $.getJSON('/admin-api/venues', (resp: IVenue[]) => {
       this.setState({venues: resp});
     });
-    $.getJSON('admin-api/productions', (resp: IProduction[]) => {
+    $.getJSON('/admin-api/productions', (resp: IProduction[]) => {
       this.setState({productions: resp});
     });
   }
@@ -86,7 +86,7 @@ export default class Show extends React.Component<IShowProps, IShowState> {
       this.state.shows.push(this.state.show);
     }
     $.ajax({
-      url: 'admin-api/shows/' + (this.state.show.id ? this.state.show.id : ''),
+      url: '/admin-api/shows/' + (this.state.show.id ? this.state.show.id : ''),
       method: 'POST',
       data: JSON.stringify(this.state.show),
       contentType: 'application/json',

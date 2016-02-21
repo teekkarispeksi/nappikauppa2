@@ -57,14 +57,14 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
   }
 
   componentWillMount() {
-    $.getJSON('admin-api/discountCodes', (resp: IDiscountCode[]) => {
+    $.getJSON('/admin-api/discountCodes', (resp: IDiscountCode[]) => {
       this.reset(resp);
     });
   }
 
   saveChanges(newCodes = false, send = false) {
     $.ajax({
-      url: 'admin-api/discountCodes' + ((newCodes && send) ? '/send' : ''),
+      url: '/admin-api/discountCodes' + ((newCodes && send) ? '/send' : ''),
       method: 'POST',
       data: JSON.stringify(newCodes ? this.state.newDiscountCodes : this.state.discountCodes),
       contentType: 'application/json',
