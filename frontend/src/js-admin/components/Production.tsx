@@ -53,7 +53,7 @@ export default class Production extends React.Component<IProductionProps, IProdu
   }
 
   componentWillMount() {
-    $.getJSON('admin-api/productions/', (resp: IProduction[]) => {
+    $.getJSON('/admin-api/productions/', (resp: IProduction[]) => {
       this.reset(resp);
     });
   }
@@ -63,7 +63,7 @@ export default class Production extends React.Component<IProductionProps, IProdu
       this.state.productions.push(this.state.production);
     }
     $.ajax({
-      url: 'admin-api/productions/' + (this.state.production.id ? this.state.production.id : ''),
+      url: '/admin-api/productions/' + (this.state.production.id ? this.state.production.id : ''),
       method: 'POST',
       data: JSON.stringify(this.state.production),
       contentType: 'application/json',

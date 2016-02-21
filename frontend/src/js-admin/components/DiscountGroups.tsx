@@ -39,10 +39,10 @@ export default class DiscountGroup extends React.Component<IDiscountGroupProps, 
   }
 
   componentWillMount() {
-    $.getJSON('admin-api/discountGroups', (resp: IDiscountGroup[]) => {
+    $.getJSON('/admin-api/discountGroups', (resp: IDiscountGroup[]) => {
       this.reset(resp);
     });
-    $.getJSON('api/shows/', (resp: IShow[]) => {
+    $.getJSON('/api/shows/', (resp: IShow[]) => {
       this.setState({shows: resp});
     });
   }
@@ -57,7 +57,7 @@ export default class DiscountGroup extends React.Component<IDiscountGroupProps, 
       }
     });
     $.ajax({
-      url: 'admin-api/discountGroups',
+      url: '/admin-api/discountGroups',
       method: 'POST',
       data: JSON.stringify(this.state.discountGroups),
       contentType: 'application/json',
