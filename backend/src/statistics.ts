@@ -13,7 +13,7 @@ export function stats(): Promise<any> {
       stats.orders = res[0];
     });
   }).then(() => { // the upper is there just to convert the DATE to a STRING
-    return db.query('select upper(date(o.time)) as date, sum(t.price) as revenue from nk2_tickets t join nk2_orders o on t.order_id = o.id group by date(o.time)').then((res) => {
+    return db.query('select upper(date(o.time)) as date, sum(t.price) as revenue from nk2_tickets t join nk2_orders o on t.order_id = o.id group by upper(date(o.time))').then((res) => {
       stats.byDate = res;
     });
   }).then(() => {
