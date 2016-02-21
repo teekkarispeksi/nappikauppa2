@@ -146,7 +146,7 @@ export function checkAndUpdateStatus(order_id: number): Promise<any> {
       params.RETURN_AUTHCODE = md5(verification).toUpperCase();
       return paymentCancelled(order_id, params);
     } else if (status === 'paid') {
-      params = {PAID: 'free', TIMESTAMP: '',  METHOD: '', RETURN_AUTHCODE: null};
+      params = {PAID: 'checked', TIMESTAMP: '',  METHOD: '', RETURN_AUTHCODE: null};
       verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
       params.RETURN_AUTHCODE = md5(verification).toUpperCase();
       return paymentDone(order_id, params);
