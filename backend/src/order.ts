@@ -10,6 +10,8 @@ import _ = require('underscore');
 import ticket =  require('./ticket');
 import md5 = require('md5');
 import auth = require('./confluenceAuth');
+import jsdom = require('jsdom');
+import fs = require('fs');
 
 // Paytrail wants to charge something, so they don't support minimal payments
 const PAYTRAIL_MIN_PAYMENT = 0.65;
@@ -66,6 +68,90 @@ export function checkExpired(): Promise<any> {
     where status = "seats-reserved" \
       and timestampdiff(minute, time, now()) > :expire_minutes',
     {expire_minutes: config.expire_minutes});
+}
+
+export function checkPaytrailStatus(order_id: number): Promise<string> {
+  var verification = [config.paytrail.password, config.paytrail.user, PAYTRAIL_PREFIX + order_id].join('&');
+  var authcode = md5(verification).toUpperCase();
+
+  return new Promise((resolve, reject) => {
+    var jar = request.jar();
+    request.post({
+        url: 'https://payment.paytrail.com/check-payment',
+        form: {
+          MERCHANT_ID: config.paytrail.user,
+          ORDER_NUMBER: PAYTRAIL_PREFIX + order_id,
+          AUTHCODE: authcode,
+          VERSION: '2',
+          CULTURE: 'fi_FI'
+        },
+        followAllRedirects: true, // paytrail sadness
+        jar: jar
+      },
+      function(err, response: any, body: string) {
+        (err) ? reject(err) : resolve(body);
+      });
+  }).then((body: string) => {
+    return new Promise((resolve, reject) => {
+      jsdom.env({
+        html: body,
+        src: [fs.readFileSync('./node_modules/jquery/dist/jquery.js', 'utf-8')],
+        done: (err, window: any) => {
+          if (err) {
+            return reject(err);
+          }
+
+          var $ = window.$;
+          var rows = $('table tr');
+          if (rows.length !== 2) {
+            return reject('Row count doesnt match for order ' + order_id + ': got ' + rows.length + ' - expected only' +
+              ' headers ' + 'and one other');
+          }
+
+          var cells = $(rows[1]).find('td');
+          if (cells.length !== 4) {
+            return reject('Column count doesnt match for order ' + order_id + ': got ' + cells.length + ', expected ' +
+              'four');
+          }
+
+          var text = cells[3].innerHTML;
+          var possible_status = {
+            'Maksettu (Maksu vahvistettu)': 'paid',
+            'Maksettu (Suoritettu)': 'paid',
+            'Peruuntunut': 'cancelled',
+            'Peruuntunut (Ei maksettu)': 'cancelled',
+            'Odottaa maksua': 'pending-payment'
+          };
+
+          if (_.has(possible_status, text)) {
+            return resolve(possible_status[text]);
+          } else {
+            return reject('Unknown status for order ' + order_id + ': "' + text + '"');
+          }
+        }
+      });
+    });
+  });
+}
+
+export function checkAndUpdateStatus(order_id: number): Promise<any> {
+  var status;
+  return checkPaytrailStatus(order_id).then((_status: string) => {
+    status = _status;
+    log.info('ADMIN: checked order status from paytrail', {order_id: order_id, status: status});
+    var params, verification;
+    if (status === 'cancelled') {
+      params = {TIMESTAMP: '', RETURN_AUTHCODE: null};
+      verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, config.paytrail.password].join('|');
+      params.RETURN_AUTHCODE = md5(verification).toUpperCase();
+      return paymentCancelled(order_id, params);
+    } else if (status === 'paid') {
+      params = {PAID: 'checked', TIMESTAMP: '',  METHOD: '', RETURN_AUTHCODE: null};
+      verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
+      params.RETURN_AUTHCODE = md5(verification).toUpperCase();
+      return paymentDone(order_id, params);
+    }
+  }).then((res) => ({status: status}));
 }
 
 export function reserveSeats(show_id: number, seats: IReservedSeat[], user: string): Promise<any> {

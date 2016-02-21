@@ -21,7 +21,7 @@
       "commit": "5e960679e6f9ae6ce905b1db0ad36fc189cd2eca"
     },
     "jquery/jquery.d.ts": {
-      "commit": "1da639a106527e0c4010b354a1efe52a3059a291"
+      "commit": "f2f9723ad4bb8679717e247e710df3140f1f04ce"
     },
     "backbone/backbone-global.d.ts": {
       "commit": "5e960679e6f9ae6ce905b1db0ad36fc189cd2eca"
@@ -33,7 +33,7 @@
       "commit": "1da639a106527e0c4010b354a1efe52a3059a291"
     },
     "node/node.d.ts": {
-      "commit": "1da639a106527e0c4010b354a1efe52a3059a291"
+      "commit": "f2f9723ad4bb8679717e247e710df3140f1f04ce"
     },
     "nodemailer/nodemailer.d.ts": {
       "commit": "1da639a106527e0c4010b354a1efe52a3059a291"
@@ -85,6 +85,9 @@
     },
     "bluebird/bluebird.d.ts": {
       "commit": "1da639a106527e0c4010b354a1efe52a3059a291"
+    },
+    "jsdom/jsdom.d.ts": {
+      "commit": "f2f9723ad4bb8679717e247e710df3140f1f04ce"
     }
   }
 }
