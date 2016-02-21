@@ -59,8 +59,23 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
   }
 
   removeTicket(ticket: ITicket) {
+    if (ticket.ticket_price === 0 || this.state.order.order_price === 0) {
+      this.removeTicketUnsafe(ticket);
+    } else {
+      var confirmText = 'Haluatko varmasti poistaa lipun:\n\n'
+         + 'ID: ' + ticket.ticket_id
+         + '\nNäytös: ' + ticket.show_title + ' (' + ticket.show_date + ')'
+         + '\nHinta: ' + ticket.ticket_price
+         + '\nPaikka: ' + ticket.seat_number + ', ' + ticket.row_name + ': ' + ticket.row;
+      if (window.confirm(confirmText)) {
+        this.removeTicketUnsafe(ticket);
+      }
+    }
+  }
+
+  removeTicketUnsafe(ticket: ITicket) {
     $.ajax({
-      url: 'admin-api/orders/' + this.state.order.order_id + '/tickets/' + ticket.ticket_id + '/delete',
+      url: 'admin-api/orders/' + this.state.order.order_id + '/tickets/' + ticket.ticket_id + '/' + ticket.ticket_hash + '/delete',
       method: 'GET', // DELETE doesn't work with our mod_rewrites, and X-HTTP-Method-Override didn't seem to work either
       success: (response: IOrder) => {
         this.reset(response);
@@ -107,14 +122,13 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
           </tr></thead>
           <tbody>
           {this.state.order.tickets.map((ticket) => {
-            var remove = (ticket.ticket_price === 0 || this.state.order.order_price === 0) ? <Bootstrap.Button onClick={this.removeTicket.bind(this, ticket)}>X</Bootstrap.Button> : null;
             return (<tr key={ticket.ticket_id}>
               <td>{ticket.show_title}</td>
               <td>{ticket.section_title}</td>
               <td>{ticket.row_name} {ticket.row}</td>
               <td>Paikka {ticket.seat_number}</td>
               <td>{ticket.ticket_price}</td>
-              <td>{remove}</td>
+              <td><Bootstrap.Button onClick={this.removeTicket.bind(this, ticket)}>X</Bootstrap.Button></td>
             </tr>);
           })}
         </tbody></Bootstrap.Table>
