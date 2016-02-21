@@ -60,8 +60,8 @@ router.get('/orders/:orderid/tickets/send', function(req: Request, res: Response
   order.sendTickets(parseInt(req.params.orderid)).then(() => res.sendStatus(200));
 });
 
-router.get('/orders/:orderid/tickets/:ticketid/delete', function(req: Request, res: Response) {
-  order.removeTicket(parseInt(req.params.orderid), parseInt(req.params.ticketid)).then(ok(res), err(res));
+router.get('/orders/:orderid/tickets/:ticketid/:tickethash/delete', function(req: Request, res: Response) {
+  order.removeTicket(parseInt(req.params.orderid), parseInt(req.params.ticketid), req.params.tickethash).then(ok(res), err(res));
 });
 
 router.get('/venues', function(req: Request, res: Response) {
