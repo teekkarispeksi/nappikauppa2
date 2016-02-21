@@ -71,6 +71,10 @@ router.get('/orders/:orderid/status', function(req: Request, res: Response) {
   }, err(res));
 });
 
+router.get('/orders/:orderid/checkAndUpdateStatus', function(req: Request, res: Response) {
+  order.checkAndUpdateStatus(req.params.orderid).then(ok(res), err(res));
+});
+
 router.get('/venues', function(req: Request, res: Response) {
   venue.getAll().then(ok(res), err(res));
 });

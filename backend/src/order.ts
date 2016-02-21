@@ -134,6 +134,26 @@ export function checkPaytrailStatus(order_id: number): Promise<string> {
   });
 }
 
+export function checkAndUpdateStatus(order_id: number): Promise<any> {
+  var status;
+  return checkPaytrailStatus(order_id).then((_status: string) => {
+    status = _status;
+    log.info('ADMIN: checked order status from paytrail', {order_id: order_id, status: status});
+    var params, verification;
+    if (status === 'cancelled') {
+      params = {TIMESTAMP: '', RETURN_AUTHCODE: null};
+      verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, config.paytrail.password].join('|');
+      params.RETURN_AUTHCODE = md5(verification).toUpperCase();
+      return paymentCancelled(order_id, params);
+    } else if (status === 'paid') {
+      params = {PAID: 'free', TIMESTAMP: '',  METHOD: '', RETURN_AUTHCODE: null};
+      verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
+      params.RETURN_AUTHCODE = md5(verification).toUpperCase();
+      return paymentDone(order_id, params);
+    }
+  }).then((res) => ({status: status}));
+}
+
 export function reserveSeats(show_id: number, seats: IReservedSeat[], user: string): Promise<any> {
   log.info('Reserving seats', {show_id: show_id, seats: seats, user: user});
 

@@ -37,6 +37,15 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
     });
   }
 
+  checkStatus(order: IAdminOrderListItem) {
+    $.getJSON('admin-api/orders/' + order.id + '/checkAndUpdateStatus', (resp) => {
+      window.alert('Tilauksen tila: ' + resp.status);
+      $.getJSON('admin-api/orders/', this.props.show_id ? {show_id: this.props.show_id} : null, (resp2: IAdminOrderListItem[]) => {
+        this.setState({orders: resp2});
+      });
+    });
+  }
+
   render() {
     return (
       <div>
@@ -58,13 +67,13 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
             var editLink = <a href={'#orders/' + order.id}>Edit</a> ;
             var ticketLink = order.status === 'paid' ? <a href={'admin-api/orders/' + order.id + '/tickets.pdf'}>Liput</a> : null;
             var paymentLink = order.status === 'payment-pending' ? <a href={order.payment_url}>Maksulinkki</a> : null;
-
+            var checkStatus = order.status === 'payment-pending' ? <Bootstrap.Button onClick={this.checkStatus.bind(this, order)}>Tarkista</Bootstrap.Button> : null;
             return (<tr key={order.id} className={order.status === 'paid' ? 'success' : ''}>
               <td>{order.name}</td>
               <td>{order.time}</td>
               <td>{order.price}</td>
               <td>{order.tickets_count}</td>
-              <td>{order.status}</td>
+              <td>{order.status} {checkStatus}</td>
               <td>{editLink}</td>
               <td>{ticketLink}</td>
               <td>{paymentLink}</td>
