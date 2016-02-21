@@ -61,7 +61,7 @@ router.get('/orders/:orderid/tickets/send', function(req: Request, res: Response
 });
 
 router.get('/orders/:orderid/tickets/:ticketid/:tickethash/delete', function(req: Request, res: Response) {
-  order.removeTicket(parseInt(req.params.orderid), parseInt(req.params.ticketid), req.params.tickethas).then(ok(res), err(res));
+  order.removeTicket(parseInt(req.params.orderid), parseInt(req.params.ticketid), req.params.tickethash).then(ok(res), err(res));
 });
 
 router.get('/venues', function(req: Request, res: Response) {

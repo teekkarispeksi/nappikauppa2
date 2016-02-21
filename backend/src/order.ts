@@ -479,11 +479,10 @@ export function removeTicket(order_id: number, ticket_id: number, ticket_hash: s
   log.info('ADMIN: removing ticket ', {ticket_id: ticket_id, order_id: order_id});
   return db.query('delete from nk2_tickets where id = :ticket_id and hash = :ticket_hash and order_id = :order_id', {ticket_id: ticket_id, ticket_hash: ticket_hash, order_id: order_id})
   .then((rows) => {
+    if (rows.affectedRows !== 1) {
+      throw 'ADMIN: Removing a ticket failed - ' + rows.affectedRows + ' were affected instead of 1!';
+    }
     log.info('ADMIN: ticket removed');
     return get(order_id);
-  })
-  .catch((err) => {
-    log.error('ADMIN: Failed to remove ticket ', ticket_id);
-    return null;
   });
 }
