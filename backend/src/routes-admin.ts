@@ -13,6 +13,7 @@ import log = require('./log');
 import production = require('./production');
 import discountCode = require('./discountCode');
 import discountGroup = require('./discountGroup');
+import statistics = require('./statistics');
 
 var jsonParser = bodyParser.json();
 
@@ -125,6 +126,10 @@ router.get('/discountGroups', function(req: Request, res: Response) {
 
 router.post('/discountGroups', jsonParser, function(req: Request, res: Response) {
   discountGroup.update(req.body).then(ok(res), err(res));
+});
+
+router.get('/stats', function(req: Request, res: Response) {
+  statistics.stats().then(ok(res), err(res));
 });
 
 export = router;

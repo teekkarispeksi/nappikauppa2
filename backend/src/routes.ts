@@ -14,7 +14,6 @@ import production = require('./production');
 import show = require('./show');
 import ticket = require('./ticket');
 import venue = require('./venue');
-import statistics = require('./statistics');
 import log = require('./log');
 
 var config = require('../config/config.js');
@@ -129,10 +128,6 @@ router.get('/orders/:orderid/:orderhash/tickets(.pdf)?', function(req: Request, 
 
 router.get('/venues/:venueid', function(req: Request, res: Response) {
   venue.get(req.params.venueid).then(ok(res), err(res));
-});
-
-router.get('/stats', function(req: Request, res: Response) {
-  statistics.stats().then(ok(res), err(res));
 });
 
 export = router;
