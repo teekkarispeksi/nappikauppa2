@@ -130,4 +130,9 @@ router.get('/venues/:venueid', function(req: Request, res: Response) {
   venue.get(req.params.venueid).then(ok(res), err(res));
 });
 
+
+router.post('/kirjaaja', jsonParser, function(req: Request, res: Response) {
+  order.kirjaaja(req.body).then(ok(res), err(res));
+});
+
 export = router;
