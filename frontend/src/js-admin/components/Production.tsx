@@ -20,6 +20,8 @@ export interface IProductionState {
   production_id?: number;
 }
 
+var PERFORMERS = [{value: 'Teekkarispeksi', name: 'Teekkarispeksi'}, {value: 'NääsPeksi', name: 'NääsPeksi'}];
+
 // this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers
 function almostDeepClone<T extends {}>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
@@ -97,7 +99,7 @@ export default class Production extends React.Component<IProductionProps, IProdu
         <Bootstrap.Table bordered><tbody>
           <tr><td>ID</td><td>{this.state.production.id}</td></tr>
           <tr><td>Nimi</td><td>{editable.String(this, this.state.production, 'title')}</td></tr>
-          <tr><td>Esiintyjä</td><td>{editable.String(this, this.state.production, 'performer')}</td></tr>
+          <tr><td>Esiintyjä</td><td>{editable.Select(this, this.state.production, 'performer', PERFORMERS)}</td></tr>
           <tr><td>Lipunmyynti aukeaa</td><td>{editable.Date(this, this.state.production, 'opens')}</td></tr>
           <tr><td>Aktiivinen</td><td>{editable.Checkbox(this, this.state.production, 'active')}</td></tr>
           <tr><td>Kuvaus</td><td>{editable.Text(this, this.state.production, 'description')}
