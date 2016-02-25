@@ -132,9 +132,8 @@ router.get('/stats', function(req: Request, res: Response) {
   statistics.stats().then(ok(res), err(res));
 });
 
-
-router.post('/kirjaaja', jsonParser, function(req: Request, res: Response) {
-  order.kirjaaja(req.body).then(ok(res), err(res));
+router.get('/kirjaaja', function(req: Request, res: Response) {
+  order.kirjaaja().then(ok(res), err(res));
 });
 
 export = router;

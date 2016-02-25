@@ -573,10 +573,8 @@ export function removeTicket(order_id: number, ticket_id: number, ticket_hash: s
   });
 }
 
-export function kirjaaja(orders: string[]): Promise<any> {
-   // the request body (orders) shall be ["PAYTRAIL_PREFIX + order_id", ...]
+export function kirjaaja(): Promise<any> {
   log.info('Fetching info for Kirjaaja');
-  var order_ids = _.map(orders, (order) => parseInt(order.substring(PAYTRAIL_PREFIX.length))).filter((x) => x !== NaN).join(','); // parseInt and filter for validation purposes
   // some order might not have tickets, if the seats have been changed (i.e. removed from the order that was paid and a new order was created using discount code or something similar)
   // => left outer join for tickets
   return db.query('select o.id as order_id, p.performer, v.description, o.price \
@@ -585,7 +583,6 @@ export function kirjaaja(orders: string[]): Promise<any> {
     join nk2_shows s on s.id = t.show_id \
     join nk2_productions p on s.production_id = p.id \
     join nk2_venues v on v.id = s.venue_id \
-    where o.id in (' + order_ids + ') \
     group by s.id, o.id') // direct insertion is safe due to parseInt and filter
     .then((rows: any[]) => {
       var grouped = _.indexBy(rows, (row) => PAYTRAIL_PREFIX + row.order_id); // assumes an order has only tickets for a single show, maybe wrong in the future!
