@@ -41,9 +41,13 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
     }
     var rawDescriptionMarkup = Marked(this.props.show.description, {sanitize: true}); // should be safe to inject
     var discounts = _.pluck(this.props.show.discount_groups, 'discount');
+    var title = 'Lisää lippuja ostoskoriin';
+    if (_.size(this.props.show.sections) === 0) {
+      title = 'Ulkopuolinen lipunmyynti';
+    }
     return (
       <div className={divClass}>
-        <h2>Lisää lippuja ostoskoriin <small>2/5</small></h2>
+        <h2>{title} <small>2/5</small></h2>
         <span dangerouslySetInnerHTML={{__html: rawDescriptionMarkup}} />
         <div>
           <ul className='list-unstyled'>

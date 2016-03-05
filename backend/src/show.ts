@@ -35,7 +35,7 @@ export interface IReservedSeats {
 export function getAll(user): Promise<IShow[]> {
   return db.query('select \
       shows.*, \
-      (100.0 * reserved.seatcount / total.seatcount) as reserved_percentage, \
+      (100.0 * ifnull(reserved.seatcount, 0) / total.seatcount) as reserved_percentage, \
       prices.section_id, prices.price, prices.active, \
       groups.id as discount_group_id, groups.title as discount_group_title, groups.eur as discount_group_discount, groups.admin_only as discount_group_admin, groups.show_id as discount_group_show_id \
     from nk2_shows shows \

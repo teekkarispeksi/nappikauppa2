@@ -24,7 +24,9 @@ export default class ShowSelector extends React.Component<IShowSelectorProps, an
             var dateStr = date.getDate() + '.' + (date.getMonth() + 1) + '.'; // JS getMonth is zero-indexed. Go figure.
             var selectedClass = (this.props.selectedShow && this.props.selectedShow.id === show.id) ? 'selected' : '';
             var progressBar;
-            if (show.reserved_percentage < 100) {
+            if (show.reserved_percentage == null) {
+              progressBar = (<div className='sold-out'>Ulkopuolinen lipunmyynti</div>);
+            } else if (show.reserved_percentage < 100) {
               progressBar = (<Bootstrap.ProgressBar bsSize='small' min={0} max={100} now={show.reserved_percentage} />);
             } else {
               progressBar = (<div className='sold-out'>Loppuunmyyty</div>);
