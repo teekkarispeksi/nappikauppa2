@@ -14,13 +14,21 @@ var config = require('./config/config.js');
 var auth = require('./backend/build/confluenceAuth.js');
 var api = require('./backend/build/routes');
 var adminApi = require('./backend/build/routes-admin');
+var checkerApi = require('./backend/build/routes-checker');
 
 var log = require('./backend/build/log.js');
 
-var basicAuth = httpAuth.basic({
+var adminAuth = httpAuth.basic({
     realm: 'Nappikauppa v2 - use your speksi-intra account'
   }, function(username, password, cb) {
-    auth.authenticate(username, password, config.confluence_auth.groups.base, cb);
+    auth.authenticate(username, password, config.confluence_auth.groups.admin, cb);
+  }
+);
+
+var checkerAuth = httpAuth.basic({
+    realm: 'Nappikauppa v2 lipuntarkistin - use your speksi-intra account'
+  }, function(username, password, cb) {
+    auth.authenticate(username, password, config.confluence_auth.groups.checker, cb);
   }
 );
 
@@ -35,6 +43,7 @@ app.use(morgan('combined', {stream: {
 }}));
 
 app.use(compression());
+
 app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));
 app.get('/', function(req, res: any) {
   res.sendFile(__dirname + '/frontend/build/index.html');
@@ -44,12 +53,16 @@ app.get('/favicon.ico', function(req, res: Response) {
 });
 
 if (config.confluence_auth.enabled) {
-  app.all('/admin*', httpAuth.connect(basicAuth));
+  app.all('/admin*', httpAuth.connect(adminAuth));
+  app.all('/checker*', httpAuth.connect(checkerAuth));
 } else {
   log.warn('=======================================');
   log.warn('NO AUTHENTICATION ENABLED. Fine for dev, not cool for anything real.');
   log.warn('=======================================');
 }
+
+app.use('/checker/', express.static(path.join(__dirname, '/checker')));
+app.use('/checker-api', checkerApi);
 
 app.get('/admin/', function(req, res: Response) {
   res.sendFile(__dirname + '/frontend/build/admin.html');
