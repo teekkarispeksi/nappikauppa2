@@ -27,20 +27,24 @@ Storage.prototype.getObject = function(key) {
 function checkTicketId(id) {
   clearTimeout(timeout);
   clearTimeout(bgTimeout);
-  bgTimeout = setTimeout(reset, 2000);
+  $("#reset").attr('disabled', false);
   var ticket = localStorage.getObject(id);
   showTicket(ticket ? ticket : id);
   if (ticket === null) {
     document.body.style.backgroundColor = 'red';
+    stopScan();
     return 'Lippua ei löydy';
   } else if (ticket.used_time !== null) {
     document.body.style.backgroundColor = 'orange';
+    stopScan();
     return 'Lippu käytetty ' + ticket.used_time;
   } else if (ticket.show_date !== today) {
     document.body.style.backgroundColor = 'yellow';
+    stopScan();
     return 'Väärä näytös! ' + ticket.show_date + ' ' + ticket.show_title;
   } else {
     document.body.style.backgroundColor = 'green';
+    bgTimeout = setTimeout(reset, 2000);
     ticket.used_time = Date();
     localStorage.setObject(id, ticket);
     var used = localStorage.getObject('used') || [];
@@ -89,7 +93,7 @@ function setDebugMsg(msg) {
 
 function read(res) {
   var output = htmlEntities(res);
-  setResult(res + '<br> ' + checkTicketId(output));
+  setResult(checkTicketId(output));
 }
 
 function load() {
@@ -101,14 +105,10 @@ function load() {
       .then(setVideo)
       .catch(onError);
 
-  setResult('Valitse "hae tiedot" tai "reset"');
-
   if (localStorage.getObject('used')) {
-    $('#save').attr('disabled', false);
-    $('#fetch').attr('disabled', true);
+    reset();
   } else {
-    $('#save').attr('disabled', true);
-    $('#fetch').attr('disabled', false);
+    fetch();
   }
 }
 
@@ -116,7 +116,8 @@ function gotDevices(deviceInfos) {
   videos = deviceInfos.filter(function(d) { return d.kind === 'videoinput'; });
   $('#videoDevices').empty();
   videos.forEach(function(device) {
-    $('#videoDevices').append('<option value="' + device.deviceId + '">' + device.deviceId + '</option>');
+    var deviceTitle = device.label + " (" + device.deviceId.substr(0,5) + ")";
+    $('#videoDevices').append('<option value="' + device.deviceId + '">' + deviceTitle + '</option>');
   });
   var videoDevice = localStorage.getItem('video');
   if (!videoDevice) {
@@ -147,7 +148,15 @@ function setVideo(videoSource) {
 }
 
 function scheduleScan() {
+  $("#stopPlaceholder").hide();
+  $("#v").show();
   timeout = setTimeout(captureToCanvas, 300);
+}
+
+function stopScan() {
+  clearTimeout(timeout);
+  $("#stopPlaceholder").show();
+  $("#v").hide();
 }
 
 function onError(error) {
@@ -156,18 +165,21 @@ function onError(error) {
 
 function reset() {
   document.body.style.backgroundColor = null;
-  setResult('Scanning...');
+  setResult('Valmis! Etsitään QR-koodia...');
+  $("#reset").attr('disabled', true);
   scheduleScan();
 }
 
 function fetch() {
   clearTimeout(timeout);
-  setResult('Haetaan tietoja...');
+  setResult('Päivitetään tietoja lippukaupasta...');
   $.get('../checker-api/all', function(tickets) {
     tickets.forEach(function(ticket) {
       localStorage.setObject(ticket.hash, ticket);
     });
     reset();
+  }).fail(function() {
+    setResult("Ongelma lippukaupassa. Tarkista verkkoyhteys, pyydä apua koodareilta");
   });
 }
 

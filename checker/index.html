@@ -7,16 +7,18 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
   <style type="text/css">
   body{
-    width:800px;
     text-align:center;
+    font-family: sans-serif;
   }
   #mainbody{
-    width:790px;
   }
-  #v{
-    width: 360px; /*720px;*/ /* doesnt affect image quality */
-    height:480px; /*960px;*/
+  .video{
+    height: 360px; /*960px;*/
+    width: 100%;
     border: 1px solid #555;
+  }
+  #stopPlaceholder {
+    display: none;
   }
   #qr-canvas{
     border: 1px solid #555;
@@ -24,11 +26,13 @@
   }
   #result{
     border: 1px solid black;
-    padding:20px;
+    font-size: 20px;
+    padding: 20px;
     margin-top: 0.5em;
   }
   #reset, #fetch, #save {
-    font-size: 2em;
+    font-size: 1.5em;
+    line-height: 2em;
     width: 100%;
     margin-top: 0.5em;
   }
@@ -40,15 +44,14 @@
 </head>
 <body>
   <div id="mainbody">
-    <video id="v" autoplay></video>
+    <video id="v" class="video" autoplay></video>
+    <div id="stopPlaceholder" class="video"></div>
     <div id="outdiv">
       <div id="result"></div>
       <canvas id="qr-canvas" ></canvas>
     </div>
   </div>
-  <button id="reset" onclick="reset()">aloita</button>
-  <button id="fetch" onClick="fetch()">hae tiedot</button>
-  <button id="save" onClick="save()">tallenna tiedot</button>
+  <button id="reset" onclick="reset()">Lue seuraava lippu</button>
   <div>
     <h3>Edellisen lipun tiedot</h3>
     <table>
@@ -65,6 +68,8 @@
     <h3>Valitse kamera</h3>
     <select id="videoDevices" onChange="selectVideo(this.value)">
     </select>
+    <button id="fetch" onClick="fetch()">Päivitä myydyt liput</button>
+    <button id="save" onClick="save()">Tallenna luetut koodit</button>
   </div>
   <script src="js/main.js"></script>
 </body>
