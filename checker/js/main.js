@@ -106,8 +106,10 @@ function load() {
       .catch(onError);
 
   if (localStorage.getObject('used')) {
+    $('#fetch').attr('disabled', true);
     reset();
   } else {
+    $('#save').attr('disabled', true);
     fetch();
   }
 }
