@@ -27,7 +27,7 @@ Storage.prototype.getObject = function(key) {
 function checkTicketId(id) {
   clearTimeout(timeout);
   clearTimeout(bgTimeout);
-  $("#reset").attr('disabled', false);
+  $('#reset').attr('disabled', false);
   var ticket = localStorage.getObject(id);
   showTicket(ticket ? ticket : id);
   if (ticket === null) {
@@ -116,7 +116,7 @@ function gotDevices(deviceInfos) {
   videos = deviceInfos.filter(function(d) { return d.kind === 'videoinput'; });
   $('#videoDevices').empty();
   videos.forEach(function(device) {
-    var deviceTitle = device.label + " (" + device.deviceId.substr(0,5) + ")";
+    var deviceTitle = device.label + ' (' + device.deviceId.substr(0,5) + ')';
     $('#videoDevices').append('<option value="' + device.deviceId + '">' + deviceTitle + '</option>');
   });
   var videoDevice = localStorage.getItem('video');
@@ -148,15 +148,15 @@ function setVideo(videoSource) {
 }
 
 function scheduleScan() {
-  $("#stopPlaceholder").hide();
-  $("#v").show();
+  $('#stopPlaceholder').hide();
+  $('#v').show();
   timeout = setTimeout(captureToCanvas, 300);
 }
 
 function stopScan() {
   clearTimeout(timeout);
-  $("#stopPlaceholder").show();
-  $("#v").hide();
+  $('#stopPlaceholder').show();
+  $('#v').hide();
 }
 
 function onError(error) {
@@ -166,7 +166,7 @@ function onError(error) {
 function reset() {
   document.body.style.backgroundColor = null;
   setResult('Valmis! Etsitään QR-koodia...');
-  $("#reset").attr('disabled', true);
+  $('#reset').attr('disabled', true);
   scheduleScan();
 }
 
@@ -179,7 +179,7 @@ function fetch() {
     });
     reset();
   }).fail(function() {
-    setResult("Ongelma lippukaupassa. Tarkista verkkoyhteys, pyydä apua koodareilta");
+    setResult('Ongelma lippukaupassa. Tarkista verkkoyhteys, pyydä apua koodareilta');
   });
 }
 
