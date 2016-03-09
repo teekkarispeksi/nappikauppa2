@@ -68,7 +68,7 @@ function initCanvas(w, h) {
 
 function captureToCanvas() {
   try {
-    gCtx.drawImage(videoElement,0,0,940,720);
+    gCtx.drawImage(videoElement,0,0,720,940);
     try {
       qrcode.decode(); // by default reads element with id "qr-canvas"
     } catch (e) {
