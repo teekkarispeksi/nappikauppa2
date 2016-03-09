@@ -11,6 +11,7 @@
 
 @almost-black: rgb(35, 31, 32);
 @gray: @almost-black + rgb(100, 100, 100);
+@light-gray: @gray + rgb(100, 100, 100);
 
 header {
   margin: 40px;
@@ -123,7 +124,7 @@ a.seat {
     }
   }
   &.seat-reserved {
-    background-color: @gray;
+    background-color: @light-gray;
     cursor: default;
   }
   &.seat-chosen {
