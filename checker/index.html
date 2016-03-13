@@ -1,0 +1,76 @@
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lipuntarkistin</title>
+  <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+  <style type="text/css">
+  body{
+    text-align:center;
+    font-family: sans-serif;
+  }
+  #mainbody{
+  }
+  .video{
+    height: 280px; /*960px;*/
+    width: 100%;
+    border: 1px solid #555;
+  }
+  #stopPlaceholder {
+    display: none;
+  }
+  #qr-canvas{
+    border: 1px solid #555;
+    display: none;
+  }
+  #result{
+    border: 1px solid black;
+    font-size: 20px;
+    padding: 20px;
+    margin-top: 0.5em;
+  }
+  #reset, #fetch, #save {
+    font-size: 1.5em;
+    line-height: 2em;
+    width: 100%;
+    margin-top: 0.5em;
+  }
+  </style>
+  <script src="js/adapter.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/llqrcode.js"></script>
+
+</head>
+<body>
+  <div id="mainbody">
+    <video id="v" class="video" autoplay></video>
+    <div id="stopPlaceholder" class="video"></div>
+    <div id="outdiv">
+      <div id="result"></div>
+      <canvas id="qr-canvas" ></canvas>
+    </div>
+  </div>
+  <button id="reset" onclick="reset()">Lue seuraava lippu</button>
+  <div>
+    <h3>Edellisen lipun tiedot</h3>
+    <table>
+      <tr><td>Hash</td><td id='hash'></td></tr>
+      <tr><td>Lipun ID</td><td id='ticket_id'></td></tr>
+      <tr><td>Tilauksen ID</td><td id='order_id'></td></tr>
+      <tr><td>Used time</td><td id='used_time'></td></tr>
+      <tr><td>Discount</td><td id='discount_group'></td></tr>
+      <tr><td>Näytös</td><td id='show'></td></tr>
+      <tr><td>Paikka</td><td id='seat'></td></tr>
+    </table>
+  </div>
+  <div>
+    <h3>Valitse kamera</h3>
+    <select id="videoDevices" onChange="selectVideo(this.value)">
+    </select>
+    <button id="fetch" onClick="fetch()">Päivitä myydyt liput</button>
+    <button id="save" onClick="save()">Tallenna luetut koodit</button>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>
