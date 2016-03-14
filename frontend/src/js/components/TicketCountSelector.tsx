@@ -62,10 +62,10 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
               var sectionChosenSeatIds = _.intersection(this.props.chosenSeatIds, sectionSeatIds);
               var availableSeatsCount = sectionSeatIds.length - sectionReservedSeatIds.length - sectionChosenSeatIds.length;
 
-              var title = availableSeatsCount === 1 ? '1 paikka jäljellä' : '' + availableSeatsCount + ' paikkaa jäljellä';
+              var tooltip = availableSeatsCount === 1 ? '1 paikka jäljellä' : '' + availableSeatsCount + ' paikkaa jäljellä';
               return (
                 <li>
-                  <Bootstrap.Button key={section.id} disabled={!this.props.active || availableSeatsCount === 0} title={title} onClick={this.onAdd.bind(this, section)} >
+                  <Bootstrap.Button key={section.id} disabled={!this.props.active || availableSeatsCount === 0} title={tooltip} onClick={this.onAdd.bind(this, section)} >
                     <Bootstrap.Glyphicon glyph='plus' /> {section.section_title} {prices} eur
                   </Bootstrap.Button>
                 </li>
