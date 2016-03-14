@@ -58,7 +58,9 @@ export function getAll(user): Promise<IShow[]> {
     left join nk2_discount_groups groups on \
       (shows.id = groups.show_id or groups.show_id is null) \
       and (:is_admin or groups.admin_only = false) \
-      and groups.active = true', {is_admin: typeof(user) !== 'undefined'})
+      and groups.active = true \
+    where (shows.inactivate_time > now() or :is_admin) \
+      and (shows.active = true or :is_admin)', {is_admin: typeof(user) !== 'undefined'})
     .then((rows) => {
       var grouped = _.groupBy(rows, 'id');
       var shows = _.mapObject(grouped, function(showRows: any[]) {
