@@ -59,8 +59,7 @@ export function getAll(user): Promise<IShow[]> {
       (shows.id = groups.show_id or groups.show_id is null) \
       and (:is_admin or groups.admin_only = false) \
       and groups.active = true \
-    where (shows.inactivate_time > now() or :is_admin) \
-      and (shows.active = true or :is_admin)', {is_admin: typeof(user) !== 'undefined'})
+    where (shows.active = true or :is_admin)', {is_admin: typeof(user) !== 'undefined'})
     .then((rows) => {
       var grouped = _.groupBy(rows, 'id');
       var shows = _.mapObject(grouped, function(showRows: any[]) {
