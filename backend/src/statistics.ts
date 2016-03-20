@@ -37,7 +37,10 @@ export function stats(): Promise<any> {
       stats.byDate = res;
     });
   }).then(() => {
-    return db.query('select show_id, s.title, sum(price) as revenue, count(*) as count from nk2_tickets t join nk2_shows s on t.show_id = s.id group by show_id').then((res) => {
+    return db.query('select show_id, s.title, sum(price) as revenue, count(*) as count, count(used_time) as used_count \
+        from nk2_tickets t \
+        join nk2_shows s on t.show_id = s.id \
+        group by show_id').then((res) => {
       stats.byShow = res;
     });
   }).then(() => {
