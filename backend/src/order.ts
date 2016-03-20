@@ -580,9 +580,9 @@ export function useTicket(order_id: number, ticket_id: number, ticket_hash: stri
       where id = :ticket_id and hash = :ticket_hash and order_id = :order_id', {ticket_id: ticket_id, ticket_hash: ticket_hash, order_id: order_id})
   .then((rows) => {
     if (rows.affectedRows !== 1) {
-      throw 'ADMIN: Removing a ticket failed - ' + rows.affectedRows + ' were affected instead of 1!';
+      throw 'ADMIN: Using a ticket failed - ' + rows.affectedRows + ' were affected instead of 1!';
     }
-    log.info('ADMIN: ticket removed');
+    log.info('ADMIN: ticket used');
     return get(order_id);
   });
 }
