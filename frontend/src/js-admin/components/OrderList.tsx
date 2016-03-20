@@ -57,8 +57,9 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
           <th>Nimi</th>
           <th>Ostettu</th>
           <th>Hinta</th>
-          <th>Lippuja</th>
+          <th>Lippuja (käytetty)</th>
           <th>Status</th>
+          <th>Käytetty</th>
           <th>Edit</th>
           <th>Liput</th>
           <th>Maksulinkki</th>
@@ -68,12 +69,19 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
             var ticketLink = order.status === 'paid' ? <a href={'admin-api/orders/' + order.id + '/tickets.pdf'}>Liput</a> : null;
             var paymentLink = order.status === 'payment-pending' ? <a href={order.payment_url}>Maksulinkki</a> : null;
             var checkStatus = order.status === 'payment-pending' ? <Bootstrap.Button onClick={this.checkStatus.bind(this, order)}>Tarkista</Bootstrap.Button> : null;
-            return (<tr key={order.id} className={order.status === 'paid' ? 'success' : ''}>
+            var used = order.tickets_count === order.tickets_used_count;
+            var className = 'warning';
+            if (used) {
+              className = 'success';
+            } else if (order.status === 'paid') {
+              className = '';
+            }
+            return (<tr key={order.id} className={className}>
               <td>{order.name}</td>
               <td>{order.time}</td>
               <td>{order.price}</td>
-              <td>{order.tickets_count}</td>
-              <td>{order.status} {checkStatus}</td>
+              <td>{order.tickets_count} ({order.tickets_used_count})</td>
+              <td>{checkStatus}</td>
               <td>{editLink}</td>
               <td>{ticketLink}</td>
               <td>{paymentLink}</td>

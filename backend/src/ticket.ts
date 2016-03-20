@@ -20,6 +20,7 @@ export interface ITicket {
   ticket_id: string;
   ticket_hash: string;
   ticket_price: number;
+  used_time: Date;
   venue_description: string;
 }
 

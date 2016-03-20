@@ -60,6 +60,7 @@ export interface IAdminOrderListItem {
   reserved_until: Date;
   status: string;
   tickets_count: number;
+  tickets_used_count: number;
   time: Date;
 }
 
@@ -335,7 +336,7 @@ export function getAll(): Promise<IAdminOrderListItem> {
 }
 
 export function getAllForShow(show_id: number): Promise<IAdminOrderListItem> {
-  return db.query('select orders.*, count(*) as tickets_count \
+  return db.query('select orders.*, count(*) as tickets_count, count(tickets.used_time) as tickets_used_count \
     from nk2_orders orders \
       join nk2_tickets tickets on tickets.order_id = orders.id \
     where tickets.show_id = :show_id \
@@ -564,6 +565,19 @@ export function update(order_id: number, order: IOrder): Promise<IOrder> {
 export function removeTicket(order_id: number, ticket_id: number, ticket_hash: string): Promise<IOrder> {
   log.info('ADMIN: removing ticket ', {ticket_id: ticket_id, order_id: order_id});
   return db.query('delete from nk2_tickets where id = :ticket_id and hash = :ticket_hash and order_id = :order_id', {ticket_id: ticket_id, ticket_hash: ticket_hash, order_id: order_id})
+  .then((rows) => {
+    if (rows.affectedRows !== 1) {
+      throw 'ADMIN: Removing a ticket failed - ' + rows.affectedRows + ' were affected instead of 1!';
+    }
+    log.info('ADMIN: ticket removed');
+    return get(order_id);
+  });
+}
+
+export function useTicket(order_id: number, ticket_id: number, ticket_hash: string): Promise<IOrder> {
+  log.info('ADMIN: using ticket manually', {ticket_id: ticket_id, order_id: order_id});
+  return db.query('update nk2_tickets set used_time = now() \
+      where id = :ticket_id and hash = :ticket_hash and order_id = :order_id', {ticket_id: ticket_id, ticket_hash: ticket_hash, order_id: order_id})
   .then((rows) => {
     if (rows.affectedRows !== 1) {
       throw 'ADMIN: Removing a ticket failed - ' + rows.affectedRows + ' were affected instead of 1!';

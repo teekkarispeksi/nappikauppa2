@@ -58,6 +58,19 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
     });
   }
 
+  useTicket(ticket: ITicket) {
+    $.ajax({
+      url: 'admin-api/orders/' + this.state.order.order_id + '/tickets/' + ticket.ticket_id + '/' + ticket.ticket_hash + '/use',
+      method: 'GET',
+      success: (response: IOrder) => {
+        this.reset(response);
+      },
+      error: (response) => {
+        console.log('using ticket failed', ticket); // TODO
+      }
+    });
+  }
+
   removeTicket(ticket: ITicket) {
     if (ticket.ticket_price === 0 || this.state.order.order_price === 0) {
       this.removeTicketUnsafe(ticket);
@@ -118,16 +131,19 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
             <th>Rivi</th>
             <th>Paikka</th>
             <th>Hinta</th>
+            <th>Käytetty</th>
             <th>Poista</th>
           </tr></thead>
           <tbody>
           {this.state.order.tickets.map((ticket) => {
+            var used = ticket.used_time ? ticket.used_time : <Bootstrap.Button onClick={this.useTicket.bind(this, ticket)}>Käytä</Bootstrap.Button>;
             return (<tr key={ticket.ticket_id}>
               <td>{ticket.show_title}</td>
               <td>{ticket.section_title}</td>
               <td>{ticket.row_name} {ticket.row}</td>
               <td>Paikka {ticket.seat_number}</td>
               <td>{ticket.ticket_price}</td>
+              <td>{used}</td>
               <td><Bootstrap.Button onClick={this.removeTicket.bind(this, ticket)}>X</Bootstrap.Button></td>
             </tr>);
           })}

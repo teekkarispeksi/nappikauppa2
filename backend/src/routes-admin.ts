@@ -65,6 +65,10 @@ router.get('/orders/:orderid/tickets/:ticketid/:tickethash/delete', function(req
   order.removeTicket(parseInt(req.params.orderid), parseInt(req.params.ticketid), req.params.tickethash).then(ok(res), err(res));
 });
 
+router.get('/orders/:orderid/tickets/:ticketid/:tickethash/use', function(req: Request, res: Response) {
+  order.useTicket(parseInt(req.params.orderid), parseInt(req.params.ticketid), req.params.tickethash).then(ok(res), err(res));
+});
+
 router.get('/orders/:orderid/status', function(req: Request, res: Response) {
   order.checkPaytrailStatus(req.params.orderid).then((result) => {
     res.write(result);
