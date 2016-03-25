@@ -13,7 +13,7 @@ export function stats(): Promise<any> {
       stats.orders = res[0];
     });
   }).then(() => {
-    return db.query('select status, sum(price) as revenue, count(*) as count from nk2_orders group by status').then((res) => {
+    return db.query('select status, sum(price) as revenue, count(*) as count from nk2_orders where id in (select distinct order_id from nk2_tickets) group by status').then((res) => {
       stats.status = res;
     });
   }).then(() => {

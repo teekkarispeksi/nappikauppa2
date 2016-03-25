@@ -59,7 +59,6 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
           <th>Hinta</th>
           <th>Lippuja (käytetty)</th>
           <th>Status</th>
-          <th>Käytetty</th>
           <th>Edit</th>
           <th>Liput</th>
           <th>Maksulinkki</th>
@@ -81,7 +80,7 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
               <td>{order.time}</td>
               <td>{order.price}</td>
               <td>{order.tickets_count} ({order.tickets_used_count})</td>
-              <td>{checkStatus}</td>
+              <td>{order.status} {checkStatus}</td>
               <td>{editLink}</td>
               <td>{ticketLink}</td>
               <td>{paymentLink}</td>
