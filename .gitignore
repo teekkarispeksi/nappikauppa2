@@ -39,5 +39,11 @@ nohup.out
 *.iml
 *.ipr
 
+# sublime text
+*.sublime*
+
+# osx
+.DS_Store
+
 # tests
 test/output/*
