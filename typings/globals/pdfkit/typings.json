@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/727fda26f9b3ff5d3585a6741e38c1f402daddf4/pdfkit/pdfkit.d.ts",
+    "raw": "registry:dt/pdfkit#0.7.2+20160613155454",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/727fda26f9b3ff5d3585a6741e38c1f402daddf4/pdfkit/pdfkit.d.ts"
+  }
+}

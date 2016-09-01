@@ -1,4 +1,3 @@
-import {IOrder} from '../../../../backend/src/order';
 'use strict';
 
 import React = require('react');
@@ -17,6 +16,7 @@ import ShoppingCart from './ShoppingCart.tsx';
 import Contacts from './Contacts.tsx';
 import FinalConfirmation from './FinalConfirmation.tsx';
 
+import {IOrder} from '../../../../backend/src/order';
 import {IProduction} from '../../../../backend/src/production';
 import {IShow, IReservedSeats} from '../../../../backend/src/show';
 import {IDiscountGroup} from '../../../../backend/src/discountGroup';

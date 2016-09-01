@@ -31,8 +31,7 @@ export function getLatestActive(): Promise<IProduction> {
   })
   .catch((err) => {
     log.error('Getting the latest active production failed', {error: err});
-    throw err;
-    return null;
+    return Promise.reject(err);
   });
 }
 
@@ -50,8 +49,7 @@ export function getAll(production_id?: number): Promise<IProduction[]> {
   })
   .catch((err) => {
     log.error('Getting the latest active production failed', {error: err});
-    throw err;
-    return null;
+    return Promise.reject(err);
   });
 }
 
@@ -59,8 +57,7 @@ export function get(production_id): Promise<IProduction> {
   return getAll(production_id).then((productions: IProduction[]) => productions[0])
   .catch((err) => {
     log.error('Getting a production failed', {error: err});
-    throw err;
-    return null;
+    return Promise.reject(err);
   });
 }
 
@@ -75,8 +72,7 @@ export function create(production: IProduction): Promise<IProduction> {
   })
   .catch((err) => {
     log.error('ADMIN: Creating a production failed', {error: err});
-    throw err;
-    return null;
+    return Promise.reject(err);
   });
 }
 
@@ -90,7 +86,6 @@ export function update(production_id: number, production: IProduction): Promise<
   })
   .catch((err) => {
     log.error('ADMIN: Updating a production failed', {error: err});
-    throw err;
-    return null;
+    return Promise.reject(err);
   });
 }

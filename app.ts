@@ -1,6 +1,7 @@
+'use strict';
+
 import {Response} from 'express';
 import {Request} from 'express';
-'use strict';
 
 import util = require('util');
 var express = require('express');

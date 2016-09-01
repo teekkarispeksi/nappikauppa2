@@ -90,8 +90,7 @@ export function get(show_id: number, user?: string): Promise<IShow> {
   return getAll(user).then((shows: IShow[]) => shows.filter((show2: IShow) => show2.id === show_id)[0])
   .catch((err) => {
     log.error('Getting a show failed', {error: err});
-    throw err;
-    return null;
+    return Promise.reject(err);
   });
 }
 
@@ -110,8 +109,7 @@ export function getReservedSeats(show_id: number): Promise<IReservedSeats> {
     })
     .catch((err) => {
       log.error('Getting reserved seats failed', {error: err, show_id: show_id});
-      throw err;
-      return null;
+      return Promise.reject(err);
     });
 }
 
@@ -137,8 +135,7 @@ export function create(show: IShow): Promise<IShow> {
     })
     .catch((err) => {
       log.error('ADMIN: Creating a show failed', {error: err});
-      throw err;
-      return null;
+      return Promise.reject(err);
     });
 }
 
@@ -168,7 +165,6 @@ export function update(show_id: number, show: IShow): Promise<IShow> {
   })
   .catch((err) => {
     log.error('ADMIN: Updating a show failed', {error: err});
-    throw err;
-    return null;
+    return Promise.reject(err);
   });
 }
