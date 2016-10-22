@@ -12,6 +12,7 @@ import Venue from './components/Venue';
 import Production from './components/Production';
 import DiscountCodes from './components/DiscountCodes';
 import DiscountGroups from './components/DiscountGroups';
+import Statistics from './components/Statistics';
 
 import Router = require('./router');
 
@@ -52,5 +53,9 @@ Router.on('route:discountCodes', function() {
 Router.on('route:discountGroups', function() {
   ReactDOM.render(<DiscountGroups />, document.getElementsByTagName('main')[0]);
 });
+
+Router.on('route:statistics', (production_id) =>
+  ReactDOM.render(<Statistics production_id={parseInt(production_id)} />, document.getElementsByTagName('main')[0])
+);
 
 Backbone.history.start();
