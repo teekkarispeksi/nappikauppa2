@@ -2,6 +2,7 @@
 backend/build
 frontend/build
 app.js
+build
 
 # Logs
 logs
