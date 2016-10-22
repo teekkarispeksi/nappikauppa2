@@ -26,7 +26,7 @@ export interface ITicket {
 
 export function generatePdf(tickets: ITicket[]) {
   var margin = 50;
-  var options = {size: 'A4', margins: {left: margin, right: margin, top: 72, bottom: 0}}; // A4: [595.28, 841.89]
+  var options = {size: [595.28, 841.89], margins: {left: margin, right: margin, top: 72, bottom: 0}}; // A4: [595.28, 841.89]
   var width = 595.28;
   var height = 841.89;
   var doc = new PDFDocument(options);

@@ -6,7 +6,7 @@ var less = require('gulp-less');
 var del = require('del');
 var runSequence = require('run-sequence');
 var browserify = require('browserify');
-var reactify = require('reactify'); // for browserify
+var babelify = require('babelify'); // for browserify
 var tsify = require('tsify');
 var ts = require('gulp-typescript');
 var tslint = require('gulp-tslint');
@@ -14,9 +14,8 @@ var stylish = require('gulp-tslint-stylish');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
-var react = require('gulp-react'); // for jshint
 var concat = require('gulp-concat');
-var cssmin = require('gulp-minify-css');
+var cssmin = require('gulp-clean-css');
 var plumber = require('gulp-plumber');
 var notify = require('gulp-notify');
 var lr = require('tiny-lr')();
@@ -111,14 +110,15 @@ function js(startPath, targetFile) {
   return function() {
     return browserify(startPath)
     .add(startPath)
-    .add('typings/tsd.d.ts')
-    .transform(reactify)
+    .add('typings/index.d.ts')
+    .transform(babelify)
     .plugin(tsify)
     .bundle()
     .on('error', function(err) {
       notify.onError({
         message: '<%= error.message %>'
       }).apply(this, arguments);
+
       this.emit('end');
     })
     .pipe(source(targetFile))
@@ -130,8 +130,8 @@ function jsMin(startPath, targetFile) {
   return function() {
     return browserify()
     .add(startPath)
-    .add('typings/tsd.d.ts')
-    .transform(reactify)
+    .add('typings/index.d.ts')
+    .transform(babelify)
     .plugin(tsify)
     .bundle()
     .pipe(source(targetFile))
@@ -152,7 +152,7 @@ gulp.task('js:admin:min', jsMin('./frontend/src/js-admin/AdminApp.tsx', 'adminAp
 gulp.task('js:min', ['js:store:min', 'js:admin:min']);
 
 gulp.task('backend', function() {
-  return gulp.src(['backend/src/**/*.ts', 'typings/tsd.d.ts'])
+  return gulp.src(['backend/src/**/*.ts', 'typings/index.d.ts'])
     .pipe(ts({
       module: 'commonjs'
     }))
@@ -161,7 +161,7 @@ gulp.task('backend', function() {
 });
 
 gulp.task('app', function() {
-  return gulp.src(['app.ts', 'typings/tsd.d.ts'])
+  return gulp.src(['app.ts', 'typings/index.d.ts'])
     .pipe(ts({
       module: 'commonjs'
     }))

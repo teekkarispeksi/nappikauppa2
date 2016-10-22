@@ -19,7 +19,7 @@ export interface IShowProps {
 export interface IShowState {
   shows?: IShow[];
   show?: IShow;
-  show_id? : number;
+  show_id?: number;
   venues?: IVenue[];
   productions?: IProduction[];
 }

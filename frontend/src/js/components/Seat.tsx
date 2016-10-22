@@ -1,6 +1,6 @@
-import EventHandler = __React.EventHandler;
-;
 'use strict';
+
+import EventHandler = __React.EventHandler;
 
 import React = require('react');
 import Props = __React.Props;

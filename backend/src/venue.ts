@@ -1,5 +1,6 @@
-import Dictionary = _.Dictionary;
 'use strict';
+
+import Dictionary = _.Dictionary;
 
 import db = require('./db');
 import log = require('./log');
@@ -85,8 +86,7 @@ export function getAll(venue_id?: number): Promise<IVenue[]> {
   })
   .catch((err) => {
     log.error('Getting all venues failed', {error: err});
-    throw err;
-    return null;
+    return Promise.reject(err);
   });
 }
 
@@ -94,8 +94,7 @@ export function get(venue_id): Promise<IVenue> {
   return getAll(venue_id).then((venues: IVenue[]) => venues[0])
   .catch((err) => {
     log.error('Getting a venue failed', {error: err});
-    throw err;
-    return null;
+    return Promise.reject(err);
   });
 }
 
@@ -123,7 +122,6 @@ export function update(venue_id: number, venue: IVenue): Promise<IVenue> {
   })
   .catch((err) => {
     log.error('ADMIN: Updating a venue failed', {error: err});
-    throw err;
-    return null;
+    return Promise.reject(err);
   });
 }

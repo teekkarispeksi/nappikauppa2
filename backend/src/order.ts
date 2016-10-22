@@ -75,7 +75,7 @@ export function checkPaytrailStatus(order_id: number): Promise<string> {
   var verification = [config.paytrail.password, config.paytrail.user, PAYTRAIL_PREFIX + order_id].join('&');
   var authcode = md5(verification).toUpperCase();
 
-  return new Promise((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     var jar = request.jar();
     request.post({
         url: 'https://payment.paytrail.com/check-payment',
@@ -93,7 +93,7 @@ export function checkPaytrailStatus(order_id: number): Promise<string> {
         (err) ? reject(err) : resolve(body);
       });
   }).then((body: string) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       jsdom.env({
         html: body,
         src: [fs.readFileSync('./node_modules/jquery/dist/jquery.js', 'utf-8')],
@@ -326,8 +326,7 @@ export function get(order_id: number): Promise<IOrder> {
     })
   .catch((err) => {
     log.error('Failed to get order', {order_id: order_id, error: err});
-    throw err;
-    return null;
+    return Promise.reject(err);
   });
 }
 

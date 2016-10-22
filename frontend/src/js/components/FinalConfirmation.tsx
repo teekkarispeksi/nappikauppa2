@@ -1,5 +1,6 @@
-import ReactElement = __React.ReactElement;
 'use strict';
+
+import ReactElement = __React.ReactElement;
 
 import React = require('react');
 import Bootstrap = require('react-bootstrap');
@@ -35,7 +36,6 @@ export default class FinalConfirmation extends React.Component<IFinalConfirmatio
     }
     var active = !this.props.paymentBegun;
     return (
-
       <div className='shopping-stage final-confirmation'>
         <h2>Vahvistus <small>5/5</small></h2>
         <table className='table table-bordered'>

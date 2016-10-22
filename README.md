@@ -16,3 +16,9 @@ Running the enviroment
 1. `npm install` for installing dependencies
 2. Run `gulp`
 3. Go to [http://localhost:3000/](http://localhost:3000/)
+
+
+Adding typings
+-------------
+
+Use `typings` (e.g. `npm install --global typings`)
