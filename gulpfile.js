@@ -20,31 +20,20 @@ var plumber = require('gulp-plumber');
 var notify = require('gulp-notify');
 var lr = require('tiny-lr')();
 var nightwatch = require('gulp-nightwatch');
+var server = require('gulp-live-server');
 
-var config = require('./config/config.js');
-
-// from http://rhumaric.com/2014/01/livereload-magic-gulp-style/
-var app;
-function startExpress() {
-  app = require('./app.js');
-  app.listen(config.port);
-}
-
-function startLivereload() {
-  lr.listen(35729);
-}
-
-function notifyLivereload(event) {
-  // this should, but does not work, so using the solution below
-  //gulp.src(event.path, {read: false}).pipe(require('gulp-livereload')(lr));
-
-  var fileName = require('path').relative(__dirname, event.path);
-  lr.changed({
-    body: {
-      files: [fileName]
-    }
+gulp.task('server', function() {
+  var app = server.new('app.js');
+  app.start();
+  gulp.watch(['frontend/build/**/*'], function(file) {
+    console.log('frontend updated, notifying livereload ', file);
+    app.notify.apply(app, [file]);
   });
-}
+
+  //gulp.watch(['app.js', 'backend/build/**/*'], function() {
+  //  app.start.bind(app); // does not work :(
+  //});
+});
 
 gulp.task('clean', function(cb) {
   return del(['./frontend/build/', './backend/build/', './app.js'], cb);
@@ -157,7 +146,7 @@ gulp.task('backend', function() {
       module: 'commonjs'
     }))
     .pipe(gulp.dest('backend/build/'))
-    .pipe(notify({message: 'backend changed and re-compiled, restart gulp with "gulp start-dev"', onLast: true}));
+    .pipe(notify({message: 'backend re-compiled, restart gulp', onLast: true}));
 });
 
 gulp.task('app', function() {
@@ -165,7 +154,8 @@ gulp.task('app', function() {
     .pipe(ts({
       module: 'commonjs'
     }))
-    .pipe(gulp.dest('./'));
+    .pipe(gulp.dest('./'))
+    .pipe(notify({message: 'server re-compiled, restart gulp', onLast: true}));
 });
 
 gulp.task('index', function() {
@@ -213,26 +203,20 @@ gulp.task('build', function(cb) {
     cb);
 });
 
-gulp.task('start-dev', function() {
-  startExpress();
-  startLivereload();
+gulp.task('watch', ['server'], function() {
   gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index', 'admin']);
   gulp.watch('frontend/src/js/**/*.{js,jsx,ts,tsx}', ['js:store']);
   gulp.watch('frontend/src/js-admin/**/*.{js,jsx,ts,tsx}', ['js:admin']);
   gulp.watch('frontend/src/img/**/*.{jpg,gif,png}', ['img']);
   gulp.watch('frontend/src/index.html', ['index']);
   gulp.watch('frontend/src/admin.html', ['admin']);
-  gulp.watch('frontend/build/**/*.{html,css,js,jpg,gif,png}', notifyLivereload);
   gulp.watch('backend/src/**/*.{js,jsx,ts,tsx}', ['backend']);
-});
-
-gulp.task('start', function() {
-  startExpress();
+  gulp.watch('app.ts', ['app'])
 });
 
 gulp.task('default', function(cb) {
   runSequence(
     ['build-dev'],
-    ['start-dev'],
+    ['watch'],
     cb);
 });

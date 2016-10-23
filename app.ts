@@ -35,7 +35,6 @@ var checkerAuth = httpAuth.basic({
 
 var app = express();
 app.enable('trust proxy'); // so that our mod_rewrites doesn't mess up the req.ip address
-// app.use(require('connect-livereload')()); // http://stackoverflow.com/questions/28412919/express-server-send-empty-pdf-file
 
 app.use(methodOverride('X-HTTP-Method-Override'));
 
@@ -82,5 +81,8 @@ app.use(function(err: any, req: any, res: any, next) {
   log.error('Unhandled error:',  util.inspect(err, {showHidden: true, depth: null}));
   res.sendStatus(err.status || 500);
 });
+
+app.listen(config.port);
+
 
 export = app;
