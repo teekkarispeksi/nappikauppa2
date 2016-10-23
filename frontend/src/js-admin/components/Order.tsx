@@ -5,7 +5,7 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
-import editable = require('./editables.tsx');
+import editable = require('./editables');
 import {IOrder} from '../../../../backend/src/order';
 import {ITicket} from '../../../../backend/src/ticket';
 

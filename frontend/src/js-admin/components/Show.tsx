@@ -5,7 +5,7 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
-import editable = require('./editables.tsx');
+import editable = require('./editables');
 
 import {IShow, IShowSection} from '../../../../backend/src/show';
 import {IDiscountGroup} from '../../../../backend/src/discountGroup';

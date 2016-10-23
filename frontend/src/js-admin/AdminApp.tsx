@@ -4,16 +4,16 @@ import React = require('react');
 import ReactDOM = require('react-dom');
 import Backbone = require('backbone');
 
-import Home from './components/Home.tsx';
-import OrderList from './components/OrderList.tsx';
-import Order from './components/Order.tsx';
-import Show from './components/Show.tsx';
-import Venue from './components/Venue.tsx';
-import Production from './components/Production.tsx';
-import DiscountCodes from './components/DiscountCodes.tsx';
-import DiscountGroups from './components/DiscountGroups.tsx';
+import Home from './components/Home';
+import OrderList from './components/OrderList';
+import Order from './components/Order';
+import Show from './components/Show';
+import Venue from './components/Venue';
+import Production from './components/Production';
+import DiscountCodes from './components/DiscountCodes';
+import DiscountGroups from './components/DiscountGroups';
 
-import Router = require('./router.ts');
+import Router = require('./router');
 
 var currentUrl = window.location.href;
 var storeUrl = currentUrl.substring(0, currentUrl.indexOf('admin') - 1);

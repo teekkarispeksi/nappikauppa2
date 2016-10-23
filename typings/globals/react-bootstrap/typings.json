@@ -1,8 +1,8 @@
 {
   "resolution": "main",
   "tree": {
-    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/5e960679e6f9ae6ce905b1db0ad36fc189cd2eca/react-bootstrap/react-bootstrap.d.ts",
-    "raw": "github:DefinitelyTyped/DefinitelyTyped/react-bootstrap/react-bootstrap.d.ts#5e960679e6f9ae6ce905b1db0ad36fc189cd2eca",
-    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/5e960679e6f9ae6ce905b1db0ad36fc189cd2eca/react-bootstrap/react-bootstrap.d.ts"
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/0f4a73ef205e808cc824d81ff6839d3fa27df251/react-bootstrap/react-bootstrap.d.ts",
+    "raw": "registry:dt/react-bootstrap#0.0.0+20160806072414",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/0f4a73ef205e808cc824d81ff6839d3fa27df251/react-bootstrap/react-bootstrap.d.ts"
   }
 }

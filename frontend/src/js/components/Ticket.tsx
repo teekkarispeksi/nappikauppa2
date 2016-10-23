@@ -37,12 +37,12 @@ export default class Ticket extends React.Component<ITicketProps, any> {
       <li key={seat.id}>
         <div className={divClass}>
           <div className='info'>{info}</div>
-          <Bootstrap.Input type='select' className='discountGroupSelect' standalone disabled={disabled} onChange={this.onChange.bind(this)} value={this.props.ticket.discount_group_id}>
+          <Bootstrap.FormControl componentClass='select' className='discountGroupSelect' disabled={disabled} onChange={this.onChange.bind(this)} value={'' + this.props.ticket.discount_group_id}>
             {_.map(this.props.ticket.discount_groups, (group: IDiscountGroup) => {
               var price = Math.max(0, this.props.ticket.price - group.discount);
               return (<option key={group.id} value={group.id.toString()}>{group.title} à {price}€</option>);
             })}
-          </Bootstrap.Input>
+          </Bootstrap.FormControl>
           {remove}
         </div>
       </li>

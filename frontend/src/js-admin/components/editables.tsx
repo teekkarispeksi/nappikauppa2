@@ -46,12 +46,12 @@ export function Select(_this: any, obj: {}, field: string, options: {value: any,
     onChange = _onChange;
   }
   return (
-    <Bootstrap.Input type='select' standalone onChange={(event) => onChange(_this, obj, field, event, 'select')} value={obj[field]}>
+    <Bootstrap.FormControl componentClass='select' onChange={(event) => onChange(_this, obj, field, event, 'select')} value={obj[field]}>
       <option />
       {options.map((option) => {
         return (<option key={option.value} value={option.value}>{option.name}</option>);
       })}
-    </Bootstrap.Input>
+    </Bootstrap.FormControl>
   );
 }
 

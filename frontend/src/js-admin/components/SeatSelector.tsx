@@ -2,7 +2,7 @@
 
 import _ = require('underscore');
 import React = require('react');
-import Seat from '../../js/components/Seat.tsx';
+import Seat from '../../js/components/Seat';
 import {IShow} from '../../../../backend/src/show';
 import {IVenue} from '../../../../backend/src/venue';
 

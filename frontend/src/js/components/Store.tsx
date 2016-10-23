@@ -9,12 +9,12 @@ import Marked = require('marked');
 import Moment = require('moment-timezone');
 import Bootstrap = require('react-bootstrap');
 
-import ShowSelector from './ShowSelector.tsx';
-import SeatSelector from './SeatSelector.tsx'; // for numbered seats
-import TicketCountSelector from './TicketCountSelector.tsx'; // for non-numbered seats
-import ShoppingCart from './ShoppingCart.tsx';
-import Contacts from './Contacts.tsx';
-import FinalConfirmation from './FinalConfirmation.tsx';
+import ShowSelector from './ShowSelector';
+import SeatSelector from './SeatSelector'; // for numbered seats
+import TicketCountSelector from './TicketCountSelector'; // for non-numbered seats
+import ShoppingCart from './ShoppingCart';
+import Contacts from './Contacts';
+import FinalConfirmation from './FinalConfirmation';
 
 import {IOrder} from '../../../../backend/src/order';
 import {IProduction} from '../../../../backend/src/production';

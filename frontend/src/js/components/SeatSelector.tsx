@@ -4,7 +4,7 @@ import _ = require('underscore');
 import React = require('react');
 import Marked = require('marked');
 
-import Seat from './Seat.tsx';
+import Seat from './Seat';
 import {IShow} from '../../../../backend/src/show';
 import {IVenue} from '../../../../backend/src/venue';
 

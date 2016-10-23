@@ -11,7 +11,7 @@ export interface IFinalConfirmationProps {
   order: IOrder;
   paymentBegun: boolean;
 
-  onProceedToPayment: Function;
+  onProceedToPayment: React.EventHandler<React.MouseEvent>;
 }
 
 export default class FinalConfirmation extends React.Component<IFinalConfirmationProps, any> {

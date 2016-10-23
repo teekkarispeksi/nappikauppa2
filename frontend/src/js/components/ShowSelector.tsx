@@ -36,7 +36,7 @@ export default class ShowSelector extends React.Component<IShowSelectorProps, an
               if (Moment(show.inactivate_time) < Moment()) {
                 progressBar = (<div className='sold-out'>Ovimyynti</div>);
               } else {
-                progressBar = (<Bootstrap.ProgressBar bsSize='small' min={0} max={100} now={show.reserved_percentage} />);
+                progressBar = (<Bootstrap.ProgressBar min={0} max={100} now={show.reserved_percentage} />);
               }
             } else {
               progressBar = (<div className='sold-out'>Loppuunmyyty</div>);

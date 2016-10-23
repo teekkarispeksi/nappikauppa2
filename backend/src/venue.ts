@@ -1,10 +1,9 @@
 'use strict';
 
-import Dictionary = _.Dictionary;
-
 import db = require('./db');
 import log = require('./log');
 import _ = require('underscore');
+import Dictionary = _.Dictionary;
 
 export interface ISeat {
   id: number;

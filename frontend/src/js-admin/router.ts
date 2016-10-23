@@ -3,10 +3,7 @@
 import Backbone = require('backbone');
 
 class NkAdminRouter extends Backbone.Router {
-  routes: any;
-
-  constructor(options?: any) {
-    this.routes = {
+  routes = {
       'orders/:orderid': 'order',
       'shows(/)(:showid)': 'shows',
       'shows/:showid/orders': 'orderlist',
@@ -17,7 +14,10 @@ class NkAdminRouter extends Backbone.Router {
       'discountGroups(/)': 'discountGroups',
       '*url': 'default'
     };
+
+  constructor(options?: any) {
     super();
+    (<any>this)._bindRoutes();
   }
 }
 

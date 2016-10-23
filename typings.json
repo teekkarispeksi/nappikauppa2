@@ -25,7 +25,7 @@
     "nodemailer-types": "github:DefinitelyTyped/DefinitelyTyped/nodemailer/nodemailer-types.d.ts#1da639a106527e0c4010b354a1efe52a3059a291",
     "pdfkit": "registry:dt/pdfkit#0.7.2+20160613155454",
     "react": "github:DefinitelyTyped/DefinitelyTyped/react/react.d.ts#5e960679e6f9ae6ce905b1db0ad36fc189cd2eca",
-    "react-bootstrap": "github:DefinitelyTyped/DefinitelyTyped/react-bootstrap/react-bootstrap.d.ts#5e960679e6f9ae6ce905b1db0ad36fc189cd2eca",
+    "react-bootstrap": "registry:dt/react-bootstrap#0.0.0+20160806072414",
     "react-dom": "github:DefinitelyTyped/DefinitelyTyped/react/react-dom.d.ts#5e960679e6f9ae6ce905b1db0ad36fc189cd2eca",
     "request": "github:DefinitelyTyped/DefinitelyTyped/request/request.d.ts#1da639a106527e0c4010b354a1efe52a3059a291",
     "require": "registry:dt/require#2.1.20+20160316155526",

@@ -5,8 +5,8 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
-import SeatSelector from './SeatSelector.tsx';
-import editable = require('./editables.tsx');
+import SeatSelector from './SeatSelector';
+import editable = require('./editables');
 import {IProduction} from '../../../../backend/src/production';
 
 

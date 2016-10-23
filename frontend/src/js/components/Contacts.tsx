@@ -86,41 +86,49 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
       <div className={divClass}>
         <h2>Yhteystiedot <small>4/5</small></h2>
         <div>
-          <Bootstrap.Input
-            label='Nimi'
-            type='text'
-            bsStyle={ _.contains(this.state.errors, 'name') ? ('error') : null }
-            readOnly={!active}
-            onChange={this.onValueChange.bind(this, 'name')}
-            value={this.state.name} />
+          <Bootstrap.FormGroup
+              validationState={ _.contains(this.state.errors, 'name') ? ('error') : null } >
+            <Bootstrap.ControlLabel>Nimi</Bootstrap.ControlLabel>
+            <Bootstrap.FormControl
+                type='text'
+                readOnly={!active}
+                onChange={this.onValueChange.bind(this, 'name')}
+                value={this.state.name} />
+          </Bootstrap.FormGroup>
         </div>
 
         <div>
-          <Bootstrap.Input
-            label='Sähköposti'
-            type='text'
-            bsStyle={ _.contains(this.state.errors, 'email') ? ('error') : null }
-            readOnly={!active}
-            onChange={this.onValueChange.bind(this, 'email')}
-            value={this.state.email} />
+          <Bootstrap.FormGroup
+              validationState={ _.contains(this.state.errors, 'email') ? ('error') : null } >
+            <Bootstrap.ControlLabel>Sähköposti</Bootstrap.ControlLabel>
+            <Bootstrap.FormControl
+                type='text'
+                readOnly={!active}
+                onChange={this.onValueChange.bind(this, 'email')}
+                value={this.state.email} />
+          </Bootstrap.FormGroup>
         </div>
 
         <div>
-          <Bootstrap.Input
-            label='Alennuskoodi'
-            type='text'
-            bsStyle={ _.contains(this.state.errors, 'discount_code') ? ('error') : null }
-            readOnly={!active}
-            onChange={this.onValueChange.bind(this, 'discount_code')}
-            value={this.state.discount_code} />
+          <Bootstrap.FormGroup
+               validationState={ _.contains(this.state.errors, 'discount_code') ? ('error') : null } >
+            <Bootstrap.ControlLabel>Alennuskoodi</Bootstrap.ControlLabel>
+            <Bootstrap.FormControl
+                type='text'
+                readOnly={!active}
+                onChange={this.onValueChange.bind(this, 'discount_code')}
+                value={this.state.discount_code} />
+          </Bootstrap.FormGroup>
         </div>
+
         <div style={{maxWidth: '200px'}}>
-          <Bootstrap.Input
-            label='Haluan tiedon ensi vuoden lipunmyynnin alkamisesta'
-            type='checkbox'
-            readOnly={!active}
-            onChange={this.onValueChange.bind(this, 'wants_email')}
-            value={this.state.wants_email} />
+          <Bootstrap.Checkbox
+              type='checkbox'
+              readOnly={!active}
+              onChange={this.onValueChange.bind(this, 'wants_email')}
+              checked={this.state.wants_email} >
+            Haluan tiedon ensi vuoden lipunmyynnin alkamisesta
+          </Bootstrap.Checkbox>
         </div>
         <div>
           <Bootstrap.Button id='saveOrderInfo' disabled={!active} onClick={active ? this.onSave.bind(this) : null}>Tallenna</Bootstrap.Button>
