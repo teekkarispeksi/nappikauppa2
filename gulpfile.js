@@ -21,6 +21,7 @@ var notify = require('gulp-notify');
 var lr = require('tiny-lr')();
 var nightwatch = require('gulp-nightwatch');
 var server = require('gulp-live-server');
+var sourcemaps = require('gulp-sourcemaps');
 
 gulp.task('server', function() {
   var app = server.new('app.js');
@@ -101,7 +102,7 @@ function js(startPath, targetFile) {
     .add(startPath)
     .add('typings/index.d.ts')
     .transform(babelify)
-    .plugin(tsify)
+    .plugin(tsify, {sourceRoot: __dirname})
     .bundle()
     .on('error', function(err) {
       notify.onError({
@@ -142,18 +143,22 @@ gulp.task('js:min', ['js:store:min', 'js:admin:min']);
 
 gulp.task('backend', function() {
   return gulp.src(['backend/src/**/*.ts', 'typings/index.d.ts'])
+    .pipe(sourcemaps.init())
     .pipe(ts({
       module: 'commonjs'
     }))
+    .pipe(sourcemaps.write({sourceRoot: '../src'}))
     .pipe(gulp.dest('backend/build/'))
     .pipe(notify({message: 'backend re-compiled, restart gulp', onLast: true}));
 });
 
 gulp.task('app', function() {
   return gulp.src(['app.ts', 'typings/index.d.ts'])
+    .pipe(sourcemaps.init())
     .pipe(ts({
       module: 'commonjs'
     }))
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest('./'))
     .pipe(notify({message: 'server re-compiled, restart gulp', onLast: true}));
 });
