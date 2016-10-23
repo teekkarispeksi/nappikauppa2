@@ -95,17 +95,20 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       // clean the ok/fail hash in the url
       window.history.pushState('', '', window.location.pathname);
     }
+
     $.getJSON('api/productions/latest', (resp: IProduction) => {
       this.production = resp;
       this.forceUpdate();
+
+      $.getJSON('api/shows', {production_id: this.production.id}, (resp2: IShow[]) => {
+        this.shows = resp2;
+        if (this.props.showid) {
+          this.onShowSelect(this.props.showid);
+        }
+        this.forceUpdate();
+      });
     });
-    $.getJSON('api/shows', (resp: IShow[]) => {
-      this.shows = resp;
-      if (this.props.showid) {
-        this.onShowSelect(this.props.showid);
-      }
-      this.forceUpdate();
-    });
+
     $.get('api/auth', (resp: string) => {
       if (resp) {
         this.setState({auth: resp});

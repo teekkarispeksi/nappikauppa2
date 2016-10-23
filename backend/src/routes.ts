@@ -73,7 +73,7 @@ router.get('/productions/latest', function(req: Request, res: Response) {
 });
 
 router.get('/shows/', checkUserSilently, function(req: Request, res: Response) {
-  show.getAll(req.user).then(ok(res), err(res));
+  show.getAll(req.user, req.query.production_id).then(ok(res), err(res));
 });
 
 router.get('/shows/:showid', function(req: Request, res: Response) {

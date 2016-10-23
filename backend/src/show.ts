@@ -32,7 +32,7 @@ export interface IReservedSeats {
   reserved_seats: number[];
 }
 
-export function getAll(user): Promise<IShow[]> {
+export function getAll(user, production_id): Promise<IShow[]> {
   return db.query('select \
       shows.*, \
       (100.0 * ifnull(reserved.seatcount, 0) / total.seatcount) as reserved_percentage, \
@@ -59,7 +59,8 @@ export function getAll(user): Promise<IShow[]> {
       (shows.id = groups.show_id or groups.show_id is null) \
       and (:is_admin or groups.admin_only = false) \
       and groups.active = true \
-    where (shows.active = true or :is_admin)', {is_admin: typeof(user) !== 'undefined'})
+    where (shows.active = true or :is_admin) \
+      and (shows.production_id = :production_id or (:production_id is null and :is_admin))', {is_admin: typeof(user) !== 'undefined', production_id: production_id})
     .then((rows) => {
       var grouped = _.groupBy(rows, 'id');
       var shows = _.mapObject(grouped, function(showRows: any[]) {
@@ -87,7 +88,7 @@ export function getAll(user): Promise<IShow[]> {
 }
 
 export function get(show_id: number, user?: string): Promise<IShow> {
-  return getAll(user).then((shows: IShow[]) => shows.filter((show2: IShow) => show2.id === show_id)[0])
+  return getAll(user, null).then((shows: IShow[]) => shows.filter((show2: IShow) => show2.id === show_id)[0])
   .catch((err) => {
     log.error('Getting a show failed', {error: err});
     return Promise.reject(err);
