@@ -43,8 +43,14 @@ export function beginTransaction(): Promise<any> {
 
 export function query(query: string, params?: {}): Promise<any> {
   return new Promise((resolve, reject) => {
-    db.query(query, params, function(err, res) {
-      err ? reject(err) : resolve(res);
+    var sql = db.format(query, params);
+    db.query(sql, function(err, res) {
+      if (err) {
+        log.error('DB error when executing query: \n', sql);
+        reject(err);
+      } else {
+        resolve(res);
+      }
     });
   });
 }
