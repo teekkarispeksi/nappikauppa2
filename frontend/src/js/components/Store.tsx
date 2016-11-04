@@ -8,6 +8,7 @@ import _ = require('underscore');
 import Marked = require('marked');
 import Moment = require('moment-timezone');
 import Bootstrap = require('react-bootstrap');
+import GA = require('react-ga');
 
 import ShowSelector from './ShowSelector';
 import SeatSelector from './SeatSelector'; // for numbered seats
@@ -209,6 +210,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       reservationError: null
     });
     Router.navigate('show/' + showid, {trigger: false});
+    GA.pageview('/' + window.location.hash);
     setTimeout(function() {
       scrollToElem('.seat-selector');
     }, 100);
@@ -222,8 +224,10 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     });
     if (this.state.chosenSeatIds.indexOf(seat_id) >= 0) {
       this.unselectSeat(seat_id);
+      GA.event({category: 'Seat', action: 'Unselected', label: this.venue.sections[section_id].section_title, value: seat_id});
     } else {
       this.selectSeat(seat_id, section_id);
+      GA.event({category: 'Seat', action: 'Selected', label: this.venue.sections[section_id].section_title, value: seat_id});
     }
     this.updateSeatStatus();
   }
@@ -249,7 +253,6 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         discount_group_id: t.discount_group_id
       };
     });
-
     $.ajax({
       url: 'api/shows/' + this.state.show.id + '/reserveSeats/',
       method: 'POST',
@@ -268,6 +271,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         this.forceUpdate();
       }
     });
+    GA.event({category: 'Tickets', action: 'Reserved', value: this.tickets.length});
   }
 
   onSaveOrderInfo(info) {
@@ -292,6 +296,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         console.log('order info saving failed'); // TODO
       }
     });
+    GA.event({category: 'Contacts', action: 'Saved'});
   }
 
   onProceedToPayment() {
@@ -309,6 +314,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           window.location.href = res.url;
         }
       }.bind(this));
+    GA.event({category: 'Payment', action: 'Started', value: this.order.order_price});
   }
 
   helpText() {
@@ -323,8 +329,10 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           Voit myös <a className='alert-link' href={'api/orders/' + order_id + '/' + order_hash + '/tickets.pdf'}>ladata liput tästä.</a></p>
         </div>
       );
+      GA.event({category: 'Payment', action: 'Succesfull'});
     } else if (this.props.action === 'fail') {
       result = (<div className='alert alert-warning'>Keskeytit tilauksesi ja varaamasi paikat on vapautettu myyntiin.</div>);
+      GA.event({category: 'Tickets', action: 'Canceled'});
     }
     var rawProductionDescriptionMarkup = Marked(this.production.description, {sanitize: true}); // should be safe to inject
     return (
