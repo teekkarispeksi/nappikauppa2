@@ -14,6 +14,7 @@ import $ = require('jquery');
 
 import Header from './components/Header';
 import Store from './components/Store';
+import Footer from './components/Footer';
 
 import Router = require('./router');
 
@@ -33,5 +34,7 @@ Router.on('route:default', function(url: string) {
 Router.on('route:show', function(showid) {
   ReactDOM.render(<Store showid={parseInt(showid)} />, document.getElementsByTagName('main')[0]);
 });
+
+ReactDOM.render(<Footer />, $('footer')[0]);
 
 Backbone.history.start();
