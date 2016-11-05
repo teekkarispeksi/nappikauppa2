@@ -2,7 +2,7 @@
 
 import _ = require('underscore');
 import React = require('react');
-import Bootstrap = require('react-bootstrap');
+import Button from './Button';
 import Ticket from './Ticket';
 import {ITicket} from './Store';
 
@@ -33,7 +33,7 @@ export default class ShoppingCart extends React.Component<IShoppingCartProps, an
     }
 
     var reserveTicketsButton = (this.props.active && tickets.length > 0 && !this.props.error) ?
-      (<Bootstrap.Button id='reserveTickets' onClick={this.props.onReserveTickets.bind(this)}>Varaa liput</Bootstrap.Button>) : null;
+      (<Button id='reserveTickets' onClick={this.props.onReserveTickets.bind(this)}>Varaa liput</Button>) : null;
 
     var timer;
     if (this.props.reservationExpirationTime) {

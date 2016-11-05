@@ -5,6 +5,8 @@ import Bootstrap = require('react-bootstrap');
 import _ = require('underscore');
 import $ = require('jquery');
 
+import Button from './Button';
+
 export interface IContactsProps {
   active: boolean;
 
@@ -131,7 +133,7 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
           </Bootstrap.Checkbox>
         </div>
         <div>
-          <Bootstrap.Button id='saveOrderInfo' disabled={!active} onClick={active ? this.onSave.bind(this) : null}>Tallenna</Bootstrap.Button>
+          <Button id='saveOrderInfo' disabled={!active} onClick={this.onSave.bind(this)}>Tallenna</Button>
         </div>
       </div>
     );
