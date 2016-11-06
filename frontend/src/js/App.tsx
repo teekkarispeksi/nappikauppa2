@@ -17,6 +17,7 @@ import GA = require('react-ga');
 
 import Header from './components/Header';
 import Store from './components/Store';
+import Footer from './components/Footer';
 
 import Router = require('./router');
 
@@ -37,6 +38,9 @@ Router.on('route:show', function(showid) {
   ReactDOM.render(<Store showid={parseInt(showid)} />, document.getElementsByTagName('main')[0]);
 });
 
+ReactDOM.render(<Footer />, $('footer')[0]);
+
 GA.initialize(config.analytics.google);
 GA.pageview('/' + window.location.hash);
+
 Backbone.history.start();

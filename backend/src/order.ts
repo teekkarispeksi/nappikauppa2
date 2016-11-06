@@ -380,7 +380,7 @@ export function preparePayment(order_id: number): Promise<any> {
         log.info('Using discount code', {discount_code: order.discount_code, discount_amount: discount_amount, order_id: order_id});
         var discount_row = {
           'title': 'Alennuskoodi: ' + order.discount_code,
-          'code': order.discount_code,
+          'code': order.discount_code.replace(/[^\w]/gi, '').substr(0, 16), // paytrail API restriction
           'amount': '1.00',
           'price': -discount_amount,
           'vat': '0.00',

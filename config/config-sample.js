@@ -13,7 +13,8 @@ module.exports = {
           api_key: '',
           domain: ''
         },
-    from: ''
+    from: '',
+    errors_to: ''
   },
   paytrail: {
     user: '13466',

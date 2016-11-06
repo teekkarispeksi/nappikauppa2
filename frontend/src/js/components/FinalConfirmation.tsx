@@ -3,7 +3,7 @@
 import ReactElement = __React.ReactElement;
 
 import React = require('react');
-import Bootstrap = require('react-bootstrap');
+import Button from './Button';
 import {IOrder} from '../../../../backend/src/order';
 
 
@@ -52,9 +52,9 @@ export default class FinalConfirmation extends React.Component<IFinalConfirmatio
         </tbody>
         </table>
 
-        <Bootstrap.Button id='proceedToPayment' disabled={!active} onClick={active ? this.props.onProceedToPayment : null}>
+        <Button id='proceedToPayment' disabled={!active} onClick={this.props.onProceedToPayment}>
           {active ? 'Siirry maksamaan' : 'Siirrytään maksupalveluun'}
-        </Bootstrap.Button>
+        </Button>
       </div>
     );
   }

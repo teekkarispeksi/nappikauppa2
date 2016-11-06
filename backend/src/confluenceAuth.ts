@@ -40,7 +40,7 @@ export function authenticate(user: string, password: string, requiredGroup: stri
     }
 
     if (!_.contains(groups, requiredGroup)) {
-      log.error('Access denied', {user: user, hasGroups: groups, requiredGroup: requiredGroup});
+      log.warn('Access denied', {user: user, hasGroups: groups, requiredGroup: requiredGroup});
       return cb(false);
     }
 

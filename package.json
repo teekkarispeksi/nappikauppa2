@@ -31,7 +31,8 @@
     "request": "2.75.0",
     "stream-to-array": "^2.2.0",
     "underscore": "^1.8.3",
-    "winston": "1.1.2"
+    "winston": "1.1.2",
+    "winston-mailgun": "github:blizzara/winston-mailgun"
   },
   "devDependencies": {
     "babel-preset-react": "^6.16.0",
