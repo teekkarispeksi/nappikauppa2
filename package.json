@@ -57,6 +57,7 @@
     "react": "^15.3.2",
     "react-bootstrap": "^0.30.5",
     "react-dom": "^15.3.2",
+    "react-ga": "^2.1.2",
     "run-sequence": "^1.2.2",
     "tiny-lr": "^1.0.2",
     "tsify": "^2.0.2",

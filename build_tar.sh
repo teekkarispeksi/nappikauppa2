@@ -22,6 +22,8 @@ mkdir build/frontend
 cp -r frontend/build build/frontend/
 mkdir build/config
 cp config/*-sample.js build/config/
+mkdir build/config/public
+cp config/public/*-sample.js build/config/public/
 mkdir build/db
 cp db/tables.sql db/venues.sql build/db/
 cp package.json build/

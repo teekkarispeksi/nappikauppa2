@@ -24,6 +24,7 @@
 /// <reference path="globals/pdfkit/index.d.ts" />
 /// <reference path="globals/react-bootstrap/index.d.ts" />
 /// <reference path="globals/react-dom/index.d.ts" />
+/// <reference path="globals/react-ga/index.d.ts" />
 /// <reference path="globals/react/index.d.ts" />
 /// <reference path="globals/request/index.d.ts" />
 /// <reference path="globals/require/index.d.ts" />

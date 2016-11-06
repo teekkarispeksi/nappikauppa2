@@ -32,6 +32,7 @@ npm-debug.log
 
 # config
 config/config.js
+config/public/frontend.js
 
 nohup.out
 
