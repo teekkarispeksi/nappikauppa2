@@ -123,6 +123,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
   onTimeout() {
     this.setState({page: 'seats', reservationError: 'Varauksesi on rauennut.'});
+    GA.event({category: 'Tickets', action: 'Expired'});
   }
 
   startTimer() {
@@ -332,7 +333,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       GA.event({category: 'Payment', action: 'Succesfull'});
     } else if (this.props.action === 'fail') {
       result = (<div className='alert alert-warning'>Keskeytit tilauksesi ja varaamasi paikat on vapautettu myyntiin.</div>);
-      GA.event({category: 'Tickets', action: 'Canceled'});
+      GA.event({category: 'Payment', action: 'Canceled'});
     }
     var rawProductionDescriptionMarkup = Marked(this.production.description, {sanitize: true}); // should be safe to inject
     return (
