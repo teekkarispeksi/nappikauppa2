@@ -12,7 +12,7 @@ gulp build
 
 mkdir build
 mkdir build/log
-cp -r app.js  assets/ checker/ prod.js build/
+cp -r app.js  assets/ checker/ build/
 mkdir build/backend
 cp -r backend/build build/backend/
 ln -rs build/config build/backend/config

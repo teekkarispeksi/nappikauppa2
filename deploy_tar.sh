@@ -12,7 +12,7 @@ then
 fi
 
 echo "Cleaning old files..."
-ssh $2 "cd $3 && rm -r node_modules backend checker frontend prod.js"
+ssh $2 "cd $3 && rm -r node_modules backend checker frontend app.js"
 echo "Unpacking $1..."
 ssh $2 "cd $3 && tar -xf $1"
 
