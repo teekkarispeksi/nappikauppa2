@@ -155,18 +155,17 @@ export function checkAndUpdateStatus(order_id: number): Promise<any> {
   }).then((res) => ({status: status}));
 }
 
-export function reserveSeats(show_id: number, seats: IReservedSeat[], user: string): Promise<any> {
+export function reserveSeats(show_id: number, seats: IReservedSeat[], user: string): Promise<IOrder> {
   log.info('Reserving seats', {show_id: show_id, seats: seats, user: user});
 
   var order_id;
   return checkExpired()
-    .then(db.beginTransaction, (err) => {
-      log.error('Failed to start a database transaction', {error: err});
-      throw err;
-    })
-    .then(() =>
-      db.query('insert into nk2_orders (time, status, hash) values (now(), "seats-reserved", :hash)',
-      {hash: uuid.v4()}))
+  .then(db.beginTransaction, (err) => {
+    log.error('Failed to start a database transaction', {error: err});
+    throw err;
+  })
+  .then((connection) => {
+    return db.query('insert into nk2_orders (time, status, hash) values (now(), "seats-reserved", :hash)', {hash: uuid.v4()}, connection)
     .then((res) => {
       order_id = res.insertId;
       log.info('Order created - creating tickets', {order_id: order_id});
@@ -198,20 +197,18 @@ export function reserveSeats(show_id: number, seats: IReservedSeat[], user: stri
       });
 
       // Actually fire what we generated above
-      return db.query(query_start + insert_values.join(','));
+      return db.query(query_start + insert_values.join(','), {}, connection);
     })
     .then((res) => {
       log.info('Created tickets', {order_id: order_id});
-      return db.commit();
+      return db.commit(connection);
     })
     .then((res) => get(order_id))
     .catch((err) => {
       log.error('Creating tickets failed - rolling back', {order_id: order_id, error: err});
-      db.rollback()
-      .then(() => {
-        throw err;
-      });
+      return db.rollback(connection).then(() => Promise.reject(err));
     });
+  });
 }
 
 export function updateContact(order_id: number, data: IContact, user): Promise<any> {
@@ -468,7 +465,7 @@ export function paymentCancelled(order_id: number, params): Promise<any> {
   }
 }
 
-export function paymentDone(order_id: number, params): Promise<any> {
+export function paymentDone(order_id: number, params): Promise<IOrder> {
   log.info('Payment done - verifying', {order_id: order_id});
 
   var verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
@@ -488,16 +485,11 @@ export function paymentDone(order_id: number, params): Promise<any> {
       log.info('Order was already paid', {order_id: order_id});
       return null;
     }
-    return db.beginTransaction()
-    .then(() => db.query('update nk2_orders set status = "paid", payment_id = :payment_id where id = :order_id', { order_id: order_id, payment_id: params.PAID}))
-    .then(() => {
-      db.commit();
-      sendTickets(order_id);
-    })
+    return db.query('update nk2_orders set status = "paid", payment_id = :payment_id where id = :order_id', { order_id: order_id, payment_id: params.PAID})
+    .then(() => sendTickets(order_id))
     .catch((err) => {
-      log.error('Updating payment status failed - rolling back', {error: err, order_id: order_id});
-      db.rollback();
-      throw 'Updating payment status failed - rolling back';
+      log.error('Updating payment status failed', {error: err, order_id: order_id});
+      return Promise.reject('Updating payment status failed');
     });
   })
   .then(() => {
