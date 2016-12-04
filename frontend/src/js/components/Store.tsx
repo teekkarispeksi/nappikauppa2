@@ -354,7 +354,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     if (!this.production) {
       return <div></div>;
     }
-    var opens = Moment(this.production.opens);
+    var opens = Moment.tz(this.production.opens, 'Europe/Helsinki');
     if (opens > Moment() && !this.state.auth) {
       return <div className='shopping-stage'>Lippukauppa aukeaa {opens.format('DD.MM. [klo] H:mm')}.</div>;
     }

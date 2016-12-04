@@ -4,7 +4,6 @@ import db = require('./db');
 import log = require('./log');
 import order = require('./order');
 import _ = require('underscore');
-import moment = require('moment-timezone');
 
 import {IDiscountGroup} from './discountGroup';
 
@@ -65,8 +64,6 @@ export function getAll(user, production_id): Promise<IShow[]> {
       var grouped = _.groupBy(rows, 'id');
       var shows = _.mapObject(grouped, function(showRows: any[]) {
         var show: IShow = _.pick(showRows[0], ['id', 'title', 'production_id', 'venue_id', 'time', 'active', 'inactivate_time', 'description', 'reserved_percentage']);
-        show.time = moment(show.time).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss'); // convert times to local (Helsinki) time strings
-        show.inactivate_time = moment(show.inactivate_time).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss');
         var sections = _.groupBy(showRows, 'section_id');
         show.sections = _.mapObject(sections, (sectionRows: any[]) => _.pick(sectionRows[0], ['section_id', 'price', 'active']));
         if ('null' in show.sections) {

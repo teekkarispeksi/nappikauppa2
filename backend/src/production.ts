@@ -5,7 +5,6 @@ import log = require('./log');
 import order = require('./order');
 import _ = require('underscore');
 import promise = require('es6-promise');
-import moment = require('moment-timezone');
 
 export interface IProduction {
   id: number;
@@ -24,11 +23,7 @@ export function getLatestActive(): Promise<IProduction> {
     WHERE active = TRUE \
     ORDER BY opens DESC \
     LIMIT 1')
-  .then((rows) => {
-    var production: IProduction = rows[0];
-    production.opens = moment(production.opens).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss'); // convert times to local (Helsinki) time strings
-    return production;
-  })
+  .then((rows): IProduction => rows[0])
   .catch((err) => {
     log.error('Getting the latest active production failed', {error: err});
     return Promise.reject(err);
@@ -40,13 +35,6 @@ export function getAll(production_id?: number): Promise<IProduction[]> {
       id, title, performer, opens, active, description, ticket_image_src \
     FROM nk2_productions ' +
     (production_id ? 'WHERE id = :id' : ''), {id: production_id})
-  .then((rows) => {
-    var productions: IProduction[] = rows.map((production) => {
-      production.opens = moment(production.opens).tz('Europe/Helsinki').format('YYYY-MM-DDTHH:mm:ss'); // convert times to local (Helsinki) time strings
-      return production;
-    });
-    return productions;
-  })
   .catch((err) => {
     log.error('Getting the latest active production failed', {error: err});
     return Promise.reject(err);

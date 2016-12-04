@@ -7,6 +7,7 @@ import promise = require('es6-promise');
 
 var Promise = promise.Promise;
 
+config.db.dateStrings = true;
 var db = mysql.createPool(config.db);
 
 db.on('error', function(err) {
