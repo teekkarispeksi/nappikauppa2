@@ -194,6 +194,11 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
     var show = _.findWhere(this.shows, {id: showid});
 
+    if (!show) {
+      Router.navigate('', {trigger: true});
+      return;
+    }
+
     if (!this.venue || this.venue.id !== show.venue_id) {
       $.getJSON('api/venues/' + show.venue_id,
         (response: IVenue) => {
