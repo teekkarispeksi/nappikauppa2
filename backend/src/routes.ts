@@ -80,8 +80,8 @@ router.get('/shows/', checkUserSilently, function(req: IRequestWithUser, res: Re
   show.getAll(req.user, req.query.production_id).then(ok(res), err(res));
 });
 
-router.get('/shows/:showid', function(req: Request, res: Response) {
-  show.get(parseInt(req.params.showid)).then(ok(res), err(res));
+router.get('/shows/:showid', checkUserSilently, function(req: IRequestWithUser, res: Response) {
+  show.get(parseInt(req.params.showid), req.user).then(ok(res), err(res));
 });
 
 router.get('/shows/:showid/reservedSeats', function(req: Request, res: Response) {

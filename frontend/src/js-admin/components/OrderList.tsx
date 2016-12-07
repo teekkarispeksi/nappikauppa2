@@ -4,10 +4,10 @@ import React = require('react');
 import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
+import Moment = require('moment-timezone');
 
 import {IAdminOrderListItem} from '../../../../backend/src/order';
 import {IShow} from '../../../../backend/src/show';
-import {ISOToDateString} from '../utils';
 
 export interface IOrderListProps {
   show_id?: number;
@@ -50,7 +50,7 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
     return (
       <div>
         <h2>
-          {this.state.show ? 'Tilaukset - ' + ISOToDateString(this.state.show.time) + ' ' + this.state.show.title : ''}
+          {this.state.show ? 'Tilaukset - ' + Moment.tz(this.state.show.time, 'Europe/Helsinki').format('D.M.YYYY') + ' ' + this.state.show.title : ''}
         </h2>
         <Bootstrap.Table bordered striped condensed><tbody>
         <tr>
