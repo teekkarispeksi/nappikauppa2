@@ -1,12 +1,9 @@
 'use strict';
 
-import EventHandler = __React.EventHandler;
-
 import React = require('react');
-import Props = __React.Props;
 import {ISeat} from '../../../../backend/src/venue';
 
-export interface ISeatProps extends Props<any> {
+export interface ISeatProps extends React.Props<any> {
   prices: number[];
   priceClass: string;
   rowName: string;

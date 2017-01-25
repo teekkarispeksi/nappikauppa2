@@ -68,17 +68,17 @@ export default class Show extends React.Component<IShowProps, IShowState> {
     });
   }
 
-  onVenueChange(_this: any, obj: {}, field: string, event, type?: string) {
-    _this.state.show[field] = parseInt(event.target.value);
-    var venue = _.findWhere(_this.state.venues, {id: _this.state.show[field]}) as IVenue;
-    _this.state.show.sections = _.mapObject(venue.sections, (section: ISection): IShowSection => {
+  onVenueChange(__this: any, obj: {}, field: string, event, type?: string) {
+    __this.state.show[field] = parseInt(event.target.value);
+    var venue = _.findWhere(__this.state.venues, {id: __this.state.show[field]}) as IVenue;
+    __this.state.show.sections = _.mapObject(venue.sections, (section: ISection): IShowSection => {
       return {
         section_id: section.id,
         active: true,
         price: 0
       };
     });
-    _this.forceUpdate();
+    __this.forceUpdate();
   }
 
   saveChanges() {
