@@ -45,6 +45,7 @@ export default class Home extends React.Component<any, IHomeState> {
           {this.state.shows.map((show) => <li key={show.id}><a href={'#shows/' + show.id}>{ISOToDateString(show.time)} {show.title}</a> - <a href={'#shows/' + show.id + '/orders'}>Tilaukset</a></li>)}
         </ul>
         <h2>Teatterit</h2>
+        <p><a href={'#venues/'}>Luo uusi teatteri</a></p>
         <ul>
           {this.state.venues.map((venue) => <li key={venue.id}><a href={'#venues/' + venue.id}>{venue.venue_title}</a></li>)}
         </ul>

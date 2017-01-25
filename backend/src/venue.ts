@@ -124,3 +124,31 @@ export function update(venue_id: number, venue: IVenue): Promise<IVenue> {
     return Promise.reject(err);
   });
 }
+
+export function create(venue: IVenue): Promise<IVenue> {
+  log.info('ADMIN: Beginning venue creationg');
+  var venue_id: number = null;
+  return db.query('insert into nk2_venues (title, ticket_type, layout_src, description) values (:venue_title, :ticket_type, :layout_src, :description)', venue)
+  .then((res) => {
+    venue_id = res.insertId;
+    log.info('ADMIN: Venue created, creating sections', {venue_id: venue_id});
+    return _.values(venue.sections).reduce((promise, section) => {
+      return promise.then(() => db.query('insert into nk2_sections (venue_id, title, row_name) values (:venue_id, :section_title, :row_name)', _.extend({venue_id: venue_id}, section)))
+      .then((res2) => {
+        var section_id = res2.insertId;
+        log.info('ADMIN: Section created, creating seat', {section_id: section_id});
+        var query_start = 'insert into nk2_seats (section_id, row, number, x_coord, y_coord, inactive) values ';
+        var insert_values = _.values(section.seats).map((seat: ISeat) => db.format('(:section_id, :row, :number, :x_coord, :y_coord, :inactive)', _.extend({section_id: section_id}, seat)));
+        return db.query(query_start + insert_values.join(','));
+      });
+    }, Promise.resolve());
+  })
+  .then((res) => {
+    log.info('ADMIN: New venue created, returning');
+    return get(venue_id);
+  })
+  .catch((err) => {
+    log.error('ADMIN: Creating a venue failed', {error: err});
+    return Promise.reject(err);
+  });
+}
