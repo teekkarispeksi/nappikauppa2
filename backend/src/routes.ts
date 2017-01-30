@@ -36,7 +36,11 @@ var err = (res, errStatus = 500) => {
   };
 };
 
-var checkUserSilently: RequestHandler = (req: express.Request, res: express.Response, next: any) => {
+interface IRequestWithUser extends Request {
+  user: string;
+}
+
+var checkUserSilently: RequestHandler = (req: IRequestWithUser, res: Response, next: any) => {
   var authHeader = req.header('Authorization');
   if (!authHeader) {
     next();
@@ -51,7 +55,7 @@ var checkUserSilently: RequestHandler = (req: express.Request, res: express.Resp
   }
 };
 
-router.get('/auth', checkUserSilently, function(req: Request, res: Response) {
+router.get('/auth', checkUserSilently, function(req: IRequestWithUser, res: Response) {
   res.send(req.user);
 });
 
@@ -64,7 +68,7 @@ router.post('/log', jsonParser, function(req: Request, res: Response) {
   res.end();
 });
 
-router.get('/discountCode/:code', checkUserSilently, function(req: Request, res: Response) {
+router.get('/discountCode/:code', checkUserSilently, function(req: IRequestWithUser, res: Response) {
   discountCode.check(req.params.code, req.user).then(ok(res), err(res));
 });
 
@@ -72,7 +76,7 @@ router.get('/productions/latest', function(req: Request, res: Response) {
   production.getLatestActive().then(ok(res), err(res));
 });
 
-router.get('/shows/', checkUserSilently, function(req: Request, res: Response) {
+router.get('/shows/', checkUserSilently, function(req: IRequestWithUser, res: Response) {
   show.getAll(req.user, req.query.production_id).then(ok(res), err(res));
 });
 
@@ -84,13 +88,13 @@ router.get('/shows/:showid/reservedSeats', function(req: Request, res: Response)
   show.getReservedSeats(parseInt(req.params.showid)).then(ok(res), err(res));
 });
 
-router.post('/shows/:showid/reserveSeats', jsonParser, checkUserSilently, function(req: Request, res: Response) {
+router.post('/shows/:showid/reserveSeats', jsonParser, checkUserSilently, function(req: IRequestWithUser, res: Response) {
   order.reserveSeats(parseInt(req.params.showid), req.body, req.user)
     .then(ok(res))
     .catch((error) => { res.status(409); res.json(error); });
 });
 
-router.post('/orders/:orderid', jsonParser, checkUserSilently, function(req: Request, res: Response) {
+router.post('/orders/:orderid', jsonParser, checkUserSilently, function(req: IRequestWithUser, res: Response) {
   order.updateContact(parseInt(req.params.orderid), req.body, req.user).then(ok(res), err(res));
 });
 

@@ -13,7 +13,7 @@ Running the dev enviroment
 
 ( Assuming that you have [npm](https://www.npmjs.com/) installed )
 
-1. `npm install` for installing dependencies
+1. `npm install` for installing dependencies (including typing infos)
 2. Run `gulp`
 3. Go to [http://localhost:3000/](http://localhost:3000/)
 
@@ -33,9 +33,3 @@ to upload and unpack the package into HOST:DIRECTORY (must exist).
 Afterwards:
 1. Run `./build_tar.sh`
 2. Run `./deploy_tar.sh TARFILE HOST DIRECTORY --deploy-only`
-
-
-Adding typings
--------------
-
-Use `typings` (e.g. `npm install --global typings`)
