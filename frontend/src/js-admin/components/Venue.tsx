@@ -11,12 +11,13 @@ import {IVenue, ISection, ISeat} from '../../../../backend/src/venue';
 
 
 export interface IVenueProps {
-  venue_id: number;
+  venue_id?: number;
 }
 
 export interface IVenueState {
-  originalVenue?: IVenue;
-  venue: IVenue;
+  venues?: IVenue[];
+  venue?: IVenue;
+  venue_id?: number;
 }
 
 // this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers
@@ -30,28 +31,55 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
     this.state = {venue: null};
   }
 
-  reset(venue?: IVenue) {
-    if (venue) {
-      this.setState({originalVenue: venue, venue: almostDeepClone(venue)});
+  reset(venues?: IVenue[]) {
+    if (venues) {
+      this.setState({venues: venues, venue: almostDeepClone(this.getOriginalVenue(venues))});
     } else {
-      this.setState({venue: almostDeepClone(this.state.originalVenue)});
+      this.setState({venue: almostDeepClone(this.getOriginalVenue())});
     }
   }
 
+  getOriginalVenue(venues?: IVenue[]) {
+    if (!venues) {
+      venues = this.state.venues;
+    }
+    var venue_id = null;
+    if (this.state.venue_id) {
+      venue_id = this.state.venue_id;
+    } else if (this.props.venue_id) {
+      venue_id = this.props.venue_id;
+    }
+    return venue_id ? _.findWhere(venues, {id: venue_id}) : {} as IVenue;
+  }
+
+  onCopyVenue(venue_id: number) {
+    var venueToCopyFrom = _.findWhere(this.state.venues, {id: venue_id});
+    var venueCopy = _.omit(almostDeepClone(venueToCopyFrom), 'id');
+
+    this.setState({venue: venueCopy});
+  }
+
   componentWillMount() {
-    $.getJSON('api/venues/' + this.props.venue_id, (resp: IVenue) => {
+    $.getJSON('admin-api/venues', (resp: IVenue[]) => {
       this.reset(resp);
     });
   }
 
   saveChanges() {
     $.ajax({
-      url: 'admin-api/venues/' + this.state.venue.id,
+      url: 'admin-api/venues/' + (this.state.venue.id ? this.state.venue.id : ''),
       method: 'POST',
       data: JSON.stringify(this.state.venue),
       contentType: 'application/json',
       success: (response: IVenue) => {
-        this.reset(response);
+        var idx = _.findIndex(this.state.venues, (venue: IVenue) => venue.id === response.id);
+        if (idx >= 0) {
+          this.state.venues[idx] = response;
+        } else {
+          this.state.venues.push(response);
+        }
+        this.setState({venue_id: response.id});
+        this.reset();
       },
       error: (response) => {
         console.log('venue info updating failed'); // TODO
@@ -69,11 +97,23 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
     if (!this.state.venue) {
       return (<div></div>);
     }
+
+    var copy = !this.state.venue_id ? (
+      <div>
+        <h2>Kopioi teatteri</h2>
+        <Bootstrap.FormControl componentClass='select' onChange={(event) => this.onCopyVenue(parseInt((event.target as any).value))}>
+          <option />
+          {this.state.venues.map((venue) => <option key={venue.id} value={'' + venue.id}>{venue.venue_title}</option>)}
+        </Bootstrap.FormControl>
+      </div>
+    ) : null;
+
     var venue = this.state.venue;
 
-    var hasEdits = !_.isEqual(this.state.venue, this.state.originalVenue);
+    var hasEdits = !_.isEqual(this.state.venue, this.getOriginalVenue());
     return (
       <div>
+        {copy}
         <h2>Teatterin tiedot</h2>
         <Bootstrap.Table bordered><tbody>
           <tr><td>ID</td><td>{this.state.venue.id}</td></tr>

@@ -1,7 +1,5 @@
 'use strict';
 
-import ReactElement = __React.ReactElement;
-
 import React = require('react');
 import Button from './Button';
 import {IOrder} from '../../../../backend/src/order';
@@ -11,7 +9,7 @@ export interface IFinalConfirmationProps {
   order: IOrder;
   paymentBegun: boolean;
 
-  onProceedToPayment: React.EventHandler<React.MouseEvent>;
+  onProceedToPayment: React.EventHandler<React.MouseEvent<any>>;
 }
 
 export default class FinalConfirmation extends React.Component<IFinalConfirmationProps, any> {
@@ -24,7 +22,7 @@ export default class FinalConfirmation extends React.Component<IFinalConfirmatio
     var finalPrice = this.props.order.order_price;
     var discountCode = this.props.order.discount_code;
     var ticketTotal = this.props.order.tickets_total_price;
-    var discountedTotalEl: ReactElement<any> = null;
+    var discountedTotalEl: React.ReactElement<any> = null;
     if (discountCode) {
       discountedTotalEl = (
         <tr>
