@@ -9,6 +9,7 @@ var config = require('../config/config.js');
 export interface IDiscountCode {
   code: string;
   eur: number;
+  production_id: number;
   use_max: number;
   used?: number;
   email: string;
@@ -17,28 +18,28 @@ export interface IDiscountCode {
   email_text?: string;
 }
 
-export function check(code: string, user: string): Promise<any> {
+export function check(code: string, production_id: number, user: string): Promise<any> {
   return db.query('select (:is_admin or ((dc.use_max - count(*)) > 0)) as valid from nk2_orders o \
-    join nk2_discount_codes dc on dc.code = o.discount_code \
+    join nk2_discount_codes dc on dc.code = o.discount_code and dc.production_id = :production_id \
     where o.discount_code = :discount_code',
-  {discount_code: code, is_admin: auth.isAdmin(user)})
+  {discount_code: code, production_id: production_id, is_admin: auth.isAdmin(user)})
   .then((rows) => {
     var ok = (rows[0].valid) === 1;
-    log.info('Pre-order validation, discount code "' + code + '" is ' + (ok ? 'valid' : 'invalid') + ' for user ' + user);
+    log.info('Pre-order validation, discount code "' + code + '" is ' + (ok ? 'valid' : 'invalid') + ' for user ' + user + ' and production ' + production_id);
     return {ok: ok};
   });
 }
 
 export function getAll(): Promise<IDiscountCode[]> {
-  return db.query('select code, eur, use_max, if(o.id is null, 0, count(*)) as used, dc.email, code_group from nk2_discount_codes dc \
+  return db.query('select code, eur, production_id, use_max, if(o.id is null, 0, count(*)) as used, dc.email, code_group from nk2_discount_codes dc \
     left join nk2_orders o on o.discount_code = dc.code \
     group by code');
 }
 
 export function createOrUpdate(codes: IDiscountCode[], send: boolean): Promise<IDiscountCode[]> {
   log.info('ADMIN: creating or updating ' + codes.length + ' discount codes');
-  var query_start = 'insert into nk2_discount_codes (code, eur, use_max, email, code_group) values ';
-  var insert_values = codes.map((code) => db.format('(:code, :eur, :use_max, :email, :code_group)', code));
+  var query_start = 'insert into nk2_discount_codes (code, eur, production_id, use_max, email, code_group) values ';
+  var insert_values = codes.map((code) => db.format('(:code, :eur, :production_id, :use_max, :email, :code_group)', code));
   var query_end = ' on duplicate key update eur = values(eur), use_max = values(use_max), email = values(email), code_group = values(code_group)';
   return db.query(query_start + insert_values.join(',') + query_end)
   .then((res) => {

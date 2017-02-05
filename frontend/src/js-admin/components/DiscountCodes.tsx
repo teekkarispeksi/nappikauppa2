@@ -7,9 +7,11 @@ import Bootstrap = require('react-bootstrap');
 
 import editable = require('./editables');
 import {IDiscountCode} from '../../../../backend/src/discountCode';
+import {IProduction} from '../../../../backend/src/production';
 
 
 export interface IDiscountCodeProps {
+  production_id?: number;
 }
 
 export interface IDiscountCodeState {
@@ -23,6 +25,8 @@ export interface IDiscountCodeState {
   new_code_use_max?: number;
   new_email_subject?: string;
   new_email_text?: string;
+  production_id: number;
+  productions: IProduction[];
 }
 
 // this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers
@@ -31,11 +35,19 @@ function almostDeepClone<T extends {}>(obj: T): T {
 }
 
 export default class DiscountCode extends React.Component<IDiscountCodeProps, IDiscountCodeState> {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     var defaultEmailSubject = 'Alennuskoodisi Teekkarispeksin näytökseen';
     var defaultEmailText = 'Hei,\n\ntällä koodilla saat $EUR$ eur alennusta ostaessasi lipun osoitteessa $URL$\n\n$CODE$\n\nTervetuloa katsomaan esityksiämme!';
-    this.state = {originalDiscountCodes: [], discountCodes: null, newDiscountCodes: [], new_email_subject: defaultEmailSubject, new_email_text: defaultEmailText};
+    this.state = {
+      productions: null,
+      production_id: props.production_id,
+      originalDiscountCodes: [],
+      discountCodes: null,
+      newDiscountCodes: [],
+      new_email_subject: defaultEmailSubject,
+      new_email_text: defaultEmailText
+    };
   }
 
   reset(discountCodes?: IDiscountCode[]) {
@@ -45,7 +57,9 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
       new_code_eur: null,
       new_code_group: null,
       new_code_emails: [],
-      new_code_use_max: 1
+      new_code_use_max: 1,
+      productions: this.state.productions,
+      production_id: this.state.production_id
     };
     if (discountCodes) {
       newState.originalDiscountCodes = discountCodes;
@@ -60,6 +74,18 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
     $.getJSON('admin-api/discountCodes', (resp: IDiscountCode[]) => {
       this.reset(resp);
     });
+    $.getJSON('admin-api/productions', (resp: IProduction[]) => {
+      this.setState({productions: resp});
+    });
+    if (this.props.production_id == null) {
+      $.getJSON('api/productions/latest', (resp: IProduction) => {
+        this.setState({production_id: resp.id});
+      });
+    }
+  }
+
+  onProductionSelected(event/*: React.ChangeEvent<React.Component<Bootstrap.FormControlProps, {}>>*/) {
+    this.setState({production_id: parseInt(event.target.value)});
   }
 
   saveChanges(newCodes = false, send = false) {
@@ -79,11 +105,12 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
 
   generateNewCodes() {
     var s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    var randoms = this.state.new_code_emails.map(() => '_' + Array(6).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join(''));
+    var randoms = this.state.new_code_emails.map(() => '_' + Array(6).join().split(',').map(() => s.charAt(Math.floor(Math.random() * s.length))).join(''));
     var newCodes = this.state.new_code_emails.map((email, i): IDiscountCode => {
       return {
         code: this.state.new_code_base + randoms[i],
         eur: this.state.new_code_eur,
+        production_id: this.state.production_id,
         code_group: this.state.new_code_group,
         email: email,
         use_max: this.state.new_code_use_max,
@@ -95,12 +122,12 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
   }
 
   render() {
-    if (!this.state.discountCodes) {
+    if (!this.state.discountCodes || !this.state.productions || this.state.production_id == null) {
       return (<div></div>);
     }
-    var discountCodes = this.state.discountCodes;
+    var discountCodes = _.where(this.state.discountCodes, {production_id: this.state.production_id});
 
-    var canGenerateCodes = this.state.new_code_base && this.state.new_code_base.length > 0 &&
+    var canGenerateCodes = this.state.production_id && this.state.new_code_base && this.state.new_code_base.length > 0 &&
       this.state.new_code_eur != null && this.state.new_code_group && this.state.new_code_group.length > 0 &&
       this.state.new_code_emails && this.state.new_code_emails.length > 0;
 
@@ -108,6 +135,12 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
 
     return (
       <div>
+        <h2>Valitse produktio</h2>
+        <Bootstrap.FormControl componentClass='select' onChange={this.onProductionSelected.bind(this)} value={this.state.production_id}>
+          {this.state.productions.map((production) => {
+            return (<option key={production.id} value={production.id}>{production.title} - {_.where(this.state.discountCodes, {production_id: production.id}).length}</option>);
+          })}
+        </Bootstrap.FormControl>
         <h2>Luo alennuskoodeja</h2>
         <Bootstrap.Table bordered>
           <tbody>
@@ -163,7 +196,7 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
             <th>Koodi käytetty</th>
           </tr></thead>
           <tbody>
-          {this.state.discountCodes.map((code) => {
+          {discountCodes.map((code) => {
             return (<tr key={code.code} className={code.used === code.use_max ? 'success' : ''}>
                 <td>{code.code}</td>
                 <td>{editable.Number(this, code, 'eur')}</td>

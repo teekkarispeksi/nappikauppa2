@@ -68,8 +68,8 @@ router.post('/log', jsonParser, function(req: Request, res: Response) {
   res.end();
 });
 
-router.get('/discountCode/:code', checkUserSilently, function(req: IRequestWithUser, res: Response) {
-  discountCode.check(req.params.code, req.user).then(ok(res), err(res));
+router.get('/discountCode/:productionid/:code', checkUserSilently, function(req: IRequestWithUser, res: Response) {
+  discountCode.check(req.params.code, req.params.productionid, req.user).then(ok(res), err(res));
 });
 
 router.get('/productions/latest', function(req: Request, res: Response) {
