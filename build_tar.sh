@@ -3,8 +3,16 @@
 # Builds the project and packages it to a tar ball that can then be deployed somewhere without using node or gulp.
 
 DATE=`date +%Y%m%d-%H%M%S`
+TAG=`git describe --tags`
 PREFIX="nappikauppa2"
-OUT="${PREFIX}-${DATE}.tar.gz"
+OUT="${PREFIX}-${TAG}.tar.gz"
+
+# Check for uncommitted changes
+if ! git diff-index --quiet HEAD --; then
+  echo Commit first to get a unique tag description.
+  exit 1
+fi
+
 
 rm -r build
 
