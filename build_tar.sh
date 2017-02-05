@@ -26,6 +26,7 @@ mkdir build/config/public
 cp config/public/*-sample.js build/config/public/
 mkdir build/db
 cp db/tables.sql db/venues.sql build/db/
+cp -r db/evolutions build/db/
 cp package.json build/
 
 cd build/

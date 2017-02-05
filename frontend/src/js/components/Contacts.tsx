@@ -9,7 +9,7 @@ import Button from './Button';
 
 export interface IContactsProps {
   active: boolean;
-
+  production_id: number;
   onSaveOrderInfo: Function;
 }
 
@@ -23,8 +23,8 @@ export interface IContactsState {
 
 export default class Contacts extends React.Component<IContactsProps, IContactsState> {
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       name: '',
@@ -59,7 +59,7 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
     if (!_.contains(this.state.email, '@')) {
       errors.push('email');
     }
-    if (this.state.discount_code && !this._checkDiscountCode(this.state.discount_code)) {
+    if (this.state.discount_code && !this._checkDiscountCode(this.props.production_id, this.state.discount_code)) {
       errors.push('discount_code');
     }
 
@@ -69,9 +69,9 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
     }
   }
 
-  private _checkDiscountCode(discount_code: string): boolean {
+  private _checkDiscountCode(production_id: number, discount_code: string): boolean {
     var req = $.ajax({
-      url: 'api/discountCode/' + discount_code,
+      url: 'api/discountCode/' + production_id + '/' + discount_code,
       async: false
     });
     return JSON.parse(req.responseText).ok === true;

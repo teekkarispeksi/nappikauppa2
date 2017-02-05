@@ -212,8 +212,14 @@ export function reserveSeats(show_id: number, seats: IReservedSeat[], user: stri
 }
 
 export function updateContact(order_id: number, data: IContact, user): Promise<any> {
+  // TODO: the check below assumes that all tickets in a order are related to same production, which is not enforced by db schema
   var discountCheck = 'select (:is_admin | ((dc.use_max - count(*)) > 0)) as valid from nk2_orders o \
     join nk2_discount_codes dc on dc.code = o.discount_code \
+      and dc.production_id = (select production_id from nk2_shows ss \
+                                join nk2_tickets tt on tt.show_id = ss.id \
+                                join nk2_orders oo on oo.id = tt.order_id \
+                                where oo.id = :order_id \
+                                group by production_id) \
     where o.discount_code = :discount_code';
   // make falsy to be a real NULL
   if (!data.discount_code) {
