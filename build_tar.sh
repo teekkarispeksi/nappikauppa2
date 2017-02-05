@@ -9,10 +9,17 @@ OUT="${PREFIX}-${TAG}.tar.gz"
 
 # Check for uncommitted changes
 if ! git diff-index --quiet HEAD --; then
-  echo Commit first to get a unique tag description.
+  echo 'Commit first to get a unique tag description.'
   exit 1
 fi
 
+TMP=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'`
+
+echo 'Building in' ${TMP}
+
+cp -r * ${TMP}/
+
+pushd ${TMP} > /dev/null
 
 rm -r build
 
@@ -37,11 +44,16 @@ cp db/tables.sql db/venues.sql build/db/
 cp -r db/evolutions build/db/
 cp package.json build/
 
-cd build/
+pushd build/ > /dev/null
 npm install --production
 
 tar -czf ../${OUT} *
+popd > /dev/null
+popd > /dev/null
 
-cd ..
-
-echo $OUT
+if cp ${TMP}/${OUT} ./; then
+  rm -r ${TMP}
+  echo $OUT
+else
+  echo 'Failed to copy archive back, check if' ${OUT} 'exists already'
+fi

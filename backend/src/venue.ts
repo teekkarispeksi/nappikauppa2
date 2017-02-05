@@ -109,10 +109,13 @@ export function update(venue_id: number, venue: IVenue): Promise<IVenue> {
   })
   .then((res) => {
     log.info('ADMIN: Sections updated, updating seats');
-    var query_start = 'insert into nk2_seats (id, inactive) values ';
-    var insert_values = _.flatten(_.values(venue.sections).map((section: ISection) => _.values(section.seats)))
-                         .map((seat: ISeat) => db.format('(:id, :inactive)', _.extend({venue_id: venue_id}, seat)));
-    var query_end = ' on duplicate key update inactive = values(inactive)';
+    var query_start = 'insert into nk2_seats (id, section_id, row, number, x_coord, y_coord, inactive) values ';
+
+    var insert_values = _.values(_.mapObject(venue.sections, (section) =>
+      _.values(section.seats).map((seat) => db.format('(:id, :section_id, :row, :number, :x_coord, :y_coord, :inactive)', _.extend({section_id: section.id}, seat)))
+    ));
+    var query_end = ' on duplicate key update section_id = values(section_id), row = values(row), number = values(number), \
+    x_coord = values(x_coord), y_coord = values(y_coord), inactive = values(inactive)';
 
     return db.query(query_start + insert_values.join(',') + query_end).then(() => {
       log.info('ADMIN: Seats updated, returning venue');
