@@ -15,6 +15,7 @@ export interface IVenueProps {
 }
 
 export interface IVenueState {
+  selectSeatsForSectionId?: number;
   venues?: IVenue[];
   venue?: IVenue;
   venue_id?: number;
@@ -89,7 +90,17 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
   }
 
   onSeatClicked(seat_id, section_id) {
-    this.state.venue.sections[section_id].seats[seat_id].inactive = !this.state.venue.sections[section_id].seats[seat_id].inactive;
+    if (this.state.selectSeatsForSectionId == null) {
+      this.state.venue.sections[section_id].seats[seat_id].inactive = !this.state.venue.sections[section_id].seats[seat_id].inactive;
+    } else {
+      if (section_id === this.state.selectSeatsForSectionId) {
+        return;
+      }
+      var seat = this.state.venue.sections[section_id].seats[seat_id];
+      delete this.state.venue.sections[section_id].seats[seat_id];
+      this.state.venue.sections[this.state.selectSeatsForSectionId].seats[seat_id] = seat;
+    }
+
     this.forceUpdate();
   }
 
@@ -133,14 +144,23 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
             <th>Nimi</th>
             <th>Rivin nimi</th>
             <th>Paikkoja</th>
+            <th>Valitse paikkoja</th>
           </tr></thead>
           <tbody>
           {_.values(this.state.venue.sections).map((section: ISection) => {
+            var sectionIsSelected = this.state.selectSeatsForSectionId === section.id;
             return (<tr key={section.id}>
                 <td>{section.id}</td>
                 <td>{editable.String(this, section, 'section_title')}</td>
                 <td>{editable.String(this, section, 'row_name')}</td>
                 <td>{_.keys(section.seats).length}</td>
+                <td>
+                  <Bootstrap.Button
+                    bsStyle={sectionIsSelected ? 'primary' : null}
+                    onClick={() => this.setState({selectSeatsForSectionId: sectionIsSelected ? null : section.id})}>
+                    Valitse
+                  </Bootstrap.Button>
+                </td>
               </tr>
             );
           })}
