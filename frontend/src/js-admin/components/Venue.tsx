@@ -27,9 +27,9 @@ function almostDeepClone<T extends {}>(obj: T): T {
 }
 
 export default class Venue extends React.Component<IVenueProps, IVenueState> {
-  constructor() {
-    super();
-    this.state = {venue: null};
+  constructor(props) {
+    super(props);
+    this.state = {venue: null, venue_id: props.venue_id};
   }
 
   reset(venues?: IVenue[]) {
@@ -47,8 +47,6 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
     var venue_id = null;
     if (this.state.venue_id) {
       venue_id = this.state.venue_id;
-    } else if (this.props.venue_id) {
-      venue_id = this.props.venue_id;
     }
     return venue_id ? _.findWhere(venues, {id: venue_id}) : {} as IVenue;
   }
