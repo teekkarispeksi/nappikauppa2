@@ -13,6 +13,11 @@ if ! git diff-index --quiet HEAD --; then
   exit 1
 fi
 
+TMP=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'`
+
+cp -r * ${TMP}/
+
+pushd ${TMP}
 
 rm -r build
 
@@ -37,11 +42,17 @@ cp db/tables.sql db/venues.sql build/db/
 cp -r db/evolutions build/db/
 cp package.json build/
 
-cd build/
+pushd build/
 npm install --production
 
 tar -czf ../${OUT} *
+popd
+popd
 
-cd ..
+if ! cp ${TMP}/${OUT} ./; then
+  rm -r ${TMP}
+else
+  echo 'Failed to copy built tar here'
+fi
 
 echo $OUT
