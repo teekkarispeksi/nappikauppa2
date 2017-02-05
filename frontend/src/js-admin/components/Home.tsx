@@ -5,26 +5,26 @@ import Backbone = require('backbone');
 import $ = require('jquery');
 import _ = require('underscore');
 
-import {IShow, IReservedSeats} from '../../../../backend/src/show';
-import {IVenue, ISection, ISeat} from '../../../../backend/src/venue';
+import ShowList from './ShowList';
+
+import {IVenue} from '../../../../backend/src/venue';
 import {IProduction} from '../../../../backend/src/production';
-import {ISOToDateString} from '../utils';
 
 export interface IHomeState {
-  shows?: IShow[];
   venues?: IVenue[];
+  production?: IProduction; // latest
   productions?: IProduction[];
 }
 
 export default class Home extends React.Component<any, IHomeState> {
   constructor() {
     super();
-    this.state = {shows: [], venues: [], productions: []};
+    this.state = {venues: [], productions: []};
   }
 
   componentWillMount() {
-    $.getJSON('api/shows', (resp: IShow[]) => {
-      this.setState({shows: resp});
+    $.getJSON('api/productions/latest', (resp: IProduction) => {
+      this.setState({production: resp});
     });
     $.getJSON('admin-api/venues', (resp: IVenue[]) => {
       this.setState({venues: resp});
@@ -39,11 +39,7 @@ export default class Home extends React.Component<any, IHomeState> {
       <div>
         <a href={'#discountCodes/'}><h2>Alennuskoodit</h2></a>
         <a href={'#discountGroups/'}><h2>Alennusryhmät</h2></a>
-        <h2>Näytökset</h2>
-        <p><a href={'#shows/'}>Luo uusi näytös</a></p>
-        <ul>
-          {this.state.shows.map((show) => <li key={show.id}><a href={'#shows/' + show.id}>{ISOToDateString(show.time)} {show.title}</a> - <a href={'#shows/' + show.id + '/orders'}>Tilaukset</a></li>)}
-        </ul>
+        {this.state.production ? <ShowList production={this.state.production} /> : null}
         <h2>Teatterit</h2>
         <p><a href={'#venues/'}>Luo uusi teatteri</a></p>
         <ul>

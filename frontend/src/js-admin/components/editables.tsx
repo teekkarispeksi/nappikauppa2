@@ -2,6 +2,7 @@ import React = require('react');
 import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
+import Moment = require('moment-timezone');
 
 function _onChange(_this: any, obj: {}, field: string, event, type?: string) {
   if (type === 'number') {
@@ -11,7 +12,7 @@ function _onChange(_this: any, obj: {}, field: string, event, type?: string) {
   } else if (type === 'checkbox') {
     obj[field] = event.target.checked ? 1 : 0;
   } else if (type === 'datetime') {
-    obj[field] = event.target.value;
+    obj[field] = Moment.tz(event.target.value, 'Europe/Helsinki').format('YYYY-MM-DD HH:mm:00');
   } else if (type === 'stringList') {
     obj[field] = event.target.value.split('\n');
   } else {
@@ -63,10 +64,11 @@ export function Number(_this: any, obj: {}, field: string, onChange?: (_this: an
 }
 
 export function Date(_this: any, obj: {}, field: string, onChange?: (_this: any, obj: {}, field: string, event, type?: string) => void) {
+  var val = Moment.tz(obj[field], 'Europe/Helsinki').format('YYYY-MM-DDTHH:mm');
   if (!onChange) {
     onChange = _onChange;
   }
-  return (<input type='datetime-local' value={obj[field]} onChange={(event) => onChange(_this, obj, field, event, 'datetime')}/>);
+  return (<input type='datetime-local' value={val} onChange={(event) => onChange(_this, obj, field, event, 'datetime')}/>);
 }
 
 export function Checkbox(_this: any, obj: {}, field: string, onChange?: (_this: any, obj: {}, field: string, event, type?: string) => void) {

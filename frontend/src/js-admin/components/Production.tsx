@@ -5,9 +5,11 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
-import SeatSelector from './SeatSelector';
+import ShowList from './ShowList';
 import editable = require('./editables');
+
 import {IProduction} from '../../../../backend/src/production';
+import {IShow} from '../../../../backend/src/show';
 
 
 export interface IProductionProps {
@@ -109,6 +111,7 @@ export default class Production extends React.Component<IProductionProps, IProdu
         </tbody></Bootstrap.Table>
         <Bootstrap.Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Bootstrap.Button>
         <Bootstrap.Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Bootstrap.Button>
+        <ShowList production={this.state.production} />
       </div>
     );
   }
