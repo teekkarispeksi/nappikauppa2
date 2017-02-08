@@ -6,15 +6,19 @@ import qr = require('qr-image');
 var toArray = require('stream-to-array');
 
 export interface ITicket {
+  discount_group_id: number;
   discount_group_title: string;
   production_performer: string;
   production_title: string;
   ticket_image_src: string;
-  row: string;
+  row: number;
   row_name: string;
-  seat_number: string;
+  seat_id: number;
+  seat_number: number;
+  section_id: number;
   section_title: string;
   show_date: string;
+  show_id: number;
   show_time: string;
   show_title: string;
   ticket_id: string;

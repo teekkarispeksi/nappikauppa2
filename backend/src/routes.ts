@@ -20,6 +20,10 @@ var config = require('../config/config.js');
 
 var jsonParser = bodyParser.json();
 
+const COOKIE_NAME = 'nappikauppa2';
+const COOKIE_HASH_LENGTH = 8;
+const COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
+
 type Request = express.Request;
 type Response = express.Response;
 
@@ -90,8 +94,31 @@ router.get('/shows/:showid/reservedSeats', function(req: Request, res: Response)
 
 router.post('/shows/:showid/reserveSeats', jsonParser, checkUserSilently, function(req: IRequestWithUser, res: Response) {
   order.reserveSeats(parseInt(req.params.showid), req.body, req.user)
-    .then(ok(res))
+    .then((data) => {
+      res.cookie(COOKIE_NAME, {id: data.order_id, hash: data.order_hash.substr(0, COOKIE_HASH_LENGTH)}, {maxAge: COOKIE_MAX_AGE});
+      res.json(data);
+    })
     .catch((error) => { res.status(409); res.json(error); });
+});
+
+router.get('/orders/continue', (req, res) => {
+  console.log(req.cookies);
+  var cookie = req.cookies[COOKIE_NAME];
+  if (!cookie || !cookie.id || !cookie.hash) {
+    res.sendStatus(204);
+    return;
+  }
+  order.get(cookie.id).then((order) => {
+    if (order.order_hash && order.order_hash.substr(0, COOKIE_HASH_LENGTH) === cookie.hash && (order.status === 'seats-reserved' || order.status === 'payment-pending')) {
+      res.json(order);
+    } else {
+      throw '';
+    }
+  }).catch((error) => {
+    console.log(error);
+    // res.clearCookie(COOKIE_NAME);
+    res.sendStatus(204);
+  });
 });
 
 router.post('/orders/:orderid', jsonParser, checkUserSilently, function(req: IRequestWithUser, res: Response) {

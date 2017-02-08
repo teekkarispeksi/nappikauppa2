@@ -39,12 +39,15 @@ export interface IOrder {
   order_id: number;
   order_price: number;
   payment_id: string;
+  payment_url: string;
   reserved_session_id: string;
   reserved_until: Date;
-  status: string;
+  show_id: number;
+  status: 'seats-reserved' | 'payment-pending' | 'paid' | 'cancelled' | 'expired';
   time: Date;
   tickets: ticket.ITicket[];
   tickets_total_price: number;
+  venue_id: number;
 }
 
 export interface IAdminOrderListItem {
@@ -295,9 +298,11 @@ export function get(order_id: number): Promise<IOrder> {
       seats.row row, \
       seats.number seat_number, \
       \
+      sections.id section_id, \
       sections.title section_title, \
       sections.row_name row_name, \
       \
+      venues.id venue_id, \
       venues.title venue_title, \
       venues.description venue_description, \
       \
@@ -313,23 +318,22 @@ export function get(order_id: number): Promise<IOrder> {
     where orders.id = :id',
     {id: order_id})
   .then(function(rows) {
-      var first = rows[0];
-      var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'wants_email', 'time', 'order_price', 'payment_url', 'payment_id',
-        'reserved_until', 'reserved_session_id', 'status']);
+    if (rows.length === 0) {
+      return Promise.reject('No orders found for given id!');
+    }
+    var first = rows[0];
+    var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'wants_email', 'time', 'order_price', 'payment_url', 'payment_id',
+      'reserved_until', 'reserved_session_id', 'status', 'show_id', 'venue_id']);
 
-      res.tickets = _.map(rows, function(row) {
-        return _.pick(row,
-          ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id',
-            'discount_group_title', 'ticket_hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_title', 'row_name',
-            'production_performer', 'production_title', 'ticket_image_src']);
-      });
+    res.tickets = _.map(rows, function(row) {
+      return _.pick(row,
+        ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id',
+          'discount_group_title', 'ticket_hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_id', 'section_title', 'row_name',
+          'production_performer', 'production_title', 'ticket_image_src']);
+    });
 
-      res.tickets_total_price = _.reduce(res.tickets, (r, ticket: any) => r + parseFloat(ticket.ticket_price), 0);
-      return res;
-    })
-  .catch((err) => {
-    log.error('Failed to get order', {order_id: order_id, error: err});
-    return Promise.reject(err);
+    res.tickets_total_price = _.reduce(res.tickets, (r, ticket: any) => r + parseFloat(ticket.ticket_price), 0);
+    return res;
   });
 }
 
@@ -364,6 +368,11 @@ export function preparePayment(order_id: number): Promise<any> {
         params.RETURN_AUTHCODE = md5(verification).toUpperCase();
 
         return paymentDone(order_id, params).then((res) => { return {url: '#ok/' + order.order_id + '/' + order.order_hash}; });
+      }
+
+      if (order.status === 'payment-pending' && order.payment_url) {
+        // in case the user has already started the paying once but didn't finish
+        return {url: order.payment_url};
       }
 
       var ticket_rows = _.map(order.tickets, (ticket: ticket.ITicket) => {

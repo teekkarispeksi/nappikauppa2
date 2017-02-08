@@ -51,7 +51,7 @@ export interface IStoreProps {
 
 export interface IStoreState {
   auth?: string; // authenticated user
-  page?: string;
+  page?: 'home' | 'seats' | 'contacts' | 'payment';
   show?: IShow;
   paymentBegun?: boolean;
   reservationError?: string;
@@ -88,7 +88,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       conflictingSeatIds: [],
       chosenSeatIds: [],
       reservedSeatIds: []
-    };
+    } as IStoreState;
   }
 
   componentWillMount() {
@@ -96,18 +96,48 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       // clean the ok/fail hash in the url
       window.history.pushState('', '', window.location.pathname);
     }
-
-    $.getJSON('api/productions/latest', (resp: IProduction) => {
+    var order;
+    $.getJSON('api/productions/latest')
+    .then((resp: IProduction) => {
       this.production = resp;
       this.forceUpdate();
 
-      $.getJSON('api/shows', {production_id: this.production.id}, (resp2: IShow[]) => {
-        this.shows = resp2;
-        if (this.props.showid) {
-          this.onShowSelect(this.props.showid);
+      return $.getJSON('api/shows', {production_id: this.production.id});
+    }).then((resp2: IShow[]) => {
+      this.shows = resp2;
+
+      return $.get('api/orders/continue');
+    }).then((resp3: IOrder, statusCode, xhr: JQueryXHR) => {
+      if (xhr.status === 204) {
+        return; // no existing order to load
+      }
+      order = resp3;
+      this.onShowSelect(order.tickets[0].show_id, (show) => {
+        this.order = order;
+        this.tickets = order.tickets.map(t => {
+          var section = this.venue.sections[t.section_id];
+          var seat = section.seats[t.seat_id];
+          return {
+            seat: seat,
+            section: section,
+            price: t.ticket_price,
+            discount_group_id: t.discount_group_id,
+            discount_groups: show.discount_groups
+          };
+        });
+        if (this.order.status === 'seats-reserved' && !this.order.name) {
+          this.setState({page: 'contacts'});
+        } else if (this.order.status === 'payment-pending' || (this.order.status === 'seats-reserved' && this.order.name)) {
+          this.setState({page: 'payment'});
         }
-        this.forceUpdate();
+        this.updateSeatStatus(undefined, false); // here the chosen and reserved seats will always conflict
       });
+    })
+    .always(() => {
+      if (this.props.showid != null && !order) {
+        this.onShowSelect(this.props.showid);
+      }
+      this.forceUpdate();
     });
 
     $.get('api/auth', (resp: string) => {
@@ -131,7 +161,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     this.setState({reservationExpirationTime: new Date(Date.now() + EXPIRATION_IN_MINUTES * 60 * 1000)});
   }
 
-  updateSeatStatus(showid = undefined) {
+  updateSeatStatus(showid = undefined, checkConflicts = true) {
     if (showid === undefined) {
       showid = this.state.show.id;
     }
@@ -142,7 +172,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       url: 'api/shows/' + showid + '/reservedSeats',
       success: (response: IReservedSeats) => {
         var reservedSeatIds = response.reserved_seats;
-        var conflictingSeatIds = _.intersection(reservedSeatIds, chosenSeatIds);
+        var conflictingSeatIds = checkConflicts ? _.intersection(reservedSeatIds, chosenSeatIds) : []; // when loading existing order, there is always a 'conflict' so we want to skip that
         var hasConflictingSeats = conflictingSeatIds.length > 0;
         var state = {
           conflictingSeatIds: conflictingSeatIds,
@@ -188,7 +218,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     });
   }
 
-  onShowSelect(showid: number) {
+  onShowSelect(showid: number, callback?: (IShow) => void) {
     this.tickets = [];
     this.order = null;
 
@@ -197,16 +227,6 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     if (!show) {
       Router.navigate('', {trigger: true});
       return;
-    }
-
-    if (!this.venue || this.venue.id !== show.venue_id) {
-      $.getJSON('api/venues/' + show.venue_id,
-        (response: IVenue) => {
-          this.venue = response;
-          this.updateSeatStatus(showid);
-      });
-    } else {
-      this.updateSeatStatus(showid);
     }
 
     this.setState({
@@ -220,6 +240,24 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     setTimeout(function() {
       scrollToElem('.seat-selector');
     }, 100);
+
+    if (!this.venue || this.venue.id !== show.venue_id) {
+      $.getJSON('api/venues/' + show.venue_id,
+        (response: IVenue) => {
+          this.venue = response;
+          if (callback && 'function' === typeof callback) {
+            callback(show);
+          } else {
+            this.updateSeatStatus(showid);
+          }
+      });
+    } else {
+      if (callback && 'function' === typeof callback) {
+        callback(show);
+      } else {
+        this.updateSeatStatus(showid);
+      }
+    }
   }
 
   onSeatClicked(seat_id, section_id) {
@@ -239,7 +277,6 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   }
 
   selectSeat(seat_id, section_id) {
-    console.log('selecting', seat_id, section_id);
     var section = this.venue.sections[section_id];
     var seat = section.seats[seat_id];
     var price = this.state.show.sections[section_id].price;
