@@ -9,6 +9,9 @@ import Button from './Button';
 
 export interface IContactsProps {
   active: boolean;
+  discount_code?: string;
+  email?: string;
+  name?: string;
   production_id: number;
   onSaveOrderInfo: Function;
 }
@@ -27,9 +30,9 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
     super(props);
 
     this.state = {
-      name: '',
-      email: '',
-      discount_code: '',
+      name: props.name ? props.name : '',
+      email: props.email ? props.email : '',
+      discount_code: props.discount_code ? props.discount_code : '',
       wants_email: false,
       errors: []
     };
