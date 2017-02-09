@@ -125,6 +125,10 @@ router.post('/orders/:orderid', jsonParser, checkUserSilently, function(req: IRe
   order.updateContact(parseInt(req.params.orderid), req.body, req.user).then(ok(res), err(res));
 });
 
+router.post('/orders/:orderid/:orderhash/cancel', (req, res) => {
+  order.cancel(parseInt(req.params.orderid), req.params.orderhash).then(ok(res), err(res));
+})
+
 router.post('/orders/:orderid/preparePayment', function(req: Request, res: Response) {
   order.preparePayment(parseInt(req.params.orderid)).then(ok(res), err(res));
 });

@@ -363,6 +363,12 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     GA.event({category: 'Payment', action: 'Started', value: this.order.order_price});
   }
 
+  onCancel() {
+    $.post('api/orders/' + this.order.order_id + '/' + this.order.order_hash + '/cancel');
+    this.order = null;
+    this.setState({page: 'seats', reservationExpirationTime: null});
+  }
+
   helpText() {
     var result;
     if (this.props.action === 'ok') {
@@ -406,11 +412,12 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
       // No breaks -> fallthrough-magic!
       case 'payment':
-        finalConfirmationElem = <FinalConfirmation order={this.order} paymentBegun={this.state.paymentBegun} onProceedToPayment={this.onProceedToPayment.bind(this)} />;
+        finalConfirmationElem = <FinalConfirmation order={this.order} paymentBegun={this.state.paymentBegun} canCancel={this.order.status !== 'payment-pending'}
+          onProceedToPayment={this.onProceedToPayment.bind(this)} onCancel={this.onCancel.bind(this)}/>;
         /* fall through */
       case 'contacts':
-        contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo.bind(this)} production_id={this.production.id}
-          name={this.order.name} email={this.order.email} discount_code={this.order.discount_code}  />;
+        contactsElem = <Contacts active={this.state.page === 'contacts'} onSaveOrderInfo={this.onSaveOrderInfo.bind(this)} onCancel={this.onCancel.bind(this)}
+          production_id={this.production.id} name={this.order.name} email={this.order.email} discount_code={this.order.discount_code}  />;
         /* fall through */
       case 'seats':
         var active = this.state.page === 'seats' && Moment(this.state.show.inactivate_time) > Moment() && Moment(this.state.show.time) > Moment() && this.state.show.reserved_percentage < 100;

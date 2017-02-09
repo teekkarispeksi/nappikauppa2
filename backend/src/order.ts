@@ -259,6 +259,13 @@ export function updateContact(order_id: number, data: IContact, user): Promise<a
   });
 }
 
+export function cancel(order_id: number, order_hash: string): Promise<any> {
+  return db.query('delete from nk2_orders where id = :id and hash = :hash and status = "seats-reserved" and payment_id is null', {id: order_id, hash: order_hash})
+  .then(() => {
+    log.info('Cancelled order', {order_id: order_id});
+  });
+}
+
 export function get(order_id: number): Promise<IOrder> {
   return checkExpired().then(() =>
     db.query('select \

@@ -14,6 +14,7 @@ export interface IContactsProps {
   name?: string;
   production_id: number;
   onSaveOrderInfo: Function;
+  onCancel: React.EventHandler<React.MouseEvent<any>>;
 }
 
 export interface IContactsState {
@@ -136,7 +137,8 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
           </Bootstrap.Checkbox>
         </div>
         <div>
-          <Button id='saveOrderInfo' disabled={!active} onClick={this.onSave.bind(this)}>Tallenna</Button>
+          <Button id='saveOrderInfo' bsStyle='primary' disabled={!active} onClick={this.onSave.bind(this)}>Tallenna</Button>
+          <Button id='cancel' disabled={!active} onClick={this.props.onCancel}>Peru</Button>
         </div>
       </div>
     );
