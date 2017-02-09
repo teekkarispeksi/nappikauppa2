@@ -126,6 +126,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           };
         });
         if (this.order.status === 'seats-reserved' && !this.order.name) {
+          this.startTimer(this.order.time);
           this.setState({page: 'contacts'});
         } else if (this.order.status === 'payment-pending' || (this.order.status === 'seats-reserved' && this.order.name)) {
           this.setState({page: 'payment'});
@@ -156,9 +157,14 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     GA.event({category: 'Tickets', action: 'Expired'});
   }
 
-  startTimer() {
-    this.timer = setTimeout(this.onTimeout.bind(this), EXPIRATION_IN_MINUTES * 60 * 1000);
-    this.setState({reservationExpirationTime: new Date(Date.now() + EXPIRATION_IN_MINUTES * 60 * 1000)});
+  startTimer(timeFrom?: string) {
+    var timeoutMilliseconds = EXPIRATION_IN_MINUTES * 60 * 1000;
+    if (timeFrom) {
+      timeoutMilliseconds -= Moment().diff(Moment.tz(timeFrom, 'Europe/Helsinki'));
+    }
+
+    this.timer = setTimeout(this.onTimeout.bind(this), timeoutMilliseconds);
+    this.setState({reservationExpirationTime: new Date(Date.now() + timeoutMilliseconds)});
   }
 
   updateSeatStatus(showid = undefined, checkConflicts = true) {
