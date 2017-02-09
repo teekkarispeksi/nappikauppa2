@@ -243,13 +243,10 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     });
     Router.navigate('show/' + showid, {trigger: false});
     GA.pageview('/' + window.location.hash);
-    setTimeout(function() {
-      scrollToElem('.seat-selector');
-    }, 100);
+    setTimeout(() => scrollToElem('.seat-selector'), 100);
 
     if (!this.venue || this.venue.id !== show.venue_id) {
-      $.getJSON('api/venues/' + show.venue_id,
-        (response: IVenue) => {
+      $.getJSON('api/venues/' + show.venue_id, (response: IVenue) => {
           this.venue = response;
           if (callback && 'function' === typeof callback) {
             callback(show);
