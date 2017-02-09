@@ -260,7 +260,8 @@ export function updateContact(order_id: number, data: IContact, user): Promise<a
 }
 
 export function get(order_id: number): Promise<IOrder> {
-  return db.query('select \
+  return checkExpired().then(() =>
+    db.query('select \
       tickets.id ticket_id,  \
       tickets.show_id,\
       tickets.seat_id,\
@@ -310,7 +311,7 @@ export function get(order_id: number): Promise<IOrder> {
     join nk2_venues venues on sections.venue_id = venues.id \
     join nk2_discount_groups discount_groups on tickets.discount_group_id = discount_groups.id \
     where orders.id = :id',
-    {id: order_id})
+    {id: order_id}))
   .then(function(rows) {
     if (rows.length === 0) {
       return Promise.reject('No orders found for given id!');
@@ -332,16 +333,16 @@ export function get(order_id: number): Promise<IOrder> {
 }
 
 export function getAll(): Promise<IAdminOrderListItem> {
-  return db.query('select * from nk2_orders orders', null);
+  return checkExpired().then(() => db.query('select * from nk2_orders orders', null));
 }
 
 export function getAllForShow(show_id: number): Promise<IAdminOrderListItem> {
-  return db.query('select orders.*, count(*) as tickets_count, count(tickets.used_time) as tickets_used_count \
+  return checkExpired().then(() => db.query('select orders.*, count(*) as tickets_count, count(tickets.used_time) as tickets_used_count \
     from nk2_orders orders \
       join nk2_tickets tickets on tickets.order_id = orders.id \
     where tickets.show_id = :show_id \
     group by orders.id',
-    {show_id: show_id});
+    {show_id: show_id}));
 }
 
 export function preparePayment(order_id: number): Promise<any> {
