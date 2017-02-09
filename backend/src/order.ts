@@ -40,11 +40,9 @@ export interface IOrder {
   order_price: number;
   payment_id: string;
   payment_url: string;
-  reserved_session_id: string;
-  reserved_until: Date;
   show_id: number;
   status: 'seats-reserved' | 'payment-pending' | 'paid' | 'cancelled' | 'expired';
-  time: Date;
+  time: string;
   tickets: ticket.ITicket[];
   tickets_total_price: number;
   venue_id: number;
@@ -59,12 +57,10 @@ export interface IAdminOrderListItem {
   hash: string;
   payment_url: string;
   payment_id: string;
-  reserved_session_id: string;
-  reserved_until: Date;
   status: string;
   tickets_count: number;
   tickets_used_count: number;
-  time: Date;
+  time: string;
 }
 
 export function checkExpired(): Promise<any> {
@@ -283,8 +279,6 @@ export function get(order_id: number): Promise<IOrder> {
       orders.price order_price,\
       orders.payment_url, \
       orders.payment_id,\
-      orders.reserved_until,\
-      orders.reserved_session_id,\
       orders.status, \
       \
       shows.title show_title, \
@@ -322,8 +316,8 @@ export function get(order_id: number): Promise<IOrder> {
       return Promise.reject('No orders found for given id!');
     }
     var first = rows[0];
-    var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'wants_email', 'time', 'order_price', 'payment_url', 'payment_id',
-      'reserved_until', 'reserved_session_id', 'status', 'show_id', 'venue_id']);
+    var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'wants_email',
+    'time', 'order_price', 'payment_url', 'payment_id', 'status', 'show_id', 'venue_id']);
 
     res.tickets = _.map(rows, function(row) {
       return _.pick(row,
