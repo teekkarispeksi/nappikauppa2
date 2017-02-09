@@ -116,7 +116,7 @@ router.get('/orders/continue', (req, res) => {
     }
   }).catch((error) => {
     console.log(error);
-    // res.clearCookie(COOKIE_NAME);
+    res.clearCookie(COOKIE_NAME);
     res.sendStatus(204);
   });
 });
