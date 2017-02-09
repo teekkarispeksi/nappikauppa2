@@ -332,11 +332,11 @@ export function get(order_id: number): Promise<IOrder> {
   });
 }
 
-export function getAll(): Promise<IAdminOrderListItem> {
+export function getAll(): Promise<IAdminOrderListItem[]> {
   return checkExpired().then(() => db.query('select * from nk2_orders orders', null));
 }
 
-export function getAllForShow(show_id: number): Promise<IAdminOrderListItem> {
+export function getAllForShow(show_id: number): Promise<IAdminOrderListItem[]> {
   return checkExpired().then(() => db.query('select orders.*, count(*) as tickets_count, count(tickets.used_time) as tickets_used_count \
     from nk2_orders orders \
       join nk2_tickets tickets on tickets.order_id = orders.id \
