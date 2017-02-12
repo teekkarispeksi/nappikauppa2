@@ -154,7 +154,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
   onTimeout() {
     this.setState({page: 'seats', reservationError: 'Varauksesi on rauennut.'});
-    GA.event({category: 'Tickets', action: 'Expired'});
+    GA.event({category: 'Order', action: 'Expired'});
   }
 
   startTimer(timeFrom?: string) {
@@ -317,7 +317,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         this.forceUpdate();
       }
     });
-    GA.event({category: 'Tickets', action: 'Reserved', value: this.tickets.length});
+    GA.event({category: 'Order', action: 'Tickets reserved', value: this.tickets.length});
   }
 
   onSaveOrderInfo(info) {
@@ -342,7 +342,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         console.log('order info saving failed'); // TODO
       }
     });
-    GA.event({category: 'Contacts', action: 'Saved'});
+    GA.event({category: 'Order', action: 'Contacts saved'});
   }
 
   onProceedToPayment() {
@@ -360,13 +360,14 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           window.location.href = res.url;
         }
       }.bind(this));
-    GA.event({category: 'Payment', action: 'Started', value: this.order.order_price});
+    GA.event({category: 'Order', action: 'Payment started', value: this.order.order_price});
   }
 
   onCancel() {
     $.post('api/orders/' + this.order.order_id + '/' + this.order.order_hash + '/cancel');
     this.order = null;
     this.setState({page: 'seats', reservationExpirationTime: null});
+    GA.event({category: 'Order', action: 'Cancelled'});
   }
 
   helpText() {
@@ -381,10 +382,10 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           Voit myös <a className='alert-link' href={'api/orders/' + order_id + '/' + order_hash + '/tickets.pdf'}>ladata liput tästä.</a></p>
         </div>
       );
-      GA.event({category: 'Payment', action: 'Succesfull'});
+      GA.event({category: 'Order', action: 'Payment succesfull'});
     } else if (this.props.action === 'fail') {
       result = (<div className='alert alert-warning'>Keskeytit tilauksesi ja varaamasi paikat on vapautettu myyntiin.</div>);
-      GA.event({category: 'Payment', action: 'Canceled'});
+      GA.event({category: 'Order', action: 'Payment canceled'});
     }
     var rawProductionDescriptionMarkup = Marked(this.production.description, {sanitize: true}); // should be safe to inject
     return (
