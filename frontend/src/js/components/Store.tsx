@@ -412,7 +412,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
       // No breaks -> fallthrough-magic!
       case 'payment':
-        finalConfirmationElem = <FinalConfirmation order={this.order} paymentBegun={this.state.paymentBegun} canCancel={this.order.status !== 'payment-pending'}
+        finalConfirmationElem = <FinalConfirmation order={this.order} paymentBegun={this.state.paymentBegun} canCancel={this.order.status === 'seats-reserved'}
           onProceedToPayment={this.onProceedToPayment.bind(this)} onCancel={this.onCancel.bind(this)}/>;
         /* fall through */
       case 'contacts':
