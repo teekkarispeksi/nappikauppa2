@@ -454,7 +454,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
     return (
       <div>
-        <ShowSelector onShowSelect={this.onShowSelect.bind(this)} shows={this.shows} selectedShow={this.state.show} />
+        <ShowSelector active={this.state.page === 'home' || this.state.page === 'seats'} onShowSelect={this.onShowSelect.bind(this)} shows={this.shows} selectedShow={this.state.show} />
         {seatSelectorElem}
         {shoppingCartElem}
         {contactsElem}
