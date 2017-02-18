@@ -46,7 +46,7 @@ app.use(compression());
 
 app.use('/public/config/', express.static(path.join(__dirname, '/config/public')));
 app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));
-app.get('/', function(req, res: any) {
+app.get(['/', '/index.html'], function(req, res: any) {
   res.sendFile(__dirname + '/frontend/build/index.html');
 });
 app.get('/favicon.ico', function(req, res: Response) {
