@@ -372,11 +372,6 @@ export function preparePayment(order_id: number): Promise<any> {
         return paymentDone(order_id, params).then((res) => { return {url: '#ok/' + order.order_id + '/' + order.order_hash}; });
       }
 
-      if (order.status === 'payment-pending' && order.payment_url) {
-        // in case the user has already started the paying once but didn't finish
-        return {url: order.payment_url};
-      }
-
       var ticket_rows = _.map(order.tickets, (ticket: ticket.ITicket) => {
         return {
           'title': 'Pääsylippu: ' + ticket.production_performer + ' / ' + ticket.production_title + ' / ' + ticket.show_title,

@@ -22,7 +22,7 @@ var config = require('../config/config.js');
 var jsonParser = bodyParser.json();
 
 const COOKIE_NAME = 'nappikauppa2';
-const COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
+const COOKIE_MAX_AGE = config.expire_minutes * 60 * 1000;
 
 type Request = express.Request;
 type Response = express.Response;
