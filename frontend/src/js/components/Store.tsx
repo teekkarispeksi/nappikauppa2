@@ -112,7 +112,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         return; // no or unsupperted existing order to load
       }
       order = resp3;
-      this.onShowSelect(order.tickets[0].show_id, (show) => {
+      this.onShowSelect(order.tickets[0].show_id, (show: IShow) => {
         this.order = order;
         this.tickets = order.tickets.map(t => {
           var section = this.venue.sections[t.section_id];
@@ -120,7 +120,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           return {
             seat: seat,
             section: section,
-            price: t.ticket_price,
+            price: t.ticket_price + _.findWhere(show.discount_groups, {id: t.discount_group_id}).discount,
             discount_group_id: t.discount_group_id,
             discount_groups: show.discount_groups
           };
