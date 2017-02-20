@@ -121,8 +121,8 @@ create table nk2_orders (
   `price` decimal(10,2) default null,
   `payment_url` varchar(200) default null,
   `payment_id` varchar(20) default NULL,
-  `reserved_until` datetime,
-  `reserved_session_id` varchar(32),
+  `reserved_until` datetime, -- TODO remove as not used
+  `reserved_session_id` varchar(32), -- TODO remove as not used
   `status` ENUM('seats-reserved', 'payment-pending', 'paid', 'cancelled', 'expired') not null,
   `hash` varchar(36) not null,
   PRIMARY KEY  (`id`),

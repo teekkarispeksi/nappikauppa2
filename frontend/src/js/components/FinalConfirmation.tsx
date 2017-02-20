@@ -6,9 +6,11 @@ import {IOrder} from '../../../../backend/src/order';
 
 
 export interface IFinalConfirmationProps {
+  canCancel: boolean;
   order: IOrder;
   paymentBegun: boolean;
 
+  onCancel: React.EventHandler<React.MouseEvent<any>>;
   onProceedToPayment: React.EventHandler<React.MouseEvent<any>>;
 }
 
@@ -53,6 +55,7 @@ export default class FinalConfirmation extends React.Component<IFinalConfirmatio
         <Button id='proceedToPayment' disabled={!active} onClick={this.props.onProceedToPayment}>
           {active ? 'Siirry maksamaan' : 'Siirrytään maksupalveluun'}
         </Button>
+        <Button id='cancel' disabled={!(active && this.props.canCancel)} onClick={this.props.onCancel}>Peru</Button>
       </div>
     );
   }

@@ -6,6 +6,7 @@ import Moment = require('moment-timezone');
 import {IShow} from '../../../../backend/src/show';
 
 export interface IShowSelectorProps {
+  active: boolean;
   selectedShow: IShow;
   shows: IShow[];
 
@@ -26,7 +27,7 @@ export default class ShowSelector extends React.Component<IShowSelectorProps, an
             var selectedClass = (this.props.selectedShow && this.props.selectedShow.id === show.id) ? 'selected' : '';
 
             var progressBar;
-            var active = true;
+            var active = this.props.active;
             if (Moment.tz(show.time, 'Europe/Helsinki') < Moment()) {
               progressBar = (<div className='sold-out'>&nbsp;</div>);
               active = false;

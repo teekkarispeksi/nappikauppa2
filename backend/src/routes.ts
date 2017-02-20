@@ -5,6 +5,7 @@ import express = require('express');
 import {RequestHandler} from 'express';
 import bodyParser = require('body-parser');
 import atob = require('atob');
+import md5 = require('md5');
 var router = express.Router();
 
 import auth = require('./confluenceAuth');
@@ -19,6 +20,9 @@ import log = require('./log');
 var config = require('../config/config.js');
 
 var jsonParser = bodyParser.json();
+
+const COOKIE_NAME = 'nappikauppa2';
+const COOKIE_MAX_AGE = config.expire_minutes * 60 * 1000;
 
 type Request = express.Request;
 type Response = express.Response;
@@ -90,12 +94,41 @@ router.get('/shows/:showid/reservedSeats', function(req: Request, res: Response)
 
 router.post('/shows/:showid/reserveSeats', jsonParser, checkUserSilently, function(req: IRequestWithUser, res: Response) {
   order.reserveSeats(parseInt(req.params.showid), req.body, req.user)
-    .then(ok(res))
+    .then((data) => {
+      res.cookie(COOKIE_NAME, {id: data.order_id, hash: md5(data.order_hash)}, {maxAge: COOKIE_MAX_AGE});
+      res.json(data);
+    })
     .catch((error) => { res.status(409); res.json(error); });
+});
+
+router.get('/orders/continue', (req, res) => {
+  var cookie = req.cookies[COOKIE_NAME];
+  if (!cookie || !cookie.id || !cookie.hash) {
+    res.clearCookie(COOKIE_NAME);
+    res.sendStatus(204);
+    return;
+  }
+  order.get(cookie.id).then((order) => {
+    if (order.order_hash && md5(order.order_hash) === cookie.hash && (order.status === 'seats-reserved')) {
+      log.info('Order succesfully loaded with cookie', {order_id: order.order_id});
+      res.json(order);
+    } else {
+      res.clearCookie(COOKIE_NAME);
+      res.sendStatus(204);
+    }
+  }).catch((error) => {
+    res.clearCookie(COOKIE_NAME);
+    res.sendStatus(204);
+  });
 });
 
 router.post('/orders/:orderid', jsonParser, checkUserSilently, function(req: IRequestWithUser, res: Response) {
   order.updateContact(parseInt(req.params.orderid), req.body, req.user).then(ok(res), err(res));
+});
+
+router.post('/orders/:orderid/:orderhash/cancel', (req, res) => {
+  res.clearCookie(COOKIE_NAME);
+  order.cancel(parseInt(req.params.orderid), req.params.orderhash).then(ok(res), err(res));
 });
 
 router.post('/orders/:orderid/preparePayment', function(req: Request, res: Response) {

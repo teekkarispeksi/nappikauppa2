@@ -5,6 +5,7 @@ import {Request} from 'express';
 
 import util = require('util');
 var express = require('express');
+var cookies = require('cookie-parser');
 var path = require('path');
 var morgan = require('morgan');
 var httpAuth = require('http-auth');
@@ -41,6 +42,8 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(morgan('combined', {stream: {
   write: function(message) { log.info('HTTP: ' + message); }
 }}));
+
+app.use(cookies());
 
 app.use(compression());
 

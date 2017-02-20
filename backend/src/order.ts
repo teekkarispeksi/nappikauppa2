@@ -39,12 +39,13 @@ export interface IOrder {
   order_id: number;
   order_price: number;
   payment_id: string;
-  reserved_session_id: string;
-  reserved_until: Date;
-  status: string;
-  time: Date;
+  payment_url: string;
+  show_id: number;
+  status: 'seats-reserved' | 'payment-pending' | 'paid' | 'cancelled' | 'expired';
+  time: string;
   tickets: ticket.ITicket[];
   tickets_total_price: number;
+  venue_id: number;
 }
 
 export interface IAdminOrderListItem {
@@ -56,12 +57,10 @@ export interface IAdminOrderListItem {
   hash: string;
   payment_url: string;
   payment_id: string;
-  reserved_session_id: string;
-  reserved_until: Date;
   status: string;
   tickets_count: number;
   tickets_used_count: number;
-  time: Date;
+  time: string;
 }
 
 export function checkExpired(): Promise<any> {
@@ -260,8 +259,16 @@ export function updateContact(order_id: number, data: IContact, user): Promise<a
   });
 }
 
+export function cancel(order_id: number, order_hash: string): Promise<any> {
+  return db.query('delete from nk2_orders where id = :id and hash = :hash and status = "seats-reserved" and payment_id is null', {id: order_id, hash: order_hash})
+  .then(() => {
+    log.info('Cancelled order', {order_id: order_id});
+  });
+}
+
 export function get(order_id: number): Promise<IOrder> {
-  return db.query('select \
+  return checkExpired().then(() =>
+    db.query('select \
       tickets.id ticket_id,  \
       tickets.show_id,\
       tickets.seat_id,\
@@ -280,8 +287,6 @@ export function get(order_id: number): Promise<IOrder> {
       orders.price order_price,\
       orders.payment_url, \
       orders.payment_id,\
-      orders.reserved_until,\
-      orders.reserved_session_id,\
       orders.status, \
       \
       shows.title show_title, \
@@ -295,9 +300,11 @@ export function get(order_id: number): Promise<IOrder> {
       seats.row row, \
       seats.number seat_number, \
       \
+      sections.id section_id, \
       sections.title section_title, \
       sections.row_name row_name, \
       \
+      venues.id venue_id, \
       venues.title venue_title, \
       venues.description venue_description, \
       \
@@ -311,39 +318,38 @@ export function get(order_id: number): Promise<IOrder> {
     join nk2_venues venues on sections.venue_id = venues.id \
     join nk2_discount_groups discount_groups on tickets.discount_group_id = discount_groups.id \
     where orders.id = :id',
-    {id: order_id})
+    {id: order_id}))
   .then(function(rows) {
-      var first = rows[0];
-      var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'wants_email', 'time', 'order_price', 'payment_url', 'payment_id',
-        'reserved_until', 'reserved_session_id', 'status']);
+    if (rows.length === 0) {
+      return Promise.reject('No orders found for given id!');
+    }
+    var first = rows[0];
+    var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'wants_email',
+    'time', 'order_price', 'payment_url', 'payment_id', 'status', 'show_id', 'venue_id']);
 
-      res.tickets = _.map(rows, function(row) {
-        return _.pick(row,
-          ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id',
-            'discount_group_title', 'ticket_hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_title', 'row_name',
-            'production_performer', 'production_title', 'ticket_image_src']);
-      });
+    res.tickets = _.map(rows, function(row) {
+      return _.pick(row,
+        ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id',
+          'discount_group_title', 'ticket_hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_id', 'section_title', 'row_name',
+          'production_performer', 'production_title', 'ticket_image_src']);
+    });
 
-      res.tickets_total_price = _.reduce(res.tickets, (r, ticket: any) => r + parseFloat(ticket.ticket_price), 0);
-      return res;
-    })
-  .catch((err) => {
-    log.error('Failed to get order', {order_id: order_id, error: err});
-    return Promise.reject(err);
+    res.tickets_total_price = _.reduce(res.tickets, (r, ticket: any) => r + parseFloat(ticket.ticket_price), 0);
+    return res;
   });
 }
 
-export function getAll(): Promise<IAdminOrderListItem> {
-  return db.query('select * from nk2_orders orders', null);
+export function getAll(): Promise<IAdminOrderListItem[]> {
+  return checkExpired().then(() => db.query('select * from nk2_orders orders', null));
 }
 
-export function getAllForShow(show_id: number): Promise<IAdminOrderListItem> {
-  return db.query('select orders.*, count(*) as tickets_count, count(tickets.used_time) as tickets_used_count \
+export function getAllForShow(show_id: number): Promise<IAdminOrderListItem[]> {
+  return checkExpired().then(() => db.query('select orders.*, count(*) as tickets_count, count(tickets.used_time) as tickets_used_count \
     from nk2_orders orders \
       join nk2_tickets tickets on tickets.order_id = orders.id \
     where tickets.show_id = :show_id \
     group by orders.id',
-    {show_id: show_id});
+    {show_id: show_id}));
 }
 
 export function preparePayment(order_id: number): Promise<any> {

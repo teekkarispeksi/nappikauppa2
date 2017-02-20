@@ -24,14 +24,14 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
 
   getSeatStatuses(): {} {
     var statuses: { [id: number]: string} = {};
-    this.props.conflictingSeatIds.forEach(function(id) {
-      statuses[id] = 'conflict';
+    this.props.reservedSeatIds.forEach(function(id) {
+      statuses[id] = 'reserved';
     });
     this.props.chosenSeatIds.forEach(function(id) {
       statuses[id] = 'chosen';
     });
-    this.props.reservedSeatIds.forEach(function(id) {
-      statuses[id] = 'reserved';
+    this.props.conflictingSeatIds.forEach(function(id) {
+      statuses[id] = 'conflict';
     });
     return statuses;
   }

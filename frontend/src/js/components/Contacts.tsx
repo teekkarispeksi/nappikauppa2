@@ -9,8 +9,12 @@ import Button from './Button';
 
 export interface IContactsProps {
   active: boolean;
+  discount_code?: string;
+  email?: string;
+  name?: string;
   production_id: number;
   onSaveOrderInfo: Function;
+  onCancel: React.EventHandler<React.MouseEvent<any>>;
 }
 
 export interface IContactsState {
@@ -27,9 +31,9 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
     super(props);
 
     this.state = {
-      name: '',
-      email: '',
-      discount_code: '',
+      name: props.name ? props.name : '',
+      email: props.email ? props.email : '',
+      discount_code: props.discount_code ? props.discount_code : '',
       wants_email: false,
       errors: []
     };
@@ -133,7 +137,8 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
           </Bootstrap.Checkbox>
         </div>
         <div>
-          <Button id='saveOrderInfo' disabled={!active} onClick={this.onSave.bind(this)}>Tallenna</Button>
+          <Button id='saveOrderInfo' bsStyle='primary' disabled={!active} onClick={this.onSave.bind(this)}>Tallenna</Button>
+          <Button id='cancel' disabled={!active} onClick={this.props.onCancel}>Peru</Button>
         </div>
       </div>
     );
