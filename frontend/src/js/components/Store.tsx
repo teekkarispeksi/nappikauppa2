@@ -108,8 +108,8 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
       return $.get('api/orders/continue');
     }).then((resp3: IOrder, statusCode, xhr: JQueryXHR) => {
-      if (xhr.status === 204) {
-        return; // no existing order to load
+      if (!resp3 || xhr.status === 204 || resp3.status !== 'seats-reserved') {
+        return; // no or unsupperted existing order to load
       }
       order = resp3;
       this.onShowSelect(order.tickets[0].show_id, (show) => {
@@ -125,10 +125,10 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
             discount_groups: show.discount_groups
           };
         });
-        if (this.order.status === 'seats-reserved' && !this.order.name) {
-          this.startTimer(this.order.time);
+        this.startTimer(this.order.time);
+        if (!this.order.name) {
           this.setState({page: 'contacts'});
-        } else if (this.order.status === 'payment-pending' || (this.order.status === 'seats-reserved' && this.order.name)) {
+        } else {
           this.setState({page: 'payment'});
         }
         this.updateSeatStatus(undefined, false); // here the chosen and reserved seats will always conflict

@@ -109,7 +109,7 @@ router.get('/orders/continue', (req, res) => {
     return;
   }
   order.get(cookie.id).then((order) => {
-    if (order.order_hash && md5(order.order_hash) === cookie.hash && (order.status === 'seats-reserved' || order.status === 'payment-pending')) {
+    if (order.order_hash && md5(order.order_hash) === cookie.hash && (order.status === 'seats-reserved')) {
       log.info('Order succesfully loaded with cookie', {order_id: order.order_id});
       res.json(order);
     } else {
