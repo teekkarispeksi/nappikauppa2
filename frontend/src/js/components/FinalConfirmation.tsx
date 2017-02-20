@@ -52,10 +52,10 @@ export default class FinalConfirmation extends React.Component<IFinalConfirmatio
         </tbody>
         </table>
 
-        <Button id='proceedToPayment' disabled={!active} onClick={this.props.onProceedToPayment}>
+        <Button id='proceedToPayment' className='ok' disabled={!active} onClick={this.props.onProceedToPayment}>
           {active ? 'Siirry maksamaan' : 'Siirrytään maksupalveluun'}
         </Button>
-        <Button id='cancel' disabled={!(active && this.props.canCancel)} onClick={this.props.onCancel}>Peru</Button>
+        <Button className='cancel' disabled={!(active && this.props.canCancel)} onClick={this.props.onCancel}>Peru</Button>
       </div>
     );
   }

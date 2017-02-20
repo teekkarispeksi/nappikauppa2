@@ -137,8 +137,8 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
           </Bootstrap.Checkbox>
         </div>
         <div>
-          <Button id='saveOrderInfo' bsStyle='primary' disabled={!active} onClick={this.onSave.bind(this)}>Tallenna</Button>
-          <Button id='cancel' disabled={!active} onClick={this.props.onCancel}>Peru</Button>
+          <Button id='saveOrderInfo' className='ok' disabled={!active} onClick={this.onSave.bind(this)}>Tallenna</Button>
+          <Button className='cancel' disabled={!active} onClick={this.props.onCancel}>Peru</Button>
         </div>
       </div>
     );
