@@ -118,6 +118,7 @@ function js(startPath, targetFile) {
 
 function jsMin(startPath, targetFile) {
   return function() {
+    process.env.NODE_ENV = 'production'; // to make react build in production mode
     return browserify()
     .add(startPath)
     .add('typings/index.d.ts')
