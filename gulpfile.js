@@ -21,6 +21,7 @@ var notify = require('gulp-notify');
 var lr = require('tiny-lr')();
 var nightwatch = require('gulp-nightwatch');
 var server = require('gulp-live-server');
+var sourcemaps = require('gulp-sourcemaps');
 
 gulp.task('server', function() {
   var app = server.new('app.js');
@@ -41,97 +42,103 @@ gulp.task('clean', function(cb) {
 
 gulp.task('img', function() {
   return gulp.src('./frontend/src/img/**/*.{jpg,gif,png}')
-  .pipe(gulp.dest('./frontend/build/public/img/'));
+    .pipe(gulp.dest('./frontend/build/public/img/'));
 });
 
 gulp.task('fonts', function() {
   return gulp.src('./frontend/src/bootstrap/fonts/*')
-  .pipe(gulp.dest('./frontend/build/public/fonts/'));
+    .pipe(gulp.dest('./frontend/build/public/fonts/'));
 });
 
 gulp.task('css:store', function() {
   return gulp.src(['./frontend/src/css/*.less', '!./frontend/src/css/admin*.less'])
-      .pipe(less())
-      .pipe(concat('style.css'))
-      .pipe(gulp.dest('./frontend/build/public/css/'));
+    .pipe(less())
+    .pipe(concat('style.css'))
+    .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
 gulp.task('css:admin', function() {
   return gulp.src('./frontend/src/css/admin*.less')
-      .pipe(less())
-      .pipe(concat('admin.css'))
-      .pipe(gulp.dest('./frontend/build/public/css/'));
+    .pipe(less())
+    .pipe(concat('admin.css'))
+    .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
 gulp.task('css:store:min', function() {
   return gulp.src(['./frontend/src/css/*.less', '!./frontend/src/css/admin*.less'])
-      .pipe(less())
-      .pipe(concat('style.css'))
-      .pipe(cssmin())
-      .pipe(gulp.dest('./frontend/build/public/css/'));
+    .pipe(less())
+    .pipe(concat('style.css'))
+    .pipe(cssmin())
+    .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
 gulp.task('css:admin:min', function() {
   return gulp.src('./frontend/src/css/admin*.less')
-      .pipe(less())
-      .pipe(concat('admin.css'))
-      .pipe(cssmin())
-      .pipe(gulp.dest('./frontend/build/public/css/'));
+    .pipe(less())
+    .pipe(concat('admin.css'))
+    .pipe(cssmin())
+    .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
 gulp.task('css', ['css:store', 'css:admin']);
 
 gulp.task('css:min', ['css:store:min', 'css:admin:min']);
 
-gulp.task('lint', function() {
-  return gulp.src(['app.ts', 'frontend/src/**/*.{ts,tsx}', 'backend/src/**/*.{ts,tsx}'])
-  .pipe(tslint())
-  .pipe(tslint.report(stylish, {emitError: true}))
-  .on('error', function(err) {
-    notify.onError({
-      message: '<%= error.message %>'
-    }).apply(this, arguments);
-    this.emit('end');
-  });
-});
-
-function js(startPath, targetFile) {
+function lint(files) {
   return function() {
-    return browserify(startPath)
-    .add(startPath)
-    .add('typings/index.d.ts')
-    .transform(babelify)
-    .plugin(tsify)
-    .bundle()
+    return gulp.src(files)
+    .pipe(tslint())
+    .pipe(tslint.report(stylish, {emitError: true}))
     .on('error', function(err) {
       notify.onError({
         message: '<%= error.message %>'
       }).apply(this, arguments);
-
       this.emit('end');
-    })
-    .pipe(source(targetFile))
-    .pipe(gulp.dest('./frontend/build/public/js/'));
+    });
+  };
+}
+
+gulp.task('lint:store', lint(['frontend/src/js/**/*.{ts,tsx}']));
+gulp.task('lint:admin', lint(['frontend/src/js-admin/**/*.{ts,tsx}']));
+gulp.task('lint:app', lint(['app.ts']));
+gulp.task('lint:backend', lint(['backend/src/**/*.{ts,tsx}']));
+
+function js(startPath, targetFile) {
+  return function() {
+    return browserify({entries: startPath, debug: true})
+      .add('typings/index.d.ts')
+      .transform(babelify)
+      .plugin(tsify, {sourceRoot: __dirname})
+      .bundle()
+      .on('error', function(err) {
+        notify.onError({
+          message: '<%= error.message %>'
+        }).apply(this, arguments);
+
+        this.emit('end');
+      })
+      .pipe(source(targetFile))
+      .pipe(gulp.dest('./frontend/build/public/js/'));
   };
 }
 
 function jsMin(startPath, targetFile) {
   return function() {
-    return browserify()
-    .add(startPath)
-    .add('typings/index.d.ts')
-    .transform(babelify)
-    .plugin(tsify)
-    .bundle()
-    .pipe(source(targetFile))
-    .pipe(buffer())
-    .pipe(uglify())
-    .pipe(gulp.dest('./frontend/build/public/js/'));
+    process.env.NODE_ENV = 'production'; // to make react build in production mode
+    return browserify(startPath)
+      .add('typings/index.d.ts')
+      .transform(babelify)
+      .plugin(tsify)
+      .bundle()
+      .pipe(source(targetFile))
+      .pipe(buffer())
+      .pipe(uglify())
+      .pipe(gulp.dest('./frontend/build/public/js/'));
   };
 }
 
-gulp.task('js:store', ['lint'], js('./frontend/src/js/App.tsx', 'App.js'));
-gulp.task('js:admin', js('./frontend/src/js-admin/AdminApp.tsx', 'adminApp.js'));
+gulp.task('js:store', ['lint:store'], js('./frontend/src/js/App.tsx', 'App.js'));
+gulp.task('js:admin', ['lint:admin'], js('./frontend/src/js-admin/AdminApp.tsx', 'adminApp.js'));
 
 gulp.task('js', ['js:store', 'js:admin']);
 
@@ -140,34 +147,34 @@ gulp.task('js:admin:min', jsMin('./frontend/src/js-admin/AdminApp.tsx', 'adminAp
 
 gulp.task('js:min', ['js:store:min', 'js:admin:min']);
 
-gulp.task('backend', function() {
+gulp.task('backend', ['lint:backend'], function() {
   return gulp.src(['backend/src/**/*.ts', 'typings/index.d.ts'])
-    .pipe(ts({
-      module: 'commonjs'
-    }))
+    .pipe(sourcemaps.init())
+    .pipe(ts({module: 'commonjs'}))
+    .pipe(sourcemaps.write({sourceRoot: '../src'}))
     .pipe(gulp.dest('backend/build/'))
     .pipe(notify({message: 'backend re-compiled, restart gulp', onLast: true}));
 });
 
-gulp.task('app', function() {
+gulp.task('app', ['lint:app'], function() {
   return gulp.src(['app.ts', 'typings/index.d.ts'])
-    .pipe(ts({
-      module: 'commonjs'
-    }))
+    .pipe(sourcemaps.init())
+    .pipe(ts({module: 'commonjs'}))
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest('./'))
     .pipe(notify({message: 'server re-compiled, restart gulp', onLast: true}));
 });
 
 gulp.task('index', function() {
   return gulp.src('./frontend/src/index.html')
-      .pipe(inject(gulp.src(['./public/**/*.{css,js}', '!./public/**/admin*'], {read: false, cwd: __dirname + '/frontend/build/'}), {addRootSlash: false}))
-      .pipe(gulp.dest('./frontend/build/'));
+    .pipe(inject(gulp.src(['./public/**/*.{css,js}', '!./public/**/admin*'], {read: false, cwd: __dirname + '/frontend/build/'}), {addRootSlash: false}))
+    .pipe(gulp.dest('./frontend/build/'));
 });
 
 gulp.task('admin', function() {
   return gulp.src('./frontend/src/admin.html')
-      .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: __dirname + '/frontend/build/'}), {addRootSlash: false}))
-      .pipe(gulp.dest('./frontend/build/'));
+    .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: __dirname + '/frontend/build/'}), {addRootSlash: false}))
+    .pipe(gulp.dest('./frontend/build/'));
 });
 
 gulp.task('ete-test', function() {
@@ -181,8 +188,7 @@ gulp.task('test', function() {
   runSequence(
     ['build-dev'],
     ['start-dev'],
-    ['ete-test'],
-    stopExpress
+    ['ete-test']
   );
 });
 
@@ -202,7 +208,7 @@ gulp.task('build', function(cb) {
     cb);
 });
 
-gulp.task('watch', ['server'], function() {
+gulp.task('watch', function() {
   gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index', 'admin']);
   gulp.watch('frontend/src/js/**/*.{js,jsx,ts,tsx}', ['js:store']);
   gulp.watch('frontend/src/js-admin/**/*.{js,jsx,ts,tsx}', ['js:admin']);
@@ -210,12 +216,21 @@ gulp.task('watch', ['server'], function() {
   gulp.watch('frontend/src/index.html', ['index']);
   gulp.watch('frontend/src/admin.html', ['admin']);
   gulp.watch('backend/src/**/*.{js,jsx,ts,tsx}', ['backend']);
-  gulp.watch('app.ts', ['app'])
+  gulp.watch('app.ts', ['app']);
 });
+
+gulp.task('rewatch', function(cb) {
+  runSequence(
+    ['build-dev'],
+    ['watch'],
+    cb);
+});
+
+gulp.task('watch-and-server', ['server', 'watch']);
 
 gulp.task('default', function(cb) {
   runSequence(
     ['build-dev'],
-    ['watch'],
+    ['watch-and-server'],
     cb);
 });
