@@ -84,17 +84,24 @@ gulp.task('css', ['css:store', 'css:admin']);
 
 gulp.task('css:min', ['css:store:min', 'css:admin:min']);
 
-gulp.task('lint', function() {
-  return gulp.src(['app.ts', 'frontend/src/**/*.{ts,tsx}', 'backend/src/**/*.{ts,tsx}'])
-  .pipe(tslint())
-  .pipe(tslint.report(stylish, {emitError: true}))
-  .on('error', function(err) {
-    notify.onError({
-      message: '<%= error.message %>'
-    }).apply(this, arguments);
-    this.emit('end');
-  });
-});
+function lint(files) {
+  return function() {
+    return gulp.src(files)
+    .pipe(tslint())
+    .pipe(tslint.report(stylish, {emitError: true}))
+    .on('error', function(err) {
+      notify.onError({
+        message: '<%= error.message %>'
+      }).apply(this, arguments);
+      this.emit('end');
+    });
+  }
+}
+
+gulp.task('lint:store', lint(['frontend/src/js/**/*.{ts,tsx}']));
+gulp.task('lint:admin', lint(['frontend/src/js-admin/**/*.{ts,tsx}']));
+gulp.task('lint:app', lint(['app.ts']));
+gulp.task('lint:backend', lint(['backend/src/**/*.{ts,tsx}']));
 
 function js(startPath, targetFile) {
   return function() {
@@ -132,8 +139,8 @@ function jsMin(startPath, targetFile) {
   };
 }
 
-gulp.task('js:store', ['lint'], js('./frontend/src/js/App.tsx', 'App.js'));
-gulp.task('js:admin', js('./frontend/src/js-admin/AdminApp.tsx', 'adminApp.js'));
+gulp.task('js:store', ['lint:store'], js('./frontend/src/js/App.tsx', 'App.js'));
+gulp.task('js:admin', ['lint:admin'], js('./frontend/src/js-admin/AdminApp.tsx', 'adminApp.js'));
 
 gulp.task('js', ['js:store', 'js:admin']);
 
@@ -142,7 +149,7 @@ gulp.task('js:admin:min', jsMin('./frontend/src/js-admin/AdminApp.tsx', 'adminAp
 
 gulp.task('js:min', ['js:store:min', 'js:admin:min']);
 
-gulp.task('backend', function() {
+gulp.task('backend', ['lint:backend'], function() {
   return gulp.src(['backend/src/**/*.ts', 'typings/index.d.ts'])
     .pipe(sourcemaps.init())
     .pipe(ts({
@@ -153,7 +160,7 @@ gulp.task('backend', function() {
     .pipe(notify({message: 'backend re-compiled, restart gulp', onLast: true}));
 });
 
-gulp.task('app', function() {
+gulp.task('app', ['lint:app'], function() {
   return gulp.src(['app.ts', 'typings/index.d.ts'])
     .pipe(sourcemaps.init())
     .pipe(ts({
