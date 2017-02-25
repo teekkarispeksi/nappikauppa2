@@ -98,7 +98,7 @@ gulp.task('lint', function() {
 
 function js(startPath, targetFile) {
   return function() {
-    return browserify(startPath)
+    return browserify({entries: startPath, debug: true})
     .add(startPath)
     .add('typings/index.d.ts')
     .transform(babelify)
