@@ -207,7 +207,7 @@ gulp.task('build', function(cb) {
     cb);
 });
 
-gulp.task('watch', ['server'], function() {
+gulp.task('watch', function() {
   gulp.watch('frontend/src/css/**/*.{css,less}', ['css', 'index', 'admin']);
   gulp.watch('frontend/src/js/**/*.{js,jsx,ts,tsx}', ['js:store']);
   gulp.watch('frontend/src/js-admin/**/*.{js,jsx,ts,tsx}', ['js:admin']);
@@ -215,12 +215,21 @@ gulp.task('watch', ['server'], function() {
   gulp.watch('frontend/src/index.html', ['index']);
   gulp.watch('frontend/src/admin.html', ['admin']);
   gulp.watch('backend/src/**/*.{js,jsx,ts,tsx}', ['backend']);
-  gulp.watch('app.ts', ['app'])
+  gulp.watch('app.ts', ['app']);
 });
+
+gulp.task('rewatch', function(cb) {
+  runSequence(
+    ['build-dev'],
+    ['watch'],
+    cb);
+});
+
+gulp.task('watch-and-server', ['server', 'watch']);
 
 gulp.task('default', function(cb) {
   runSequence(
     ['build-dev'],
-    ['watch'],
+    ['watch-and-server'],
     cb);
 });
