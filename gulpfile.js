@@ -42,42 +42,42 @@ gulp.task('clean', function(cb) {
 
 gulp.task('img', function() {
   return gulp.src('./frontend/src/img/**/*.{jpg,gif,png}')
-  .pipe(gulp.dest('./frontend/build/public/img/'));
+    .pipe(gulp.dest('./frontend/build/public/img/'));
 });
 
 gulp.task('fonts', function() {
   return gulp.src('./frontend/src/bootstrap/fonts/*')
-  .pipe(gulp.dest('./frontend/build/public/fonts/'));
+    .pipe(gulp.dest('./frontend/build/public/fonts/'));
 });
 
 gulp.task('css:store', function() {
   return gulp.src(['./frontend/src/css/*.less', '!./frontend/src/css/admin*.less'])
-      .pipe(less())
-      .pipe(concat('style.css'))
-      .pipe(gulp.dest('./frontend/build/public/css/'));
+    .pipe(less())
+    .pipe(concat('style.css'))
+    .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
 gulp.task('css:admin', function() {
   return gulp.src('./frontend/src/css/admin*.less')
-      .pipe(less())
-      .pipe(concat('admin.css'))
-      .pipe(gulp.dest('./frontend/build/public/css/'));
+    .pipe(less())
+    .pipe(concat('admin.css'))
+    .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
 gulp.task('css:store:min', function() {
   return gulp.src(['./frontend/src/css/*.less', '!./frontend/src/css/admin*.less'])
-      .pipe(less())
-      .pipe(concat('style.css'))
-      .pipe(cssmin())
-      .pipe(gulp.dest('./frontend/build/public/css/'));
+    .pipe(less())
+    .pipe(concat('style.css'))
+    .pipe(cssmin())
+    .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
 gulp.task('css:admin:min', function() {
   return gulp.src('./frontend/src/css/admin*.less')
-      .pipe(less())
-      .pipe(concat('admin.css'))
-      .pipe(cssmin())
-      .pipe(gulp.dest('./frontend/build/public/css/'));
+    .pipe(less())
+    .pipe(concat('admin.css'))
+    .pipe(cssmin())
+    .pipe(gulp.dest('./frontend/build/public/css/'));
 });
 
 gulp.task('css', ['css:store', 'css:admin']);
@@ -106,19 +106,19 @@ gulp.task('lint:backend', lint(['backend/src/**/*.{ts,tsx}']));
 function js(startPath, targetFile) {
   return function() {
     return browserify({entries: startPath, debug: true})
-    .add('typings/index.d.ts')
-    .transform(babelify)
-    .plugin(tsify, {sourceRoot: __dirname})
-    .bundle()
-    .on('error', function(err) {
-      notify.onError({
-        message: '<%= error.message %>'
-      }).apply(this, arguments);
+      .add('typings/index.d.ts')
+      .transform(babelify)
+      .plugin(tsify, {sourceRoot: __dirname})
+      .bundle()
+      .on('error', function(err) {
+        notify.onError({
+          message: '<%= error.message %>'
+        }).apply(this, arguments);
 
-      this.emit('end');
-    })
-    .pipe(source(targetFile))
-    .pipe(gulp.dest('./frontend/build/public/js/'));
+        this.emit('end');
+      })
+      .pipe(source(targetFile))
+      .pipe(gulp.dest('./frontend/build/public/js/'));
   };
 }
 
@@ -126,14 +126,14 @@ function jsMin(startPath, targetFile) {
   return function() {
     process.env.NODE_ENV = 'production'; // to make react build in production mode
     return browserify(startPath)
-    .add('typings/index.d.ts')
-    .transform(babelify)
-    .plugin(tsify)
-    .bundle()
-    .pipe(source(targetFile))
-    .pipe(buffer())
-    .pipe(uglify())
-    .pipe(gulp.dest('./frontend/build/public/js/'));
+      .add('typings/index.d.ts')
+      .transform(babelify)
+      .plugin(tsify)
+      .bundle()
+      .pipe(source(targetFile))
+      .pipe(buffer())
+      .pipe(uglify())
+      .pipe(gulp.dest('./frontend/build/public/js/'));
   };
 }
 
@@ -167,14 +167,14 @@ gulp.task('app', ['lint:app'], function() {
 
 gulp.task('index', function() {
   return gulp.src('./frontend/src/index.html')
-      .pipe(inject(gulp.src(['./public/**/*.{css,js}', '!./public/**/admin*'], {read: false, cwd: __dirname + '/frontend/build/'}), {addRootSlash: false}))
-      .pipe(gulp.dest('./frontend/build/'));
+    .pipe(inject(gulp.src(['./public/**/*.{css,js}', '!./public/**/admin*'], {read: false, cwd: __dirname + '/frontend/build/'}), {addRootSlash: false}))
+    .pipe(gulp.dest('./frontend/build/'));
 });
 
 gulp.task('admin', function() {
   return gulp.src('./frontend/src/admin.html')
-      .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: __dirname + '/frontend/build/'}), {addRootSlash: false}))
-      .pipe(gulp.dest('./frontend/build/'));
+    .pipe(inject(gulp.src('./public/**/admin*.{css,js}', {read: false, cwd: __dirname + '/frontend/build/'}), {addRootSlash: false}))
+    .pipe(gulp.dest('./frontend/build/'));
 });
 
 gulp.task('ete-test', function() {
