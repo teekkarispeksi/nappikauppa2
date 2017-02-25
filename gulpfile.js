@@ -95,7 +95,7 @@ function lint(files) {
       }).apply(this, arguments);
       this.emit('end');
     });
-  }
+  };
 }
 
 gulp.task('lint:store', lint(['frontend/src/js/**/*.{ts,tsx}']));
@@ -106,7 +106,6 @@ gulp.task('lint:backend', lint(['backend/src/**/*.{ts,tsx}']));
 function js(startPath, targetFile) {
   return function() {
     return browserify({entries: startPath, debug: true})
-    .add(startPath)
     .add('typings/index.d.ts')
     .transform(babelify)
     .plugin(tsify, {sourceRoot: __dirname})
@@ -126,8 +125,7 @@ function js(startPath, targetFile) {
 function jsMin(startPath, targetFile) {
   return function() {
     process.env.NODE_ENV = 'production'; // to make react build in production mode
-    return browserify()
-    .add(startPath)
+    return browserify(startPath)
     .add('typings/index.d.ts')
     .transform(babelify)
     .plugin(tsify)
@@ -152,9 +150,7 @@ gulp.task('js:min', ['js:store:min', 'js:admin:min']);
 gulp.task('backend', ['lint:backend'], function() {
   return gulp.src(['backend/src/**/*.ts', 'typings/index.d.ts'])
     .pipe(sourcemaps.init())
-    .pipe(ts({
-      module: 'commonjs'
-    }))
+    .pipe(ts({module: 'commonjs'}))
     .pipe(sourcemaps.write({sourceRoot: '../src'}))
     .pipe(gulp.dest('backend/build/'))
     .pipe(notify({message: 'backend re-compiled, restart gulp', onLast: true}));
@@ -163,9 +159,7 @@ gulp.task('backend', ['lint:backend'], function() {
 gulp.task('app', ['lint:app'], function() {
   return gulp.src(['app.ts', 'typings/index.d.ts'])
     .pipe(sourcemaps.init())
-    .pipe(ts({
-      module: 'commonjs'
-    }))
+    .pipe(ts({module: 'commonjs'}))
     .pipe(sourcemaps.write())
     .pipe(gulp.dest('./'))
     .pipe(notify({message: 'server re-compiled, restart gulp', onLast: true}));
@@ -194,8 +188,7 @@ gulp.task('test', function() {
   runSequence(
     ['build-dev'],
     ['start-dev'],
-    ['ete-test'],
-    stopExpress
+    ['ete-test']
   );
 });
 
