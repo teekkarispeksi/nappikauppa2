@@ -3,6 +3,7 @@
 import React = require('react');
 import {ISeat} from '../../../../backend/src/venue';
 
+// NOTE: when adding stuff to ISeatProps, check if it needs to be added to shouldComponentUpdate also.
 export interface ISeatProps extends React.Props<any> {
   prices: number[];
   priceClass: string;
@@ -20,7 +21,7 @@ var toTitleCase = function(str: string) {
 export default class Seat extends React.Component<ISeatProps, any> {
   shouldComponentUpdate(nextProps: ISeatProps, nextState: any) {
     // this seems to make things actually faster on Lumia925 + Edge, and does not seem to break anything
-    return nextProps.status !== this.props.status;
+    return nextProps.status !== this.props.status || nextProps.onClick !== this.props.onClick;
   }
 
   render() {
