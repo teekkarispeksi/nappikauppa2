@@ -12,6 +12,7 @@ class NkAdminRouter extends Backbone.Router {
       'productions(/)(:productionid)': 'productions',
       'discountCodes(/)': 'discountCodes',
       'discountGroups(/)': 'discountGroups',
+      'statistics/:productionid': 'statistics',
       '*url': 'default'
     };
 

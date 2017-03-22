@@ -48,7 +48,11 @@ export default class Home extends React.Component<any, IHomeState> {
         <h2>Produktiot</h2>
         <p><a href={'#productions/'}>Luo uusi produktio</a></p>
         <ul>
-          {this.state.productions.map((production) => <li key={production.id}><a href={'#productions/' + production.id}>{production.performer} - {production.title}</a></li>)}
+          {this.state.productions.map((production) =>
+            <li key={production.id}>
+              <a href={'#productions/' + production.id}>{production.performer} - {production.title}</a>
+               &nbsp;--- <a href={'#statistics/' + production.id}>Statistiikat</a>
+            </li>)}
         </ul>
       </div>
     );

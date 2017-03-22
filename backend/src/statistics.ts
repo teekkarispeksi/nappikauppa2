@@ -4,8 +4,35 @@ import db = require('./db');
 import log = require('./log');
 import _ = require('underscore');
 
-export function stats(): Promise<any> {
-  var stats = {tickets: null, orders: null, status: null, groups: null, codes: null, byShow: null, byDate: null};
+export interface IRawStatistic {
+  show_id: number;
+  title: string;
+  count: number;
+  revenue: number;
+  date: string;
+}
+
+export interface IStatistics {
+  tickets: any[];
+  orders: any[];
+  status: any[];
+  groups: any[];
+  codes: any[];
+  byShow: any[];
+  byDate: any[];
+}
+
+export function raw(production_id: number): Promise<IRawStatistic[]> {
+  return db.query('select t.show_id, s.title, COUNT(*) as count, SUM(t.price) as revenue, UPPER(DATE(o.time)) as date \
+      from nk2_tickets t \
+      join nk2_shows s on t.show_id = s.id \
+      join nk2_orders o on t.order_id = o.id \
+      where s.production_id = :production_id \
+      group by UPPER(DATE(o.time)), t.show_id', {production_id: production_id});
+}
+
+export function stats(): Promise<IStatistics> {
+  var stats: IStatistics = {tickets: null, orders: null, status: null, groups: null, codes: null, byShow: null, byDate: null};
   return db.query('select sum(price) as revenue, count(*) as count from nk2_tickets').then((res) => {
     stats.tickets = res[0];
   }).then(() => {
