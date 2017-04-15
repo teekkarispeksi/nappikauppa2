@@ -5,6 +5,7 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
+import Button from '../../js/components/Button';
 import ShowList from './ShowList';
 import editable = require('./editables');
 
@@ -109,8 +110,8 @@ export default class Production extends React.Component<IProductionProps, IProdu
           </td></tr>
           <tr><td>Lipun kuvatiedoston nimi<br/><br/>JPG tai PNG,<br/>kuvasuhde: 595.28 : (3/4 x 841.89)</td><td>{editable.String(this, this.state.production, 'ticket_image_src')}</td></tr>
         </tbody></Bootstrap.Table>
-        <Bootstrap.Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Bootstrap.Button>
-        <Bootstrap.Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Bootstrap.Button>
+        <Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Button>
+        <Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Button>
         <ShowList production={this.state.production} />
       </div>
     );

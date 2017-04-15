@@ -6,6 +6,7 @@ import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
 import editable = require('./editables');
+import Button from '../../js/components/Button';
 import {IOrder} from '../../../../backend/src/order';
 import {ITicket} from '../../../../backend/src/ticket';
 
@@ -120,10 +121,10 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
           <tr><td>Aika</td><td>{this.state.order.time}</td></tr>
           <tr><td>Status</td><td>{this.state.order.status}</td></tr>
         </tbody></Bootstrap.Table>
-        <Bootstrap.Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Bootstrap.Button>
-        <Bootstrap.Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Bootstrap.Button>
+        <Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Button>
+        <Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Button>
         <h2>Liput</h2>
-        <Bootstrap.Button disabled={this.state.order.status !== 'paid'} onClick={this.sendTickets.bind(this)}>Lähetä liput uudelleen</Bootstrap.Button>
+        <Button disabled={this.state.order.status !== 'paid'} onClick={this.sendTickets.bind(this)}>Lähetä liput uudelleen</Button>
         <Bootstrap.Table bordered>
           <thead><tr>
             <th>Näytös</th>
@@ -136,7 +137,7 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
           </tr></thead>
           <tbody>
           {this.state.order.tickets.map((ticket) => {
-            var used = ticket.used_time ? ticket.used_time : <Bootstrap.Button onClick={this.useTicket.bind(this, ticket)}>Käytä</Bootstrap.Button>;
+            var used = ticket.used_time ? ticket.used_time : <Button onClick={this.useTicket.bind(this, ticket)}>Käytä</Button>;
             return (<tr key={ticket.ticket_id}>
               <td>{ticket.show_title}</td>
               <td>{ticket.section_title}</td>
@@ -144,7 +145,7 @@ export default class Order extends React.Component<IOrderProps, IOrderState> {
               <td>Paikka {ticket.seat_number}</td>
               <td>{ticket.ticket_price}</td>
               <td>{used}</td>
-              <td><Bootstrap.Button onClick={this.removeTicket.bind(this, ticket)}>X</Bootstrap.Button></td>
+              <td><Button onClick={this.removeTicket.bind(this, ticket)}>X</Button></td>
             </tr>);
           })}
         </tbody></Bootstrap.Table>

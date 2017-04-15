@@ -5,6 +5,7 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
+import Button from '../../js/components/Button';
 import editable = require('./editables');
 import {IDiscountGroup} from '../../../../backend/src/discountGroup';
 import {IShow} from '../../../../backend/src/show';
@@ -116,9 +117,9 @@ export default class DiscountGroup extends React.Component<IDiscountGroupProps, 
           })}
           </tbody>
         </Bootstrap.Table>
-        <Bootstrap.Button onClick={this.addNewGroup.bind(this)}>Lisää uusi</Bootstrap.Button><br/><br/>
-        <Bootstrap.Button onClick={this.saveChanges.bind(this)} disabled={!hasEdits}>Tallenna muutokset</Bootstrap.Button>
-        <Bootstrap.Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Bootstrap.Button>
+        <Button onClick={this.addNewGroup.bind(this)}>Lisää uusi</Button><br/><br/>
+        <Button onClick={this.saveChanges.bind(this)} disabled={!hasEdits}>Tallenna muutokset</Button>
+        <Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Button>
       </div>
     );
   }

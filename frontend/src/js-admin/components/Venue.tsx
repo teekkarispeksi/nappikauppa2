@@ -5,6 +5,7 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
+import Button from '../../js/components/Button';
 import SeatSelector from './SeatSelector';
 import editable = require('./editables');
 import {IVenue, ISection, ISeat} from '../../../../backend/src/venue';
@@ -133,8 +134,8 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
           <tr><td>Layout-kuva</td><td>{editable.String(this, this.state.venue, 'layout_src')}</td></tr>
           <tr><td>Kuvaus</td><td>{editable.Text(this, this.state.venue, 'description')}</td></tr>
         </tbody></Bootstrap.Table>
-        <Bootstrap.Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Bootstrap.Button>
-        <Bootstrap.Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Bootstrap.Button>
+        <Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Button>
+        <Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Button>
         <h2>Katsomot</h2>
         <Bootstrap.Table bordered>
           <thead><tr>
@@ -153,11 +154,11 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
                 <td>{editable.String(this, section, 'row_name')}</td>
                 <td>{_.keys(section.seats).length}</td>
                 <td>
-                  <Bootstrap.Button
+                  <Button
                     bsStyle={sectionIsSelected ? 'primary' : null}
                     onClick={() => this.setState({selectSeatsForSectionId: sectionIsSelected ? null : section.id})}>
                     Valitse
-                  </Bootstrap.Button>
+                  </Button>
                 </td>
               </tr>
             );
