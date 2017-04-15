@@ -310,13 +310,13 @@ export function get(order_id: number): Promise<IOrder> {
       \
       discount_groups.title discount_group_title \
     from nk2_orders orders \
-    join nk2_tickets tickets on orders.id = tickets.order_id \
-    join nk2_shows shows on tickets.show_id = shows.id \
-    join nk2_productions productions on shows.production_id = productions.id \
-    join nk2_seats seats on tickets.seat_id = seats.id \
-    join nk2_sections sections on seats.section_id = sections.id \
-    join nk2_venues venues on sections.venue_id = venues.id \
-    join nk2_discount_groups discount_groups on tickets.discount_group_id = discount_groups.id \
+    left join nk2_tickets tickets on orders.id = tickets.order_id \
+    left join nk2_shows shows on tickets.show_id = shows.id \
+    left join nk2_productions productions on shows.production_id = productions.id \
+    left join nk2_seats seats on tickets.seat_id = seats.id \
+    left join nk2_sections sections on seats.section_id = sections.id \
+    left join nk2_venues venues on sections.venue_id = venues.id \
+    left join nk2_discount_groups discount_groups on tickets.discount_group_id = discount_groups.id \
     where orders.id = :id',
     {id: order_id}))
   .then(function(rows) {
@@ -327,12 +327,12 @@ export function get(order_id: number): Promise<IOrder> {
     var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'wants_email',
     'time', 'order_price', 'payment_url', 'payment_id', 'status', 'show_id', 'venue_id']);
 
-    res.tickets = _.map(rows, function(row) {
+    res.tickets = _.filter(_.map(rows, function(row) {
       return _.pick(row,
         ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id',
           'discount_group_title', 'ticket_hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_id', 'section_title', 'row_name',
           'production_performer', 'production_title', 'ticket_image_src']);
-    });
+    }), (ticket) => ticket.ticket_id !== null); // filter out the null ticket possibly produced by the left-join
 
     res.tickets_total_price = _.reduce(res.tickets, (r, ticket: any) => r + parseFloat(ticket.ticket_price), 0);
     return res;
