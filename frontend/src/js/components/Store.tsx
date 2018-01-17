@@ -10,6 +10,7 @@ import Moment = require('moment-timezone');
 import Bootstrap = require('react-bootstrap');
 import GA = require('react-ga');
 
+import Button from './Button';
 import ShowSelector from './ShowSelector';
 import SeatSelector from './SeatSelector'; // for numbered seats
 import TicketCountSelector from './TicketCountSelector'; // for non-numbered seats
@@ -448,7 +449,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       <div id='admin' className='shopping-stage'>
       <h4>Hei, {this.state.auth}!</h4>
       <p>Siirry admin-puolelle <a href='admin'>tästä</a>.</p>
-      <p><Bootstrap.Button disabled={this.tickets.length === 0} onClick={() => {this.tickets.forEach((t) => t.discount_group_id = 3); this.forceUpdate();}}>Ilmaislipuiksi</Bootstrap.Button></p>
+      <p><Button disabled={this.tickets.length === 0} onClick={() => {this.tickets.forEach((t) => t.discount_group_id = 3); this.forceUpdate();}}>Ilmaislipuiksi</Button></p>
       </div>
     ) : null;
 

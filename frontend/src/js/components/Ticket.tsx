@@ -4,6 +4,7 @@ import React = require('react');
 import Bootstrap = require('react-bootstrap');
 import _ = require('underscore');
 
+import Button from './Button';
 import {IDiscountGroup} from '../../../../backend/src/discountGroup';
 import {ITicket} from './Store';
 
@@ -26,8 +27,8 @@ export default class Ticket extends React.Component<ITicketProps, any> {
     var section = this.props.ticket.section;
     var conflict = this.props.conflict;
     var remove = this.props.active ? (
-      <Bootstrap.Button bsStyle='link' className='removeSeat' onClick={this.props.onRemove.bind(null, seat.id, section.id)}>
-      <Bootstrap.Glyphicon glyph='remove' /></Bootstrap.Button>) : null;
+      <Button bsStyle='link' className='removeSeat' onClick={this.props.onRemove.bind(null, seat.id, section.id)}>
+      <Bootstrap.Glyphicon glyph='remove' /></Button>) : null;
     var disabled = !this.props.active || conflict;
     var divClass = 'ticket' + (conflict ? ' alert alert-danger' : '');
     var info = section.row_name ? section.section_title + ', ' + section.row_name + ' ' + seat.row + ', paikka ' + seat.number : section.section_title; // for numbered or un-numbered

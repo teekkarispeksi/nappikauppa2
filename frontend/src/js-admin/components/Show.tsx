@@ -5,6 +5,7 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
+import Button from '../../js/components/Button';
 import editable = require('./editables');
 
 import {IShow, IShowSection} from '../../../../backend/src/show';
@@ -134,8 +135,8 @@ export default class Show extends React.Component<IShowProps, IShowState> {
             <td>{editable.Text(this, this.state.show, 'description')}<p>Kuvauksessa voi käyttää <a href='https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet'>Markdown-muotoiluja</a></p>
           </td></tr>
         </tbody></Bootstrap.Table>
-        <Bootstrap.Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Bootstrap.Button>
-        <Bootstrap.Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Bootstrap.Button>
+        <Button disabled={!hasEdits} onClick={this.saveChanges.bind(this)}>Tallenna muutokset</Button>
+        <Button disabled={!hasEdits} onClick={() => this.reset()}>Peru</Button>
         <h2>Hinnat</h2>
         <Bootstrap.Table bordered>
           <thead><tr>

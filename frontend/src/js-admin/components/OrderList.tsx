@@ -6,6 +6,7 @@ import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 import Moment = require('moment-timezone');
 
+import Button from '../../js/components/Button';
 import {IAdminOrderListItem} from '../../../../backend/src/order';
 import {IShow} from '../../../../backend/src/show';
 
@@ -67,7 +68,7 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
             var editLink = <a href={'#orders/' + order.id}>Edit</a> ;
             var ticketLink = order.status === 'paid' ? <a href={'admin-api/orders/' + order.id + '/tickets.pdf'}>Liput</a> : null;
             var paymentLink = order.status === 'payment-pending' ? <a href={order.payment_url}>Maksulinkki</a> : null;
-            var checkStatus = order.status === 'payment-pending' ? <Bootstrap.Button onClick={this.checkStatus.bind(this, order)}>Tarkista</Bootstrap.Button> : null;
+            var checkStatus = order.status === 'payment-pending' ? <Button onClick={this.checkStatus.bind(this, order)}>Tarkista</Button> : null;
             var used = order.tickets_count === order.tickets_used_count;
             var className = 'warning';
             if (used) {

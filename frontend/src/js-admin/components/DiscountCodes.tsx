@@ -5,6 +5,7 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Bootstrap = require('react-bootstrap');
 
+import Button from '../../js/components/Button';
 import editable = require('./editables');
 import {IDiscountCode} from '../../../../backend/src/discountCode';
 import {IProduction} from '../../../../backend/src/production';
@@ -153,7 +154,7 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
             <tr><td>Käyttökertoja</td><td>{editable.Number(this, this.state, 'new_code_use_max')}</td></tr>
           </tbody>
         </Bootstrap.Table>
-        <Bootstrap.Button onClick={this.generateNewCodes.bind(this)} disabled={!canGenerateCodes}>Generoi koodit</Bootstrap.Button>
+        <Button onClick={this.generateNewCodes.bind(this)} disabled={!canGenerateCodes}>Generoi koodit</Button>
         <h2>Uudet alennuskoodit</h2>
         <Bootstrap.Table bordered>
           <thead><tr>
@@ -182,9 +183,9 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
               <td>{editable.Text(this, this.state, 'new_email_text')}</td></tr>
           </tbody>
         </Bootstrap.Table>
-        <Bootstrap.Button onClick={() => this.saveChanges(true, false)} disabled={this.state.newDiscountCodes.length === 0}>Tallenna koodit</Bootstrap.Button>
+        <Button onClick={() => this.saveChanges(true, false)} disabled={this.state.newDiscountCodes.length === 0}>Tallenna koodit</Button>
         <span style={{marginLeft: '5px', marginRight: '5px'}}>tai</span>
-        <Bootstrap.Button onClick={() => this.saveChanges(true, true)} disabled={this.state.newDiscountCodes.length === 0}>Tallenna ja lähetä koodit</Bootstrap.Button>
+        <Button onClick={() => this.saveChanges(true, true)} disabled={this.state.newDiscountCodes.length === 0}>Tallenna ja lähetä koodit</Button>
         <h2>Alennuskoodit</h2>
         <Bootstrap.Table bordered>
           <thead><tr>
@@ -208,8 +209,8 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
             );
           })}
         </tbody></Bootstrap.Table>
-        <Bootstrap.Button onClick={() => this.saveChanges()} disabled={!hasChanges}>Tallenna muutokset</Bootstrap.Button>
-        <Bootstrap.Button onClick={() => this.reset()} disabled={!hasChanges}>Peru</Bootstrap.Button>
+        <Button onClick={() => this.saveChanges()} disabled={!hasChanges}>Tallenna muutokset</Button>
+        <Button onClick={() => this.reset()} disabled={!hasChanges}>Peru</Button>
       </div>
     );
   }
