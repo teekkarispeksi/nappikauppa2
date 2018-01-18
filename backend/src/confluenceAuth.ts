@@ -16,6 +16,11 @@ export function isAdmin(user: string) {
 }
 
 export function authenticate(user: string, password: string, requiredGroup: string, cb: Function) {
+  if (!config.confluence_auth.enabled) {
+    log.warn('NO REAL AUTHENTICATION ENABLED. Accepting ' + user + '.');
+    return cb(true);
+  }
+
   if (userCache[user] && userCache[user].password === password) {
     var now = new Date();
     if (now.getTime() - userCache[user].inserted.getTime() > CACHE_INVALIDATE_MSEC) {

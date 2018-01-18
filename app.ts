@@ -56,12 +56,13 @@ app.get('/favicon.ico', function(req, res: Response) {
   res.send('');
 });
 
+
+app.all('/admin*', httpAuth.connect(adminAuth));
+app.all('/checker*', httpAuth.connect(checkerAuth));
+
 if (config.confluence_auth.enabled) {
-  app.all('/admin*', httpAuth.connect(adminAuth));
-  app.all('/checker*', httpAuth.connect(checkerAuth));
-} else {
   log.warn('=======================================');
-  log.warn('NO AUTHENTICATION ENABLED. Fine for dev, not cool for anything real.');
+  log.warn('NO REAL AUTHENTICATION ENABLED. Use any username/password. Fine for dev, not cool for anything real.');
   log.warn('=======================================');
 }
 
