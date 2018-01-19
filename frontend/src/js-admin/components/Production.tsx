@@ -24,6 +24,11 @@ export interface IProductionState {
 }
 
 var PERFORMERS = [{value: 'Teekkarispeksi', name: 'Teekkarispeksi'}, {value: 'NääsPeksi', name: 'NääsPeksi'}];
+var DEFAULT_VALUES: IProduction = {
+  performer: 'Teekkarispeksi',
+  opens: '1900-01-01T00:00',
+  active: false, /*not checked*/
+  ticket_image_src: 'lippu_dummy.png' } as IProduction;
 
 // this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers
 function almostDeepClone<T extends {}>(obj: T): T {
@@ -54,7 +59,7 @@ export default class Production extends React.Component<IProductionProps, IProdu
     } else if (this.props.production_id) {
       production_id = this.props.production_id;
     }
-    return production_id ? _.findWhere(productions, {id: production_id}) : {ticket_image_src: 'lippu_dummy.png'} as IProduction;
+    return production_id ? _.findWhere(productions, {id: production_id}) : DEFAULT_VALUES as IProduction;
   }
 
   componentWillMount() {

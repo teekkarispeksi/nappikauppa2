@@ -15,12 +15,18 @@ export interface IVenueProps {
   venue_id?: number;
 }
 
+
 export interface IVenueState {
   selectSeatsForSectionId?: number;
   venues?: IVenue[];
   venue?: IVenue;
   venue_id?: number;
 }
+
+var TICKET_TYPES = [{value: 'generic-tickets', name: 'Numeroimaton'}, {value: 'numbered-seats', name: 'Numeroitu'}];
+var DEFAULT_VALUES: IVenue = {
+  ticket_type: TICKET_TYPES[1].value
+} as IVenue;
 
 // this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers
 function almostDeepClone<T extends {}>(obj: T): T {
@@ -49,7 +55,7 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
     if (this.state.venue_id) {
       venue_id = this.state.venue_id;
     }
-    return venue_id ? _.findWhere(venues, {id: venue_id}) : {} as IVenue;
+    return venue_id ? _.findWhere(venues, {id: venue_id}) : DEFAULT_VALUES as IVenue;
   }
 
   onCopyVenue(venue_id: number) {
@@ -129,7 +135,7 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
           <tr><td>ID</td><td>{this.state.venue.id}</td></tr>
           <tr><td>Nimi</td><td>{editable.String(this, this.state.venue, 'venue_title')}</td></tr>
           <tr><td>Lipputyyppi</td>
-            <td>{editable.Select(this, this.state.venue, 'ticket_type', [{value: 'generic-tickets', name: 'Numeroimaton'}, {value: 'numbered-seats', name: 'Numeroitu'}])}</td>
+            <td>{editable.Select(this, this.state.venue, 'ticket_type', TICKET_TYPES)}</td>
           </tr>
           <tr><td>Layout-kuva</td><td>{editable.String(this, this.state.venue, 'layout_src')}</td></tr>
           <tr><td>Kuvaus</td><td>{editable.Text(this, this.state.venue, 'description')}</td></tr>

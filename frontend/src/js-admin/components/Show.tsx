@@ -25,6 +25,12 @@ export interface IShowState {
   productions?: IProduction[];
 }
 
+var DEFAULT_VALUES: IShow = {
+  active: false,
+  inactivate_time: '1900-01-01T00:00',
+  time: '1900-01-01T00:00'
+} as IShow;
+
 // this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers
 function almostDeepClone<T extends {}>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
@@ -54,7 +60,7 @@ export default class Show extends React.Component<IShowProps, IShowState> {
     } else if (this.props.show_id) {
       show_id = this.props.show_id;
     }
-    return show_id ? _.findWhere(shows, {id: show_id}) : {} as IShow; // just default to some venue
+    return show_id ? _.findWhere(shows, {id: show_id}) : DEFAULT_VALUES as IShow; // just default to some venue
   }
 
   componentWillMount() {
