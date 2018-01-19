@@ -31,7 +31,9 @@ export function check(code: string, production_id: number, user: string): Promis
 }
 
 export function getAll(): Promise<IDiscountCode[]> {
-  return db.query('select code, eur, production_id, use_max, if(o.id is null, 0, count(*)) as used, dc.email, code_group from nk2_discount_codes dc \
+  /*currently contains haky way any_value function call for getting used number,
+  TODO: Own database field for used number or refactored query*/
+  return db.query('select code, eur, production_id, use_max, any_value(if(o.id is null, 0, count(*))) as used, dc.email, code_group from nk2_discount_codes dc \
     left join nk2_orders o on o.discount_code = dc.code \
     group by code');
 }
