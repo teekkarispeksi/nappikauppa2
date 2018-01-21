@@ -60,7 +60,7 @@ export default class Show extends React.Component<IShowProps, IShowState> {
     } else if (this.props.show_id) {
       show_id = this.props.show_id;
     }
-    return show_id ? _.findWhere(shows, {id: show_id}) : DEFAULT_VALUES as IShow; // just default to some venue
+    return show_id ? _.findWhere(shows, {id: show_id}) : DEFAULT_VALUES;
   }
 
   componentWillMount() {

@@ -21,7 +21,7 @@ export default class ShowSelector extends React.Component<IShowSelectorProps, an
       <div className='shopping-stage show-selector'>
         <h2>Näytökset <small>1/5</small></h2>
         <ul className='list-unstyled'>
-          {this.props.shows.map(function(show) {
+          {this.props.shows.map(( (show) => {
             var date = Moment.tz(show.time, 'Europe/Helsinki');
             var dateStr = date.format('DD.MM. HH:mm');
             var selectedClass = (this.props.selectedShow && this.props.selectedShow.id === show.id) ? 'selected' : '';
@@ -51,7 +51,7 @@ export default class ShowSelector extends React.Component<IShowSelectorProps, an
                 </a>
               </li>
             );
-          }.bind(this))}
+          }).bind(this))}
         </ul>
       </div>
     );

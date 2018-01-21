@@ -59,7 +59,7 @@ export default class Production extends React.Component<IProductionProps, IProdu
     } else if (this.props.production_id) {
       production_id = this.props.production_id;
     }
-    return production_id ? _.findWhere(productions, {id: production_id}) : DEFAULT_VALUES as IProduction;
+    return production_id ? _.findWhere(productions, {id: production_id}) : DEFAULT_VALUES;
   }
 
   componentWillMount() {

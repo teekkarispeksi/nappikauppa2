@@ -30,7 +30,7 @@ import Router = require('../router');
 const EXPIRATION_IN_MINUTES = 15;
 const DISCOUNT_GROUP_DEFAULT = 1;
 
-var scrollToElem = function(elemstr) {
+var scrollToElem = (elemstr) => {
   $('html, body').animate({
     scrollTop: $(elemstr)[0].offsetTop
   });
@@ -305,14 +305,14 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       method: 'POST',
       data: JSON.stringify(data),
       contentType: 'application/json',
-      success: function (response: IOrder) {
+      success: ( (response: IOrder) => {
         this.order = response;
         this.startTimer();
         this.setState({page: 'contacts'});
-        setTimeout(function () {
+        setTimeout( () => {
           scrollToElem('.contact-input');
         }, 0);
-      }.bind(this),
+      }).bind(this),
       error: (model, response) => {
         this.updateSeatStatus();
         this.forceUpdate();
@@ -332,13 +332,13 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       method: 'POST',
       data: JSON.stringify(this.order),
       contentType: 'application/json',
-      success: function (response: IOrder) {
+      success: ( (response: IOrder) => {
         this.order = response;
         this.setState({page: 'payment'});
-        setTimeout(function() {
+        setTimeout( () => {
           scrollToElem('.final-confirmation');
         }, 0);
-      }.bind(this),
+      }).bind(this),
       error: (response) => {
         console.log('order info saving failed'); // TODO
       }
@@ -351,16 +351,16 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     this.setState({paymentBegun: true, reservationExpirationTime: null});
 
     $.post('api/orders/' + this.order.order_id + '/preparePayment',
-      function(res) {
-        if (res.err) {
-          this.setState({page: 'seats', paymentBegun: false});
-        } else {
-          if (res.url[0] === '#') { // when skipping Paytrail
-            this.setState(this._getInitialState(this.props));
-          }
-          window.location.href = res.url;
-        }
-      }.bind(this));
+      ((res) => {
+              if (res.err) {
+                this.setState({page: 'seats', paymentBegun: false});
+              } else {
+                if (res.url[0] === '#') { // when skipping Paytrail
+                  this.setState(this._getInitialState(this.props));
+                }
+                window.location.href = res.url;
+              }
+            }).bind(this));
     GA.event({category: 'Order', action: 'Payment started', value: this.order.order_price});
   }
 

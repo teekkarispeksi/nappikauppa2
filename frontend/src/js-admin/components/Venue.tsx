@@ -55,7 +55,7 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
     if (this.state.venue_id) {
       venue_id = this.state.venue_id;
     }
-    return venue_id ? _.findWhere(venues, {id: venue_id}) : DEFAULT_VALUES as IVenue;
+    return venue_id ? _.findWhere(venues, {id: venue_id}) : DEFAULT_VALUES;
   }
 
   onCopyVenue(venue_id: number) {

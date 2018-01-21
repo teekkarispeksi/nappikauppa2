@@ -57,7 +57,7 @@ export default class ShoppingCart extends React.Component<IShoppingCartProps, an
         <h2>Paikkojen varaus <small>3/5</small></h2>
         {error}
         <ul className='list-unstyled'>
-          {tickets.map(function(ticket: ITicket) {
+          {tickets.map(( (ticket: ITicket) => {
             return (
               <Ticket key={ticket.seat.id}
                 ticket={ticket}
@@ -66,7 +66,7 @@ export default class ShoppingCart extends React.Component<IShoppingCartProps, an
                 onDiscountSelect={this.onDiscountSelect.bind(this, ticket)}
                 onRemove={this.props.onSeatClicked.bind(this)} />
             );
-          }.bind(this))}
+          }).bind(this))}
         </ul>
         {reserveTicketsButton}
         {timer}
