@@ -36,7 +36,7 @@ export function authenticate(user: string, password: string, requiredGroup: stri
     method: 'POST',
     json: true,
     body: {user: user, password: password}
-  }, function(err, response, body) {
+  }, (err, response, body) => {
     var groups = body;
 
     if (err) {

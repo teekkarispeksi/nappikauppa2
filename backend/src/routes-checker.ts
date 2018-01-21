@@ -26,11 +26,11 @@ var err = (res, errStatus = 500) => {
   };
 };
 
-router.get('/all', function(req: Request, res: Response) {
+router.get('/all', (req: Request, res: Response) => {
   checker.getAll().then(ok(res), err(res));
 });
 
-router.post('/use', jsonParser, function(req: Request, res: Response) {
+router.post('/use', jsonParser, (req: Request, res: Response) => {
   checker.use(req.body).then(ok(res), err(res));
 });
 

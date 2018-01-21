@@ -176,7 +176,7 @@ export function reserveSeats(show_id: number, seats: IReservedSeat[], user: stri
         values ';
 
       // db.format() escapes everything properly
-      var insert_values = seats.map(function (e) {
+      var insert_values = seats.map( (e) => {
         return db.format('(:order_id, :show_id, :seat_id, :discount_group_id, :hash, \
       (select if(p.price >= d.eur, p.price-d.eur, 0) from nk2_prices p \
         join nk2_discount_groups d on d.id = :discount_group_id\
@@ -229,7 +229,7 @@ export function updateContact(order_id: number, data: IContact, user): Promise<a
   log.info('Updating contact details', {order_id: order_id, contact: data, user: user});
 
   return db.query(discountCheck, data)
-    .then(function(rows) {
+    .then( (rows) => {
       if (!(/* is admin || */ rows[0].valid)) {
         log.error('Discount code not valid and user is not admin', {order_id: order_id, contact: data});
         throw 'Discount code not valid and user is not admin';
@@ -319,7 +319,7 @@ export function get(order_id: number): Promise<IOrder> {
     left join nk2_discount_groups discount_groups on tickets.discount_group_id = discount_groups.id \
     where orders.id = :id',
     {id: order_id}))
-  .then(function(rows) {
+  .then( (rows) => {
     if (rows.length === 0) {
       return Promise.reject('No orders found for given id!');
     }
@@ -358,7 +358,7 @@ export function preparePayment(order_id: number): Promise<any> {
   return db.query('update nk2_orders set status = "payment-pending" where id = :order_id',
     {order_id: order_id})
     .then(() => get(order_id))
-    .then(function(order: IOrder) {
+    .then( (order: IOrder) => {
       if (order.order_price < PAYTRAIL_MIN_PAYMENT) {
         // as we skip Paytrail, we don't get their hash, but we can fake it
         // TIMESTAMP and METHOD are only used for calculating the hash
@@ -440,7 +440,7 @@ export function preparePayment(order_id: number): Promise<any> {
             'password': config.paytrail.password,
             'sendImmediately': true
           }
-        }, function(err, response: any, body) {
+        }, (err, response: any, body) => {
           if (err || response.statusCode >= 400 || response.body.errorCode || response.body.errorMessage) {
             log.error('Got an error from Paytrail', {error: err, responseBody: body, statusCode: response.statusCode, statusMessage: response.statusMessage,
               requestHeaders: response.request.headers, requestBody: response.request.body, requestUri: response.request.uri, order_id: order_id});
@@ -518,7 +518,7 @@ export function sendTickets(order_id: number): Promise<any> {
     order = order_;
     return ticket.generatePdfBuffer(order.tickets);
   })
-  .then(function(pdf: Buffer) {
+  .then((pdf: Buffer) => {
     // If we ever allow to have tickets for more than one show in an order, this will be wrong.
     var order_datetime = order.tickets[0].show_date + ' klo ' + order.tickets[0].show_time;
     var order_showtitle = order.tickets[0].show_title;
@@ -538,7 +538,7 @@ export function sendTickets(order_id: number): Promise<any> {
         data: pdf,
         contentType: 'application/pdf'
       })
-    }, function(error, info) {
+    }, (error, info) => {
       if (error) {
         log.error('Sending tickets failed', {error: error, order_id: order_id});
         return;

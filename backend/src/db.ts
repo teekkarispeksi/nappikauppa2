@@ -21,12 +21,12 @@ export function format(query: string, values?: {}) {
     return query;
   }
 
-  return query.replace(/:(\w+)/g, function(txt, key) {
+  return query.replace(/:(\w+)/g, ((txt, key) => {
     if (values.hasOwnProperty(key)) {
       return mysql.escape(values[key]);
     }
     return txt;
-  }.bind(this));
+  }).bind(this));
 };
 
 export function beginTransaction(): Promise<mysql.IConnection> {
@@ -43,7 +43,7 @@ export function query(query: string, params?: {}, connection?: mysql.IConnection
   return new Promise((resolve, reject) => {
     var sql = format(query, params);
     var handle = connection || db;
-    handle.query(sql, function(err, res) {
+    handle.query(sql, (err, res) => {
       if (err) {
         log.error('DB error when executing query: \n', sql);
         reject(err);
@@ -56,7 +56,7 @@ export function query(query: string, params?: {}, connection?: mysql.IConnection
 
 export function commit(connection: mysql.IConnection): Promise<any> {
   return new Promise((resolve, reject) => {
-    connection.commit(function(err) {
+    connection.commit((err) => {
       connection.release();
       err ? reject(err) : resolve();
     });
