@@ -90,6 +90,16 @@ export default class DiscountCode extends React.Component<IDiscountCodeProps, ID
   }
 
   saveChanges(newCodes = false, send = false) {
+
+    /*changing email subject and text values on save and send for new codes*/
+    if (newCodes && send) {
+      this.setState( {newDiscountCodes: this.state.newDiscountCodes.map((item): IDiscountCode => {
+        item.email_subject = this.state.new_email_subject;
+        item.email_text = this.state.new_email_text;
+        return item;
+      })});
+    }
+
     $.ajax({
       url: 'admin-api/discountCodes' + ((newCodes && send) ? '/send' : ''),
       method: 'POST',
