@@ -29,7 +29,7 @@ First time:
 2. Run `./deploy_tar.sh TARFILE HOST DIRECTORY --deploy-only`
 to upload and unpack the package into HOST:DIRECTORY (must exist).
 3. Do initial setup on server (see above)
-4. Start using `bin/start.sh`
+4. Start using `bin/start.sh` or alternatively use `npm start`for execution.
 
 Afterwards:
 1. Run `./build_tar.sh`
