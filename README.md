@@ -3,6 +3,7 @@ Nappikauppa 2
 
 Initial setup
 -------------
+( Assuming that you have [mysql (maridb)](https://mariadb.org/) installed )
 
 1. Copy config/config-sample.js to config/config.js and modify as needed
 2. Copy config/public/frontend-sample.js to config/public/frontend.js and modify as needed
@@ -12,7 +13,7 @@ Initial setup
 Running the dev enviroment
 -------------
 
-( Assuming that you have [npm](https://www.npmjs.com/), [gulp](https://gulpjs.com/) and [mysql (maridb)](https://mariadb.org/) installed )
+( Assuming that you have [npm](https://www.npmjs.com/) and [gulp](https://gulpjs.com/) installed )
 
 1. `npm install` for installing dependencies (including typing infos)
 2. Run `gulp`
