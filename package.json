@@ -57,7 +57,7 @@
     "@types/react-bootstrap": "0.0.43",
     "@types/react-dom": "^0.14.21",
     "@types/react-ga": "^1.4.6",
-    "@types/request": "0.0.39",
+    "@types/request": "^0.0.45",
     "@types/requirejs": "^2.1.28",
     "@types/serve-static": "^1.7.31",
     "@types/underscore": "^1.7.36",

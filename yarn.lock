@@ -203,9 +203,9 @@
   version "15.6.12"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-15.6.12.tgz#5bfaf54b48bbb40f332f0583348acee5d3f6c032"
 
-"@types/request@0.0.39":
-  version "0.0.39"
-  resolved "https://registry.yarnpkg.com/@types/request/-/request-0.0.39.tgz#168b96cf4253c5d54d403f746f82ee7aed47ce2c"
+"@types/request@^0.0.45":
+  version "0.0.45"
+  resolved "https://registry.yarnpkg.com/@types/request/-/request-0.0.45.tgz#c6e52be8b108eb035c35aa9af56a38a260c3e7e6"
   dependencies:
     "@types/form-data" "*"
     "@types/node" "*"
