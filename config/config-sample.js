@@ -10,7 +10,7 @@ module.exports = {
   },
   email: {
     mailgun: {
-          api_key: '',
+          api_key: '###',
           domain: ''
         },
     from: '',
