@@ -12,7 +12,7 @@ Initial setup
 Running the dev enviroment
 -------------
 
-( Assuming that you have [npm](https://www.npmjs.com/) installed )
+( Assuming that you have [npm](https://www.npmjs.com/), [gulp](https://gulpjs.com/) and [mysql (maridb)](https://mariadb.org/) installed )
 
 1. `npm install` for installing dependencies (including typing infos)
 2. Run `gulp`
