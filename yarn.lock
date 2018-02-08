@@ -4851,6 +4851,10 @@ react-dom@^15.4.2:
     object-assign "^4.1.0"
     prop-types "^15.5.10"
 
+react-facebook-pixel@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/react-facebook-pixel/-/react-facebook-pixel-0.1.0.tgz#8170b9bf3b1290b8a14f9ed594f25b1eb888b516"
+
 react-faux-dom@^2.1.0, react-faux-dom@^2.3.0:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/react-faux-dom/-/react-faux-dom-2.7.1.tgz#d59e1906715c34d1a9bdc4a9f48ee96c5d6fa86f"
