@@ -4,6 +4,9 @@ frontend/build
 app.js
 build
 
+#compressed files
+*.tar.gz
+
 # Logs
 logs
 *.log

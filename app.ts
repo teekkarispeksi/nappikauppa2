@@ -13,22 +13,23 @@ var compression = require('compression');
 var methodOverride = require('method-override');
 
 var config = require('./config/config.js');
-var auth = require('./backend/build/confluenceAuth.js');
 var api = require('./backend/build/routes');
 var adminApi = require('./backend/build/routes-admin');
 var checkerApi = require('./backend/build/routes-checker');
 
 var log = require('./backend/build/log.js');
 
+var auth = require('./backend/build/auth.js');
+
 var adminAuth = httpAuth.basic({
-    realm: 'Nappikauppa v2 - use your speksi-intra account'
+    realm: 'Nappikauppa v2 ad'
   }, function(username, password, cb) {
     auth.authenticate(username, password, config.confluence_auth.groups.admin, cb);
   }
 );
 
 var checkerAuth = httpAuth.basic({
-    realm: 'Nappikauppa v2 lipuntarkistin - use your speksi-intra account'
+    realm: 'Nappikauppa v2 lipuntarkistin'
   }, function(username, password, cb) {
     auth.authenticate(username, password, config.confluence_auth.groups.checker, cb);
   }
