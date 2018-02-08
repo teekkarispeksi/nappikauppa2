@@ -4,6 +4,9 @@ frontend/build
 app.js
 build
 
+#compressed files
+*.tar.gz
+
 # Logs
 logs
 *.log
@@ -49,3 +52,6 @@ nohup.out
 
 # tests
 test/output/*
+
+# package-lock.json
+package-lock.json
