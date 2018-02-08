@@ -8,7 +8,7 @@ import atob = require('atob');
 import md5 = require('md5');
 var router = express.Router();
 
-import auth = require('./confluenceAuth');
+import auth = require('./auth');
 import discountCode = require('./discountCode');
 import order = require('./order');
 import production = require('./production');
