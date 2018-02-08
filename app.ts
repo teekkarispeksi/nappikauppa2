@@ -22,7 +22,7 @@ var log = require('./backend/build/log.js');
 var auth = require('./backend/build/auth.js');
 
 var adminAuth = httpAuth.basic({
-    realm: 'Nappikauppa v2 ad'
+    realm: 'Nappikauppa v2'
   }, function(username, password, cb) {
     auth.authenticate(username, password, config.confluence_auth.groups.admin, cb);
   }
