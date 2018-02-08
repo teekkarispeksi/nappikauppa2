@@ -27,7 +27,8 @@ var PERFORMERS = [{value: 'Teekkarispeksi', name: 'Teekkarispeksi'}, {value: 'NÃ
 var DEFAULT_VALUES: IProduction = {
   performer: 'Teekkarispeksi',
   opens: '1900-01-01T00:00',
-  active: false, /*not checked*/
+  active: false,
+  description: '',
   ticket_image_src: 'lippu_dummy.png' } as IProduction;
 
 // this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers
