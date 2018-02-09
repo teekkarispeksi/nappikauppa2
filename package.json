@@ -63,7 +63,7 @@
     "babel-core": "^6.26.0",
     "babel-preset-react": "^6.24.1",
     "babelify": "^8.0.0",
-    "browserify": "^13.3.0",
+    "browserify": "^16.0.0",
     "del": "^2.2.2",
     "gulp": "^3.9.0",
     "gulp-clean-css": "^2.3.2",
