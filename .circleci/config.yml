@@ -28,11 +28,13 @@ jobs:
 
       - run: yarn run build
       - run: bash build_build.sh
+      - run: git describe --tags > tag
 
       - persist_to_workspace:
           root: .
           paths:
             - build
+            - tag
 
       # run tests!
       # - run: yarn test
@@ -45,10 +47,11 @@ jobs:
       steps:
         - attach_workspace:
             at: .
+        - run: mkdir /artifacts
         - run: cd build && yarn install --production
-        - run: cd build && tar -czf ../nappikauppa2.tar.gz *
+        - run: cd build && tar -czf /artifacts/nappikauppa2-`cat ../tag`.tar.gz *
         - store_artifacts:
-            path: nappikauppa2.tar.gz
+            path: /artifacts
 
 workflows:
   version: 2
