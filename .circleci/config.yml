@@ -45,7 +45,8 @@ jobs:
       steps:
         - attach_workspace:
             at: .
-        - run: bash build_tar.sh
+        - run: cd build && yarn install --production
+        - run: cd build && tar -czf ../nappikauppa2.tar.gz *
         - store_artifacts:
             path: nappikauppa2.tar.gz
 
