@@ -13,16 +13,20 @@ Initial setup
 Running the dev enviroment
 -------------
 
-( Assuming that you have [npm](https://www.npmjs.com/) and [gulp](https://gulpjs.com/) installed )
+( Assuming that you have [yarn](https://yarnpkg.com/lang/en/) or [npm](https://www.npmjs.com/) installed. If using `npm`, just substitue `yarn` with `npm` in the commands below. )
 
-1. `npm install` for installing dependencies (including typing infos)
-2. Run `gulp`
+1. `yarn install` for installing dependencies (including typing infos)
+2. Build code and start a server. There are two options:
+  * Run `yarn run dev`. This The step builds the dev version (i.e., non-minimized) using [gulp](https://gulpjs.com/) and starts a `gulp watch-and-server` process.
+  * Run `yarn run build` followed by `yarn run`. This The step builds the production version (i.e., minimized) using [gulp](https://gulpjs.com/) and starts a the app server directly.
 3. Go to [http://localhost:3000/](http://localhost:3000/)
+
+`gulp` provides also other modes for building and running the server, see `gulpfile.js` for more info. Remember to either install `gulp` globally or call `./node_modules/gulp/bin/gulp.js`.
 
 Deploying to production
 -------------
 
-Only deploy from clean `main` branch to real production!
+Only deploy from clean `master` branch to real production!
 
 First time:
 
