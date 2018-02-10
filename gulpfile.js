@@ -187,7 +187,7 @@ gulp.task('ete-test', function() {
 gulp.task('test', function() {
   runSequence(
     ['build-dev'],
-    ['start-dev'],
+    ['server'],
     ['ete-test']
   );
 });

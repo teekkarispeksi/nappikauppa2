@@ -35,11 +35,3 @@ to upload and unpack the package into HOST:DIRECTORY (must exist).
 Afterwards:
 1. Run `./build_tar.sh`
 2. Run `./deploy_tar.sh TARFILE HOST DIRECTORY --deploy-only`
-
-Typescript Errors
---------------
-In the case of 
-
-In file `node_modules/@types/requirejs/index.d.ts` change the line `declare var require: Require;` into `declare var require: NodeRequire;`, and in `node_modules/@types/node/index.d.ts` change the line `declare var require: NodeRequire;` into `declare var require: NodeRequire;`
-
-Not that this is a workaround and will be undone when the types for `node` and/or `requirejs` are updated.
