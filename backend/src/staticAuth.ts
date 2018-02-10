@@ -3,17 +3,30 @@
 var config = require('../../config/config.js');
 import log = require('./log');
 
-import request = require('request');
 import _ = require('underscore');
 
 import md5 = require('md5');
 
-export function isAdmin(user: string) {
-  return typeof(user) !== 'undefined';
-}
-
 export function authenticate(user: string, password: string, requiredGroup: string, cb: Function) {
-  _.findWhere(config.static_auth.users,
-   {name: user, pass: md5(password), group: requiredGroup})
-  ? cb(true) : cb(false);
+
+  log.info('Trying to authenticate', {user: user});
+
+  // Allows silent user check to work
+  if (requiredGroup === undefined) {
+    if (_.findWhere(config.auth.static_auth.users,
+      {name: user, pass: md5(password)}
+    )) {
+      log.info('Authentication successful');
+      return cb(true);
+    }
+  }
+
+  if (_.findWhere(config.auth.static_auth.users,
+    {name: user, pass: md5(password), group: requiredGroup})) {
+    log.info('Authencation successful', {user: user});
+    return cb(true);
+  }
+
+  log.warn('Access denied', {user: user, requiredGroup: requiredGroup});
+  return cb(false);
 }

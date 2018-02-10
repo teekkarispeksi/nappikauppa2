@@ -35,7 +35,7 @@ module.exports = {
       users: [
         {
           name: 'admin',
-          pass: 'f7f5d28a3221512a9824634e0cd999cb', //nappiadmin5
+          pass: '44d6e57b24917d45e2864fccaf9f8c3c', //nappiadmin5
           group: 'lippukauppa-admin'
         }
 

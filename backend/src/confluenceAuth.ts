@@ -11,15 +11,8 @@ import _ = require('underscore');
 var userCache = {};
 var CACHE_INVALIDATE_MSEC = 5 * 60 * 1000;
 
-export function isAdmin(user: string) {
-  return typeof(user) !== 'undefined';
-}
 
 export function authenticate(user: string, password: string, requiredGroup: string, cb: Function) {
-  if (!config.confluence_auth.enabled) {
-    log.warn('NO REAL AUTHENTICATION ENABLED. Accepting ' + user + '.');
-    return cb(true);
-  }
 
   if (userCache[user] && userCache[user].password === password) {
     var now = new Date();
@@ -32,7 +25,7 @@ export function authenticate(user: string, password: string, requiredGroup: stri
 
   log.info('Trying to authenticate', {user: user});
   request({
-    uri: config.confluence_auth.url,
+    uri: config.auth.confluence.url,
     method: 'POST',
     json: true,
     body: {user: user, password: password}
