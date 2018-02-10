@@ -210,10 +210,6 @@
     "@types/form-data" "*"
     "@types/node" "*"
 
-"@types/requirejs@^2.1.28":
-  version "2.1.31"
-  resolved "https://registry.yarnpkg.com/@types/requirejs/-/requirejs-2.1.31.tgz#a24eaa0ee4f6b84feb8f521ca6550d48490b2bc6"
-
 "@types/serve-static@*", "@types/serve-static@^1.7.31":
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/@types/serve-static/-/serve-static-1.13.1.tgz#1d2801fa635d274cd97d4ec07e26b21b44127492"
