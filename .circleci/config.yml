@@ -38,15 +38,16 @@ jobs:
       # - run: yarn test
   deploy:
       docker:
-      - image: circleci/node:7.10
+        - image: circleci/node:7.10
 
-    working_directory: ~/repo
-    steps:
-      - attach_workspace:
-          at: .
-      - run: bash build_tar.sh
-      - store_artifacts:
-          path: nappikauppa2.tar.gz
+      working_directory: ~/repo
+
+      steps:
+        - attach_workspace:
+            at: .
+        - run: bash build_tar.sh
+        - store_artifacts:
+            path: nappikauppa2.tar.gz
 
 workflows:
   version: 2
