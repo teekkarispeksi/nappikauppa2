@@ -47,11 +47,11 @@ jobs:
       steps:
         - attach_workspace:
             at: .
-        - run: mkdir /artifacts
+        - run: mkdir /tmp/artifacts
         - run: cd build && yarn install --production
-        - run: cd build && tar -czf /artifacts/nappikauppa2-`cat ../tag`.tar.gz *
+        - run: cd build && tar -czf /tmp/artifacts/nappikauppa2-`cat ../tag`.tar.gz *
         - store_artifacts:
-            path: /artifacts
+            path: /tmp/artifacts
 
 workflows:
   version: 2
