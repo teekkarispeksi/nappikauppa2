@@ -20,24 +20,26 @@ module.exports = {
     user: '13466',
     password: '6pKF4jkv97zmqBJ3ZL8gUw5DfT2NMQ'
   },
-  auth_method:"static",
-  confluence_auth: {
-    enabled: true,
-    url: 'http://localhost:3010/groups/',
+  auth: {
+    method: 'static',
     groups: {
       admin: 'lippukauppa-admin',
       checker: 'lippukauppa-tarkistin'
+    },
+    confluence: {
+      url: 'http://localhost:3010/groups/'
+    },
+    static_auth: { //must have _auth, static is reserved word
+      //Static authentication configuration
+      //Each user has static username, md5 hashed password and group
+      users: [
+        {
+          name: 'admin',
+          pass: 'f7f5d28a3221512a9824634e0cd999cb', //nappiadmin5
+          group: 'lippukauppa-admin'
+        }
+
+      ]
     }
-  },
-  static_auth: {
-    //Static authentication configuration
-    //Each user has static username, md5 hashed password and group
-    users: [
-      {
-        name: 'admin',
-        pass: 'f7f5d28a3221512a9824634e0cd999cb',
-        group: 'admin'
-      }
-    ]
   }
 };
