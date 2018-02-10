@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "build": "./node_modules/gulp/bin/gulp.js build",
     "start": "node app.js"
   },
   "dependencies": {
