@@ -24,17 +24,34 @@ Running the dev enviroment
 
 `gulp` provides also other modes for building and running the server, see `gulpfile.js` for more info. Remember to either install `gulp` globally or call `./node_modules/gulp/bin/gulp.js`.
 
-Deploying to production
+Deploying to production using CircleCI
 -------------
 
-First time:
+We use [pm2](http://pm2.keymetrics.io/) to run the app reliably in production. See for example [this DigitalOcean help](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04#install-pm2) for instructions on how to set it up.
 
+We also use [CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2/) to automatically deploy new tags to a staging environment, and to deploy into production after manual approval.
+To set the auto-deployment the following env variables are needed in CircleCI
+
+`HOST`	hostname where to deploy, e.g. `user@host`
+`HOST_SSHKEY`	public key of the host, i.e. result of `ssh-keyscan host`
+`PRODUCTION_DIR` directory on `host` where the production app resides, e.g. `www/nappikauppa2`
+`STAGING_DIR` directory on `host` where the staging app resides, e.g. `www/nappikauppa2-staging`
+
+See `scripts/deploy_tar.sh` and `.circleci/config.yml` for details.
+
+Deploying to production manually
+-------------
+We use [pm2](http://pm2.keymetrics.io/) to run the app reliably in production. See for example [this DigitalOcean help](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04#install-pm2) for instructions on how to set it up.
+
+First time:
 1. When a tag is created, CircleCI builds a `.tar.gz` artifact. Download that artifact (later known as `TARFILE`) from [CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2/).
-2. Run `./deploy_tar.sh TARFILE HOST DIRECTORY --deploy-only`
-to upload and unpack the package into HOST:DIRECTORY (must exist).
+2. Run `./scripts/deploy_tar.sh -f TARFILE -h HOST -d DIRECTORY -D`
+to upload and unpack the package into HOST:DIRECTORY (must exist) without starting the app (`-D`)
 3. Do initial setup on server (see above)
-4. Start using `bin/start.sh` or alternatively use `npm start`for execution.
+4. Start using `pm2 start app.js --name APPNAME`.
 
 Afterwards:
 1. Download the latest artifact from [CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2/)
-2. Run `./deploy_tar.sh TARFILE HOST DIRECTORY --deploy-only`
+2. Run `./scripts/deploy_tar.sh -f TARFILE -h HOST -d DIRECTORY -n APPNAME`
+
+To run without `pm2`, use the deploy-only (`-D`) option of `deploy_tar.sh` or upload and unpack the tar manually, and start by running `node app.js`, `yarn start` or `npm start` on the host.

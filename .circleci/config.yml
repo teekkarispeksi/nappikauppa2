@@ -15,7 +15,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-{{ checksum "yarn.lock" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
@@ -24,10 +24,10 @@ jobs:
       - save_cache:
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
 
       - run: yarn run build
-      - run: bash build_build.sh
+      - run: ./scripts/build_build.sh
       - run: git describe --tags > tag
 
       - persist_to_workspace:
@@ -35,10 +35,11 @@ jobs:
           paths:
             - build
             - tag
+            - scripts
 
       # run tests!
       # - run: yarn test
-  deploy:
+  package:
       docker:
         - image: circleci/node:7.10
 
@@ -52,6 +53,38 @@ jobs:
         - run: cd build && tar -czf /tmp/artifacts/nappikauppa2-`cat ../tag`.tar.gz *
         - store_artifacts:
             path: /tmp/artifacts
+        - persist_to_workspace:
+            root: /tmp
+            paths:
+              - artifacts
+
+  deploy-staging:
+      docker:
+        - image: circleci/node:7.10
+      environment:
+        APPNAME: nappikauppa2-staging
+      working_directory: ~/repo
+      steps:
+        - attach_workspace:
+            at: .
+        - run: mkdir -p ~/.ssh && echo $HOST_SSHKEY >> ~/.ssh/known_hosts
+        - run: echo 'export FILE=artifacts/nappikauppa2-`cat ./tag`.tar.gz' >> $BASH_ENV
+        - run: echo 'export DIR=$STAGING_DIR' >> $BASH_ENV
+        - run: ./scripts/deploy_tar.sh
+
+  deploy-production:
+      docker:
+        - image: circleci/node:7.10
+      environment:
+        APPNAME: nappikauppa2
+      working_directory: ~/repo
+      steps:
+        - attach_workspace:
+            at: .
+        - run: mkdir -p ~/.ssh && echo $HOST_SSHKEY >> ~/.ssh/known_hosts
+        - run: echo 'export FILE=artifacts/nappikauppa2-`cat ./tag`.tar.gz' >> $BASH_ENV
+        - run: echo 'export DIR=$PRODUCTION_DIR' >> $BASH_ENV
+        - run: ./scripts/deploy_tar.sh
 
 workflows:
   version: 2
@@ -62,10 +95,35 @@ workflows:
           filters:
             tags:
               only: /.*/
-      # deploy is run for all tags only
-      - deploy:
+      # all tags are packaged into artifacts
+      - package:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      # all tags are depoyed to staging
+      - deploy-staging:
+          requires:
+            - package
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      # tags wait for approval to deploy to production
+      - hold:
+          type: approval
+          requires:
+           - deploy-staging
+          filters:
+            tags:
+              only: /.*/
+      - deploy-production:
+          requires:
+            - hold
           filters:
             tags:
               only: /.*/
