@@ -67,6 +67,7 @@ jobs:
       steps:
         - attach_workspace:
             at: .
+        - run: echo $HOST_SSHKEY >> ~/.ssh/known_hosts
         - run: echo 'export FILE=artifacts/nappikauppa2-$CIRCLE_TAG.tar.gz' >> $BASH_ENV
         - run: echo 'export DIR=$STAGING_DIR' >> $BASH_ENV
         - run: ./scripts/deploy_tar.sh
@@ -80,6 +81,7 @@ jobs:
       steps:
         - attach_workspace:
             at: .
+        - run: echo $HOST_SSHKEY >> ~/.ssh/known_hosts
         - run: echo 'export FILE=artifacts/nappikauppa2-$CIRCLE_TAG.tar.gz' >> $BASH_ENV
         - run: echo 'export DIR=$PRODUCTION_DIR' >> $BASH_ENV
         - run: ./scripts/deploy_tar.sh
@@ -100,8 +102,8 @@ workflows:
           filters:
             tags:
               only: /.*/
-            branches:
-              ignore: /.*/
+#            branches:
+#              ignore: /.*/
       # all tags are depoyed to staging
       - deploy-staging:
           requires:
@@ -109,8 +111,8 @@ workflows:
           filters:
             tags:
               only: /.*/
-            branches:
-              ignore: /.*/
+#            branches:
+#              ignore: /.*/
       # tags wait for approval to deploy to production
       - hold:
           type: approval
@@ -122,5 +124,5 @@ workflows:
           filters:
             tags:
               only: /.*/
-            branches:
-              ignore: /.*/
+#            branches:
+#              ignore: /.*/

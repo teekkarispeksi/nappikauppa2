@@ -28,7 +28,7 @@ fi
 echo "Cleaning old files..."
 ssh $HOST "cd $DIR && rm -r node_modules backend checker frontend app.js"
 echo "Unpacking $FILE..."
-ssh $HOST "cd $DIR && tar -xf $FILE"
+ssh $HOST "cd $DIR && tar -xf $(basename $FILE)"
 
 if [ -z $DEPLOY_ONLY ]
 then
