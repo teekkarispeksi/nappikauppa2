@@ -95,7 +95,7 @@ workflows:
           filters:
             tags:
               only: /.*/
-      # deploy is run for all tags only
+      # all tags are packaged into artifacts
       - package:
           requires:
             - build
@@ -118,6 +118,9 @@ workflows:
           type: approval
           requires:
            - deploy-staging
+          filters:
+            tags:
+              only: /.*/
       - deploy-production:
           requires:
             - hold
