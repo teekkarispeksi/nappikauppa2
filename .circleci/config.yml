@@ -115,7 +115,7 @@ workflows:
           type: approval
           requires:
            - deploy-staging
-      - deploy-staging:
+      - deploy-production:
           requires:
             - hold
           filters:
