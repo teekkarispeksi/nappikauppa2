@@ -27,7 +27,7 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       - run: yarn run build
-      - run: bash build_build.sh
+      - run: ./scripts/build_build.sh
       - run: git describe --tags > tag
 
       - persist_to_workspace:
