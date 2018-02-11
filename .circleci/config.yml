@@ -35,6 +35,7 @@ jobs:
           paths:
             - build
             - tag
+            - scripts
 
       # run tests!
       # - run: yarn test
@@ -68,7 +69,7 @@ jobs:
             at: .
         - run: echo 'export FILE=artifacts/nappikauppa2-$CIRCLE_TAG.tar.gz' >> $BASH_ENV
         - run: echo 'export DIR=$STAGING_DIR' >> $BASH_ENV
-        - run: ./deploy_tar.sh
+        - run: ./scripts/deploy_tar.sh
 
   deploy-production:
       docker:
@@ -81,7 +82,7 @@ jobs:
             at: .
         - run: echo 'export FILE=artifacts/nappikauppa2-$CIRCLE_TAG.tar.gz' >> $BASH_ENV
         - run: echo 'export DIR=$PRODUCTION_DIR' >> $BASH_ENV
-        - run: ./deploy_tar.sh
+        - run: ./scripts/deploy_tar.sh
 
 workflows:
   version: 2
