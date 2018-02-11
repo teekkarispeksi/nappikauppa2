@@ -38,7 +38,7 @@ jobs:
 
       # run tests!
       # - run: yarn test
-  deploy:
+  package:
       docker:
         - image: circleci/node:7.10
 
@@ -52,6 +52,36 @@ jobs:
         - run: cd build && tar -czf /tmp/artifacts/nappikauppa2-`cat ../tag`.tar.gz *
         - store_artifacts:
             path: /tmp/artifacts
+        - persist_to_workspace:
+            root: /tmp
+            paths:
+              - artifacts
+
+  deploy-staging:
+      docker:
+        - image: circleci/node:7.10
+      environment:
+        APPNAME: nappikauppa2-staging
+      working_directory: ~/repo
+      steps:
+        - attach_workspace:
+            at: .
+        - run: echo 'export FILE=artifacts/nappikauppa2-$CIRCLE_TAG.tar.gz' >> $BASH_ENV
+        - run: echo 'export DIR=$STAGING_DIR' >> $BASH_ENV
+        - run: ./deploy_tar.sh
+
+  deploy-production:
+      docker:
+        - image: circleci/node:7.10
+      environment:
+        APPNAME: nappikauppa2
+      working_directory: ~/repo
+      steps:
+        - attach_workspace:
+            at: .
+        - run: echo 'export FILE=artifacts/nappikauppa2-$CIRCLE_TAG.tar.gz' >> $BASH_ENV
+        - run: echo 'export DIR=$PRODUCTION_DIR' >> $BASH_ENV
+        - run: ./deploy_tar.sh
 
 workflows:
   version: 2
@@ -63,9 +93,31 @@ workflows:
             tags:
               only: /.*/
       # deploy is run for all tags only
-      - deploy:
+      - package:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      # all tags are depoyed to staging
+      - deploy-staging:
+          requires:
+            - package
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      # tags wait for approval to deploy to production
+      - hold:
+          type: approval
+          requires:
+           - deploy-staging
+      - deploy-staging:
+          requires:
+            - hold
           filters:
             tags:
               only: /.*/
