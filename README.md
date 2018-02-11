@@ -45,12 +45,13 @@ We use [pm2](http://pm2.keymetrics.io/) to run the app reliably in production. S
 
 First time:
 1. When a tag is created, CircleCI builds a `.tar.gz` artifact. Download that artifact (later known as `TARFILE`) from [CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2/).
-2. Run `./deploy_tar.sh -f TARFILE -h HOST -d DIRECTORY -D`
+2. Run `./scripts/deploy_tar.sh -f TARFILE -h HOST -d DIRECTORY -D`
 to upload and unpack the package into HOST:DIRECTORY (must exist) without starting the app (`-D`)
 3. Do initial setup on server (see above)
 4. Start using `pm2 start app.js --name APPNAME`.
 
 Afterwards:
 1. Download the latest artifact from [CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2/)
-2. Run `./deploy_tar.sh -f TARFILE -h HOST -d DIRECTORY -n APPNAME`
+2. Run `./scripts/deploy_tar.sh -f TARFILE -h HOST -d DIRECTORY -n APPNAME`
 
+To run without `pm2`, use the deploy-only (`-D`) option of `deploy_tar.sh` or upload and unpack the tar manually, and start by running `node app.js`, `yarn start` or `npm start` on the host.
