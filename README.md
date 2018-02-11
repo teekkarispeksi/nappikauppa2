@@ -1,5 +1,6 @@
 Nappikauppa 2
 =============
+[![CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2.svg?style=svg)](https://circleci.com/gh/teekkarispeksi/nappikauppa2)
 
 Initial setup
 -------------
@@ -26,16 +27,14 @@ Running the dev enviroment
 Deploying to production
 -------------
 
-Only deploy from clean `master` branch to real production!
-
 First time:
 
-1. Run `./build_tar.sh`
+1. When a tag is created, CircleCI builds a `.tar.gz` artifact. Download that artifact (later known as `TARFILE`) from [CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2/).
 2. Run `./deploy_tar.sh TARFILE HOST DIRECTORY --deploy-only`
 to upload and unpack the package into HOST:DIRECTORY (must exist).
 3. Do initial setup on server (see above)
 4. Start using `bin/start.sh` or alternatively use `npm start`for execution.
 
 Afterwards:
-1. Run `./build_tar.sh`
+1. Download the latest artifact from [CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2/)
 2. Run `./deploy_tar.sh TARFILE HOST DIRECTORY --deploy-only`
