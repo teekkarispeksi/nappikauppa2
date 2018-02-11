@@ -67,7 +67,7 @@ jobs:
       steps:
         - attach_workspace:
             at: .
-        - run: echo $HOST_SSHKEY >> ~/.ssh/known_hosts
+        - run: mkdir -p ~/.ssh && echo $HOST_SSHKEY >> ~/.ssh/known_hosts
         - run: echo 'export FILE=artifacts/nappikauppa2-$CIRCLE_TAG.tar.gz' >> $BASH_ENV
         - run: echo 'export DIR=$STAGING_DIR' >> $BASH_ENV
         - run: ./scripts/deploy_tar.sh
@@ -81,7 +81,7 @@ jobs:
       steps:
         - attach_workspace:
             at: .
-        - run: echo $HOST_SSHKEY >> ~/.ssh/known_hosts
+        - run: mkdir -p ~/.ssh && echo $HOST_SSHKEY >> ~/.ssh/known_hosts
         - run: echo 'export FILE=artifacts/nappikauppa2-$CIRCLE_TAG.tar.gz' >> $BASH_ENV
         - run: echo 'export DIR=$PRODUCTION_DIR' >> $BASH_ENV
         - run: ./scripts/deploy_tar.sh
