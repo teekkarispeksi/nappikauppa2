@@ -1,0 +1,131 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:7.10
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "yarn.lock" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: yarn install --frozen-lockfile
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
+
+      - run: yarn run build
+      - run: ./scripts/build_build.sh
+      - run: git describe --tags > tag
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build
+            - tag
+            - scripts
+
+      # run tests!
+      # - run: yarn test
+  package:
+      docker:
+        - image: circleci/node:7.10
+
+      working_directory: ~/repo
+
+      steps:
+        - attach_workspace:
+            at: .
+        - run: mkdir /tmp/artifacts
+        - run: cd build && yarn install --production
+        - run: cd build && tar -czf /tmp/artifacts/nappikauppa2-`cat ../tag`.tar.gz *
+        - store_artifacts:
+            path: /tmp/artifacts
+        - persist_to_workspace:
+            root: /tmp
+            paths:
+              - artifacts
+
+  deploy-staging:
+      docker:
+        - image: circleci/node:7.10
+      environment:
+        APPNAME: nappikauppa2-staging
+      working_directory: ~/repo
+      steps:
+        - attach_workspace:
+            at: .
+        - run: mkdir -p ~/.ssh && echo $HOST_SSHKEY >> ~/.ssh/known_hosts
+        - run: echo 'export FILE=artifacts/nappikauppa2-`cat ./tag`.tar.gz' >> $BASH_ENV
+        - run: echo 'export DIR=$STAGING_DIR' >> $BASH_ENV
+        - run: ./scripts/deploy_tar.sh
+
+  deploy-production:
+      docker:
+        - image: circleci/node:7.10
+      environment:
+        APPNAME: nappikauppa2
+      working_directory: ~/repo
+      steps:
+        - attach_workspace:
+            at: .
+        - run: mkdir -p ~/.ssh && echo $HOST_SSHKEY >> ~/.ssh/known_hosts
+        - run: echo 'export FILE=artifacts/nappikauppa2-`cat ./tag`.tar.gz' >> $BASH_ENV
+        - run: echo 'export DIR=$PRODUCTION_DIR' >> $BASH_ENV
+        - run: ./scripts/deploy_tar.sh
+
+workflows:
+  version: 2
+  build-n-deploy:
+    jobs:
+      # build is run for all tags and commits on any branches
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      # all tags are packaged into artifacts
+      - package:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      # all tags are depoyed to staging
+      - deploy-staging:
+          requires:
+            - package
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      # tags wait for approval to deploy to production
+      - hold:
+          type: approval
+          requires:
+           - deploy-staging
+          filters:
+            tags:
+              only: /.*/
+      - deploy-production:
+          requires:
+            - hold
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/

@@ -1,5 +1,6 @@
 Nappikauppa 2
 =============
+[![CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2.svg?style=svg)](https://circleci.com/gh/teekkarispeksi/nappikauppa2)
 
 Initial setup
 -------------
@@ -13,33 +14,44 @@ Initial setup
 Running the dev enviroment
 -------------
 
-( Assuming that you have [npm](https://www.npmjs.com/) and [gulp](https://gulpjs.com/) installed )
+( Assuming that you have [yarn](https://yarnpkg.com/lang/en/) or [npm](https://www.npmjs.com/) installed. If using `npm`, just substitue `yarn` with `npm` in the commands below. )
 
-1. `npm install` for installing dependencies (including typing infos)
-2. Run `gulp`
+1. `yarn install` for installing dependencies (including typing infos)
+2. Build code and start a server. There are two options:
+  * Run `yarn run dev`. This The step builds the dev version (i.e., non-minimized) using [gulp](https://gulpjs.com/) and starts a `gulp watch-and-server` process.
+  * Run `yarn run build` followed by `yarn run`. This The step builds the production version (i.e., minimized) using [gulp](https://gulpjs.com/) and starts a the app server directly.
 3. Go to [http://localhost:3000/](http://localhost:3000/)
 
-Deploying to production
+`gulp` provides also other modes for building and running the server, see `gulpfile.js` for more info. Remember to either install `gulp` globally or call `./node_modules/gulp/bin/gulp.js`.
+
+Deploying to production using CircleCI
 -------------
 
-Only deploy from clean `main` branch to real production!
+We use [pm2](http://pm2.keymetrics.io/) to run the app reliably in production. See for example [this DigitalOcean help](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04#install-pm2) for instructions on how to set it up.
+
+We also use [CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2/) to automatically deploy new tags to a staging environment, and to deploy into production after manual approval.
+To set the auto-deployment the following env variables are needed in CircleCI
+
+`HOST`	hostname where to deploy, e.g. `user@host`
+`HOST_SSHKEY`	public key of the host, i.e. result of `ssh-keyscan host`
+`PRODUCTION_DIR` directory on `host` where the production app resides, e.g. `www/nappikauppa2`
+`STAGING_DIR` directory on `host` where the staging app resides, e.g. `www/nappikauppa2-staging`
+
+See `scripts/deploy_tar.sh` and `.circleci/config.yml` for details.
+
+Deploying to production manually
+-------------
+We use [pm2](http://pm2.keymetrics.io/) to run the app reliably in production. See for example [this DigitalOcean help](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04#install-pm2) for instructions on how to set it up.
 
 First time:
-
-1. Run `./build_tar.sh`
-2. Run `./deploy_tar.sh TARFILE HOST DIRECTORY --deploy-only`
-to upload and unpack the package into HOST:DIRECTORY (must exist).
+1. When a tag is created, CircleCI builds a `.tar.gz` artifact. Download that artifact (later known as `TARFILE`) from [CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2/).
+2. Run `./scripts/deploy_tar.sh -f TARFILE -h HOST -d DIRECTORY -D`
+to upload and unpack the package into HOST:DIRECTORY (must exist) without starting the app (`-D`)
 3. Do initial setup on server (see above)
-4. Start using `bin/start.sh` or alternatively use `npm start`for execution.
+4. Start using `pm2 start app.js --name APPNAME`.
 
 Afterwards:
-1. Run `./build_tar.sh`
-2. Run `./deploy_tar.sh TARFILE HOST DIRECTORY --deploy-only`
+1. Download the latest artifact from [CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2/)
+2. Run `./scripts/deploy_tar.sh -f TARFILE -h HOST -d DIRECTORY -n APPNAME`
 
-Typescript Errors
---------------
-In the case of 
-
-In file `node_modules/@types/requirejs/index.d.ts` change the line `declare var require: Require;` into `declare var require: NodeRequire;`, and in `node_modules/@types/node/index.d.ts` change the line `declare var require: NodeRequire;` into `declare var require: NodeRequire;`
-
-Not that this is a workaround and will be undone when the types for `node` and/or `requirejs` are updated.
+To run without `pm2`, use the deploy-only (`-D`) option of `deploy_tar.sh` or upload and unpack the tar manually, and start by running `node app.js`, `yarn start` or `npm start` on the host.

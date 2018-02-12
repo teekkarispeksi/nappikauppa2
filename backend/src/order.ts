@@ -5,7 +5,7 @@ import db = require('./db');
 import log = require('./log');
 import mail = require('./mail');
 import request = require('request');
-import uuid = require('node-uuid');
+import uuidv4 = require('uuid/v4');
 import _ = require('underscore');
 import ticket =  require('./ticket');
 import md5 = require('md5');
@@ -164,7 +164,7 @@ export function reserveSeats(show_id: number, seats: IReservedSeat[], user: stri
     throw err;
   })
   .then((connection) => {
-    return db.query('insert into nk2_orders (time, status, hash) values (now(), "seats-reserved", :hash)', {hash: uuid.v4()}, connection)
+    return db.query('insert into nk2_orders (time, status, hash) values (now(), "seats-reserved", :hash)', {hash: uuidv4()}, connection)
     .then((res) => {
       order_id = res.insertId;
       log.info('Order created - creating tickets', {order_id: order_id});
@@ -190,7 +190,7 @@ export function reserveSeats(show_id: number, seats: IReservedSeat[], user: stri
           show_id: show_id,
           seat_id: e.seat_id,
           discount_group_id: e.discount_group_id,
-          hash: uuid.v4(),
+          hash: uuidv4(),
           is_admin: auth.isAdmin(user)
         });
       });
