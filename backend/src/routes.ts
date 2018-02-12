@@ -8,7 +8,7 @@ import atob = require('atob');
 import md5 = require('md5');
 var router = express.Router();
 
-import auth = require('./confluenceAuth');
+import auth = require('./auth');
 import discountCode = require('./discountCode');
 import order = require('./order');
 import production = require('./production');
@@ -50,7 +50,7 @@ var checkUserSilently: RequestHandler = (req: IRequestWithUser, res: Response, n
     next();
   } else {
     var creds = atob(authHeader.split(' ')[1]).split(':');
-    auth.authenticate(creds[0], creds[1], config.confluence_auth.groups.base, (authOk: boolean) => {
+    auth.authenticate(creds[0], creds[1], config.auth.groups.base, (authOk: boolean) => {
       if (authOk) {
         req.user = creds[0];
       }

@@ -28,7 +28,8 @@ export interface IShowState {
 var DEFAULT_VALUES: IShow = {
   active: false,
   inactivate_time: '1900-01-01T00:00',
-  time: '1900-01-01T00:00'
+  time: '1900-01-01T00:00',
+  description: ''
 } as IShow;
 
 // this is a 'hacky' way, but works for stuff that consists of objects, arrays, strings and numbers

@@ -13,24 +13,25 @@ var compression = require('compression');
 var methodOverride = require('method-override');
 
 var config = require('./config/config.js');
-var auth = require('./backend/build/confluenceAuth.js');
 var api = require('./backend/build/routes');
 var adminApi = require('./backend/build/routes-admin');
 var checkerApi = require('./backend/build/routes-checker');
 
-var log = require('./backend/build/log.js');
+var log = require('./backend/build/log');
+
+var auth = require('./backend/build/auth');
 
 var adminAuth = httpAuth.basic({
-    realm: 'Nappikauppa v2 - use your speksi-intra account'
+    realm: 'Nappikauppa v2'
   }, function(username, password, cb) {
-    auth.authenticate(username, password, config.confluence_auth.groups.admin, cb);
+    auth.authenticate(username, password, config.auth.groups.admin, cb);
   }
 );
 
 var checkerAuth = httpAuth.basic({
-    realm: 'Nappikauppa v2 lipuntarkistin - use your speksi-intra account'
+    realm: 'Nappikauppa v2 lipuntarkistin'
   }, function(username, password, cb) {
-    auth.authenticate(username, password, config.confluence_auth.groups.checker, cb);
+    auth.authenticate(username, password, config.auth.groups.checker, cb);
   }
 );
 
@@ -59,12 +60,6 @@ app.get('/favicon.ico', function(req, res: Response) {
 
 app.all('/admin*', httpAuth.connect(adminAuth));
 app.all('/checker*', httpAuth.connect(checkerAuth));
-
-if (config.confluence_auth.enabled) {
-  log.warn('=======================================');
-  log.warn('NO REAL AUTHENTICATION ENABLED. Use any username/password. Fine for dev, not cool for anything real.');
-  log.warn('=======================================');
-}
 
 app.use('/checker/', express.static(path.join(__dirname, '/checker')));
 app.use('/checker-api', checkerApi);

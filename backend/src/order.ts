@@ -9,7 +9,7 @@ import uuidv4 = require('uuid/v4');
 import _ = require('underscore');
 import ticket =  require('./ticket');
 import md5 = require('md5');
-import auth = require('./confluenceAuth');
+import auth = require('./auth');
 import jsdom = require('jsdom');
 import fs = require('fs');
 
