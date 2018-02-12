@@ -29,9 +29,9 @@ module.exports = {
     confluence: {
       url: 'http://localhost:3010/groups/'
     },
-    static: { //must have _auth, static is reserved word
+    static: {
       //Static authentication configuration
-      //Each user has static username, md5 hashed password and group
+      //Each user has static username, md5 hashed password and groups
       users: [
         {
           name: 'admin',
