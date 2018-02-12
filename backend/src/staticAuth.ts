@@ -19,12 +19,11 @@ export function authenticate(user: string, password: string, requiredGroup: stri
   var userObject = _.findWhere<IStaticAuthUser, Object>(
     config.auth.static.users,
     { name: user, pass: md5(password) }
-    );
+  );
 
   if (userObject &&
-    (requiredGroup === undefined ||
-      _.contains(userObject.groups, requiredGroup)
-    )) {
+    (requiredGroup === undefined || _.contains(userObject.groups, requiredGroup))
+  ) {
      log.info('Authencation successful', {user: user});
      return cb(true);
   }
