@@ -21,11 +21,9 @@ export function authenticate(user: string, password: string, requiredGroup: stri
     { name: user, pass: md5(password) }
   );
 
-  if (userObject &&
-    (requiredGroup === undefined || _.contains(userObject.groups, requiredGroup))
-  ) {
-     log.info('Authencation successful', {user: user});
-     return cb(true);
+  if (userObject && (requiredGroup === undefined || _.contains(userObject.groups, requiredGroup))) {
+    log.info('Authencation successful', {user: user});
+    return cb(true);
   }
 
   log.warn('Access denied', {user: user, requiredGroup: requiredGroup});
