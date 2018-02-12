@@ -61,12 +61,6 @@ app.get('/favicon.ico', function(req, res: Response) {
 app.all('/admin*', httpAuth.connect(adminAuth));
 app.all('/checker*', httpAuth.connect(checkerAuth));
 
-if (config.auth.method === 'confluence') {
-  log.warn('=======================================');
-  log.warn('NO REAL AUTHENTICATION ENABLED. Use any username/password. Fine for dev, not cool for anything real.');
-  log.warn('=======================================');
-}
-
 app.use('/checker/', express.static(path.join(__dirname, '/checker')));
 app.use('/checker-api', checkerApi);
 

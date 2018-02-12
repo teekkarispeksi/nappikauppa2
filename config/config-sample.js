@@ -29,14 +29,14 @@ module.exports = {
     confluence: {
       url: 'http://localhost:3010/groups/'
     },
-    static_auth: { //must have _auth, static is reserved word
+    static: { //must have _auth, static is reserved word
       //Static authentication configuration
       //Each user has static username, md5 hashed password and group
       users: [
         {
           name: 'admin',
           pass: '44d6e57b24917d45e2864fccaf9f8c3c', //nappiadmin5
-          group: 'lippukauppa-admin'
+          groups: ['lippukauppa-admin']
         }
 
       ]
