@@ -8,7 +8,6 @@ import _ = require('underscore');
 import Marked = require('marked');
 import Moment = require('moment-timezone');
 import Bootstrap = require('react-bootstrap');
-import GA = require('react-ga');
 
 import Button from './Button';
 import ShowSelector from './ShowSelector';
@@ -25,6 +24,7 @@ import {IDiscountGroup} from '../../../../backend/src/discountGroup';
 import {IVenue, ISection, ISeat} from '../../../../backend/src/venue';
 
 import Router = require('../router');
+import event = require('../event');
 
 // TODO: get this from backend, as it should match as closely as possible to backend's timer
 const EXPIRATION_IN_MINUTES = 15;
@@ -155,7 +155,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
 
   onTimeout() {
     this.setState({page: 'seats', reservationError: 'Varauksesi on rauennut.'});
-    GA.event({category: 'Order', action: 'Expired'});
+    event.cancelled('expired');
   }
 
   startTimer(timeFrom?: string) {
@@ -243,7 +243,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       reservationError: null
     });
     Router.navigate('show/' + showid, {trigger: false});
-    GA.pageview('/' + window.location.hash);
+    event.page();
     setTimeout(() => scrollToElem('.seat-selector'), 100);
 
     if (!this.venue || this.venue.id !== show.venue_id) {
@@ -272,10 +272,8 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     });
     if (this.state.chosenSeatIds.indexOf(seat_id) >= 0) {
       this.unselectSeat(seat_id);
-      GA.event({category: 'Seat', action: 'Unselected', label: this.venue.sections[section_id].section_title, value: seat_id});
     } else {
       this.selectSeat(seat_id, section_id);
-      GA.event({category: 'Seat', action: 'Selected', label: this.venue.sections[section_id].section_title, value: seat_id});
     }
     this.updateSeatStatus();
   }
@@ -285,12 +283,14 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     var seat = section.seats[seat_id];
     var price = this.state.show.sections[section_id].price;
     var discount_groups = this.state.show.discount_groups;
+    event.addToCart(price, this.venue.sections[section_id].section_title, seat_id);
     this.tickets.push({seat: seat, section: section, price: price, discount_groups: discount_groups, discount_group_id: DISCOUNT_GROUP_DEFAULT});
   }
 
   unselectSeat(seat_id) {
-    var removeTicket = _.findIndex(this.tickets, (t: ITicket) => t.seat.id === seat_id);
-    this.tickets.splice(removeTicket, 1);
+    var indexToRemove = _.findIndex(this.tickets, (t: ITicket) => t.seat.id === seat_id);
+    event.removeFromCart(this.venue.sections[this.tickets[indexToRemove].section.id].section_title, seat_id);
+    this.tickets.splice(indexToRemove, 1);
   }
 
   onReserveTickets() {
@@ -307,6 +307,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       contentType: 'application/json',
       success: ( (response: IOrder) => {
         this.order = response;
+        event.reserve(this.order.order_price);
         this.startTimer();
         this.setState({page: 'contacts'});
         setTimeout( () => {
@@ -318,7 +319,6 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         this.forceUpdate();
       }
     });
-    GA.event({category: 'Order', action: 'Tickets reserved', value: this.tickets.length});
   }
 
   onSaveOrderInfo(info) {
@@ -343,7 +343,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
         console.log('order info saving failed'); // TODO
       }
     });
-    GA.event({category: 'Order', action: 'Contacts saved'});
+    event.orderInfoSaved();
   }
 
   onProceedToPayment() {
@@ -361,14 +361,14 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
                 window.location.href = res.url;
               }
             }).bind(this));
-    GA.event({category: 'Order', action: 'Payment started', value: this.order.order_price});
+    event.purchaseInitiated(this.order.order_price);
   }
 
   onCancel() {
     $.post('api/orders/' + this.order.order_id + '/' + this.order.order_hash + '/cancel');
     this.order = null;
     this.setState({page: 'seats', reservationExpirationTime: null});
-    GA.event({category: 'Order', action: 'Cancelled'});
+    event.cancelled('');
   }
 
   helpText() {
@@ -383,10 +383,10 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           Voit myös <a className='alert-link' href={'api/orders/' + order_id + '/' + order_hash + '/tickets.pdf'}>ladata liput tästä.</a></p>
         </div>
       );
-      GA.event({category: 'Order', action: 'Payment succesfull'});
+      event.purchaseCompleted();
     } else if (this.props.action === 'fail') {
       result = (<div className='alert alert-warning'>Keskeytit tilauksesi ja varaamasi paikat on vapautettu myyntiin.</div>);
-      GA.event({category: 'Order', action: 'Payment canceled'});
+      event.cancelled('payment');
     }
     var rawProductionDescriptionMarkup = Marked(this.production.description, {sanitize: true}); // should be safe to inject
     return (

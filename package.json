@@ -85,6 +85,7 @@
     "react-bootstrap": "^0.30.7",
     "react-d3-basic": "^1.6.11",
     "react-dom": "^15.4.2",
+    "react-facebook-pixel": "^0.1.0",
     "react-ga": "^2.1.2",
     "run-sequence": "^1.2.2",
     "tiny-lr": "^1.0.3",

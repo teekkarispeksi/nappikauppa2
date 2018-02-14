@@ -7,19 +7,17 @@ window.onerror = (errorMsg, url, line, col, error) => {
   return true;
 };
 
-declare var config: {analytics: {google: string}};
-
 import React = require('react');
 import ReactDOM = require('react-dom');
 import Backbone = require('backbone');
 import $ = require('jquery');
-import GA = require('react-ga');
 
 import Header from './components/Header';
 import Store from './components/Store';
 import Footer from './components/Footer';
 
 import Router = require('./router');
+import event = require('./event');
 
 ReactDOM.render(<Header />, $('header')[0]);
 
@@ -40,7 +38,6 @@ Router.on('route:show', (showid) => {
 
 ReactDOM.render(<Footer />, $('footer')[0]);
 
-GA.initialize(config.analytics.google);
-GA.pageview('/' + window.location.hash);
+event.init();
 
 Backbone.history.start();
