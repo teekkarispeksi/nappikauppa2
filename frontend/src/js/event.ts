@@ -49,10 +49,10 @@ export function purchaseInitiated(value: number) {
   }); }
 }
 
-export function purchaseCompleted() {
-  if (GA) { GA.event({category: 'Order', action: 'Payment succesfull'}); }
+export function purchaseCompleted(value: number) {
+  if (GA) { GA.event({category: 'Order', action: 'Payment succesfull', value: value}); }
   if (FB) { FB.track('Purchase', {
-    value: 0,
+    value: value,
     currency: 'EUR',
   }); }
 }

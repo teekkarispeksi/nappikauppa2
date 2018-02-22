@@ -1,5 +1,7 @@
 'use strict';
 
+import btoa = require('btoa');
+
 var config = require('../config/config.js');
 import db = require('./db');
 import log = require('./log');
@@ -369,7 +371,7 @@ export function preparePayment(order_id: number): Promise<any> {
         var verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
         params.RETURN_AUTHCODE = md5(verification).toUpperCase();
 
-        return paymentDone(order_id, params).then((res) => { return {url: '#ok/' + order.order_id + '/' + order.order_hash}; });
+        return paymentDone(order_id, params).then((res) => ({url: '#ok/' + order.order_id + '/' + order.order_hash + '/' + btoa('' + order.order_price)}));
       }
 
       var ticket_rows = _.map(order.tickets, (ticket: ticket.ITicket) => {

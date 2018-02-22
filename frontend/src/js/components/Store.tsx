@@ -307,7 +307,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       contentType: 'application/json',
       success: ( (response: IOrder) => {
         this.order = response;
-        event.reserve(this.order.order_price);
+        event.reserve(this.order.tickets.reduce((a,b) => a + b.ticket_price, 0));
         this.startTimer();
         this.setState({page: 'contacts'});
         setTimeout( () => {
@@ -376,6 +376,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     if (this.props.action === 'ok') {
       var order_id = this.props.args[0];
       var order_hash = this.props.args[1];
+      var order_price = parseInt(atob(this.props.args[2]));
       result = (
         <div className='alert alert-success'><p>Tilaus onnistui!</p>
           <p>Lähetimme liput sähköpostitse. Mikäli lippuja ei näy, tarkistathan roskapostikansiosi.
@@ -383,7 +384,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
           Voit myös <a className='alert-link' href={'api/orders/' + order_id + '/' + order_hash + '/tickets.pdf'}>ladata liput tästä.</a></p>
         </div>
       );
-      event.purchaseCompleted();
+      event.purchaseCompleted(order_price);
     } else if (this.props.action === 'fail') {
       result = (<div className='alert alert-warning'>Keskeytit tilauksesi ja varaamasi paikat on vapautettu myyntiin.</div>);
       event.cancelled('payment');
