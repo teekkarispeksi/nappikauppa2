@@ -5,8 +5,8 @@ import express = require('express');
 import {RequestHandler} from 'express';
 import bodyParser = require('body-parser');
 import atob = require('atob');
+import btoa = require('btoa');
 import md5 = require('md5');
-var router = express.Router();
 
 import auth = require('./auth');
 import discountCode = require('./discountCode');
@@ -18,6 +18,8 @@ import venue = require('./venue');
 import log = require('./log');
 
 var config = require('../config/config.js');
+
+var router = express.Router();
 
 var jsonParser = bodyParser.json();
 
@@ -136,8 +138,8 @@ router.post('/orders/:orderid/preparePayment', (req: Request, res: Response) => 
 });
 
 router.get('/orders/:orderid/success', (req: Request, res: Response) => {
-  order.paymentDone(parseInt(req.params.orderid), req.query).then( (order) => {
-    res.redirect(config.public_url + '#ok/' + order.order_id + '/' + order.order_hash);
+  order.paymentDone(parseInt(req.params.orderid), req.query).then((order) => {
+    res.redirect(config.public_url + '#ok/' + order.order_id + '/' + order.order_hash + '/' + btoa('' + order.order_price));
   });
 });
 
