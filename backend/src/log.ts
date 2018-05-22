@@ -26,6 +26,7 @@ if (config.email.errors_to) {
   transports.push(new (winston.transports.MailGun)({
     level: 'error',
     to: config.email.errors_to,
+    from: config.email.errors_from,
     apiKey: config.email.mailgun.api_key,
     domain: config.email.mailgun.domain
   }));
