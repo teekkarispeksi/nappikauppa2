@@ -608,3 +608,25 @@ export function kirjaaja(): Promise<any> {
       return _.mapObject(grouped, (x) => ({price: x.price, performer: x.performer, city: x.description.split(' ').pop()})); // assumes description ends with the city name, as they should do!
     });
 }
+
+export function archive(): Promise<any> {
+  log.info('Checking for orders to be archived.');
+  return db.query('select o.id as id, o.name as name, o.email as email \
+    from nk2_orders o \
+    left join nk2_tickets t on o.id = t.order_id \
+    join nk2_shows s on s.id = t.show_id \
+    where \
+      o.email like "%@%" and \
+      s.time < date_sub(now(), interval 6 month) \
+    group by o.id')
+  .then((rows: any[]) => {
+    if (rows.length === 0) {
+      log.info('Nothing to archive.');
+      return;
+    }
+    log.info('Archiving ' + rows.length + ' rows.');
+    const hashed = _.map(rows, row => db.format('(:id, :name, :email)', {id: row.id, name: md5(row.name), email: md5(row.email)}));
+    const values = hashed.join(',');
+    return db.query('insert into nk2_orders (id, name, email) values ' + values + ' on duplicate key update name=values(name), email=values(email)');
+  });
+}

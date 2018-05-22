@@ -41,6 +41,10 @@ router.get('/orders', (req: Request, res: Response) => {
   }
 });
 
+router.get('/orders/archive', (req: Request, res: Response) => {
+  order.archive().then(ok(res), err(res));
+});
+
 router.get('/orders/:orderid', (req: Request, res: Response) => {
   order.get(parseInt(req.params.orderid)).then(ok(res), err(res));
 });
