@@ -15,7 +15,7 @@ module.exports = {
         },
     from: '',
     errors_to: '',
-    errors_from: '',
+    errors_from: ''
   },
   paytrail: {
     user: '13466',
