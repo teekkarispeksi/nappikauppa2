@@ -2,7 +2,27 @@ Nappikauppa 2
 =============
 [![CircleCI](https://circleci.com/gh/teekkarispeksi/nappikauppa2.svg?style=svg)](https://circleci.com/gh/teekkarispeksi/nappikauppa2)
 
-Initial setup
+
+Running the dev enviroment
+-------------
+
+(Assuming that you have [docker](https://www.docker.com) installed)
+
+( Assuming that you have [yarn](https://yarnpkg.com/lang/en/) or [npm](https://www.npmjs.com/) installed. If using `npm`, just substitue `yarn` with `npm` in the commands below. )
+
+1. `yarn install` for installing dependencies (including typing infos)
+2. Build code and start a server.
+  Run `yarn run dev`. Following steps will be executed:
+  * Test if relevant config files are found, if not those files are created.
+  * Builds database container for test enviroment if not found.
+  * Starts database container for test enviroment.
+  * Builds dev version using [gulp4](https://github.com/gulpjs/gulp/tree/4.0)
+  * Starts developement server
+  * Does incremental builds when source files are updated
+  * After backend build, server is automatically restarted. For front-end livereload can be used for automatic reload. 
+3. Go to [http://localhost:3000/](http://localhost:3000/). For admin site go to [http://localhost:3000/admin](http://localhost:3000/admin). Default username is admin and password nappiadmin5.
+
+Initial setup for production
 -------------
 ( Assuming that you have [mysql (maridb)](https://mariadb.org/) installed )
 
@@ -11,18 +31,8 @@ Initial setup
 3. Run db/tables.sql, db/venues.sql and db/test-data.sql against your database (e.g. `mysql nappikauppa2 < db/tables.sql`)
 4. Run db/evolutions/01_add_production_to_discount_code.sql against your database
 
-Running the dev enviroment
--------------
-
-( Assuming that you have [yarn](https://yarnpkg.com/lang/en/) or [npm](https://www.npmjs.com/) installed. If using `npm`, just substitue `yarn` with `npm` in the commands below. )
-
-1. `yarn install` for installing dependencies (including typing infos)
-2. Build code and start a server. There are two options:
-  * Run `yarn run dev`. This The step builds the dev version (i.e., non-minimized) using [gulp](https://gulpjs.com/) and starts a `gulp watch-and-server` process.
-  * Run `yarn run build` followed by `yarn run`. This The step builds the production version (i.e., minimized) using [gulp](https://gulpjs.com/) and starts a the app server directly.
-3. Go to [http://localhost:3000/](http://localhost:3000/)
-
-`gulp` provides also other modes for building and running the server, see `gulpfile.js` for more info. Remember to either install `gulp` globally or call `./node_modules/gulp/bin/gulp.js`.
+**NOTICE!!!
+DO NOT USE DEVELOPEMENT DOCKER DATABASE IN PRODUCTION**
 
 Deploying to production using CircleCI
 -------------
