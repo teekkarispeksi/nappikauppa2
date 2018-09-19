@@ -5,7 +5,7 @@ module.exports = {
   db: {
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'nappikauppa2',
     database: 'nappikauppa2'
   },
   email: {

@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  database:
+    build:
+      context: ../../
+      dockerfile: docker/nappikauppa2-test/Dockerfile-db
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:

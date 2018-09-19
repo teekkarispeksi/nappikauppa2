@@ -4,5 +4,5 @@
         "module": "commonjs"
     },
     "compileOnSave": false,
-    "exclude": ["node_modules", "backend/build", "frontend/build", "test/output"]
+    "exclude": ["node_modules", "backend", "frontend/build", "test/output", "app.ts", "app.js"]
 }
