@@ -21,7 +21,6 @@
     "interface-name": true,
     "jsdoc-format": true,
     "label-position": true,
-    "label-undefined": true,
     "max-line-length": [
       true,
       200
@@ -46,9 +45,7 @@
       "trace"
     ],
     "no-construct": true,
-    "no-constructor-vars": true,
     "no-debugger": true,
-    "no-duplicate-key": true,
     "no-duplicate-variable": true,
     "no-empty": true,
     "no-eval": true,
@@ -62,7 +59,6 @@
     "no-trailing-whitespace": true,
     "no-unreachable": false,
     "no-unused-expression": true,
-    "no-unused-variable": "react",
     "no-use-before-declare": true,
     "no-var-keyword": false,
     "no-var-requires": false,
@@ -110,10 +106,6 @@
         "property-declaration": "nospace",
         "variable-declaration": "nospace"
       }
-    ],
-    "use-strict": [
-      true,
-      "check-module"
     ],
     "variable-name": [
       true,

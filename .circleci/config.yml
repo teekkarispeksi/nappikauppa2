@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:7.10
+      - image: circleci/node:8.12
 
     working_directory: ~/repo
 
@@ -41,7 +41,7 @@ jobs:
       # - run: yarn test
   package:
       docker:
-        - image: circleci/node:7.10
+        - image: circleci/node:8.12
 
       working_directory: ~/repo
 
@@ -60,7 +60,7 @@ jobs:
 
   deploy-staging:
       docker:
-        - image: circleci/node:7.10
+        - image: circleci/node:8.12
       environment:
         APPNAME: nappikauppa2-staging
       working_directory: ~/repo
@@ -74,7 +74,7 @@ jobs:
 
   deploy-production:
       docker:
-        - image: circleci/node:7.10
+        - image: circleci/node:8.12
       environment:
         APPNAME: nappikauppa2
       working_directory: ~/repo
