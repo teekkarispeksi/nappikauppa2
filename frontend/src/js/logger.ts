@@ -11,13 +11,13 @@ export function log(level: string, msg: string, meta: any) {
     method: 'POST',
     contentType: 'application/json'
   });
-};
+}
 
 export function info(msg: string, meta: any) {
   log('info', msg, meta);
-};
+}
 
 export function error(msg: string, meta: any) {
   log('error', msg, meta);
-};
+}
 

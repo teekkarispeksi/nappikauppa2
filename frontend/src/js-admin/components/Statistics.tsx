@@ -96,7 +96,7 @@ export default class Statistics extends React.Component<IStatisticsProps, IStati
         <h3>Tuotto / päivä</h3>
         <D3ChartWrapper id={this.props.production_id + 'revenue-timeseries'}
           data={t3} chartSeries={series}
-          x={(d) => d.date.substr(5,10)} xScale={'ordinal'} xLabel={'Date'} >
+          x={(d) => d.date.substr(5, 10)} xScale={'ordinal'} xLabel={'Date'} >
           <D3.BarStackChart />
         </D3ChartWrapper>
       </div>

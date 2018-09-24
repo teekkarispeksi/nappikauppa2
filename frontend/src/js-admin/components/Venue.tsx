@@ -119,7 +119,7 @@ export default class Venue extends React.Component<IVenueProps, IVenueState> {
         <h2>Kopioi teatteri</h2>
         <Bootstrap.FormControl componentClass='select' onChange={(event) => this.onCopyVenue(parseInt((event.target as any).value))}>
           <option />
-          {this.state.venues.map((venue) => <option key={venue.id} value={'' + venue.id}>{venue.venue_title}</option>)}
+          {this.state.venues.map((v) => <option key={v.id} value={'' + v.id}>{v.venue_title}</option>)}
         </Bootstrap.FormControl>
       </div>
     ) : null;

@@ -2,7 +2,7 @@
 
 import Logger = require('./logger');
 
-window.onerror = (errorMsg, url, line, col, error) => {
+window.onerror = (errorMsg: string, url, line, col, error) => {
   Logger.error(errorMsg, {url: url, lineNumber: line, colNumber: col, error: error});
   return true;
 };
