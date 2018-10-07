@@ -1,7 +1,7 @@
 FROM mariadb:10.3
 
 ENV MYSQL_ROOT_PASSWORD nappikauppa2-test
-ENV MYSQL_DATABASE nk2_test
+ENV MYSQL_DATABASE nappikauppa2-test
 
 RUN mkdir /usr/sql && chmod 644 /usr/sql
 
