@@ -5,8 +5,8 @@ module.exports = {
   db: {
     host: 'localhost',
     user: 'root',
-    password: 'nappikauppa2',
-    database: 'nappikauppa2'
+    password: 'nappikauppa2-test',
+    database: 'nappikauppa2-test'
   },
   email: {
     mailgun: {
