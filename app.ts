@@ -18,8 +18,13 @@ var adminApi = require('./backend/build/routes-admin');
 var checkerApi = require('./backend/build/routes-checker');
 
 var log = require('./backend/build/log');
-
 var auth = require('./backend/build/auth');
+
+// BEGIN ANONYMIZATION
+var order = require('./backend/build/order');
+const DAILY = 24 * 60 * 60 * 1000;
+setInterval(order.anonymize, DAILY);
+// END ANONYMIZATION
 
 var adminAuth = httpAuth.basic({
     realm: 'Nappikauppa v2'
