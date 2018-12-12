@@ -1,8 +1,22 @@
-var config = require('../../config/config');
-
 import order = require('../order');
 import express = require('express');
 
+/*
+ * Module implements abstract payment provider
+ * 
+ * Usage:
+ *
+ *   //Importing payment module
+ *   import payment = require('./payment');
+ *
+ *   //create new checkout-v3 payment provider
+ *   const checkout = payment('checkout-v3');
+ *   
+ *   //create new payment from order
+ *   const resp = checkout.create(order, args);
+ * 
+ * Provider implementations can be found from folder ./providers
+ */
 
 export interface ICreateArgs {
   successCallback: string;
@@ -14,14 +28,24 @@ export interface ICreateArgs {
 export interface ICreateResponse {
   payment_id: string;
   redirect_url: string;
+  payment_url: string;
+  payment_provider: string;
 }
 
 export interface ISuccessResponse {
   payment_id: string;
+  payment_provider: string;
 }
 
 export interface IErrorResponse {
   payment_id: string;
+  payment_provider: string;
+}
+
+export interface IStatusResponse {
+  payment_id: string;
+  payment_url: string;
+  status: 'paid' | 'cancelled' | 'payment-pendig' | 'expired';
 }
 
 // Common payment provider interface
@@ -29,19 +53,36 @@ export interface IPayment {
   create: (order: order.IOrder, args: ICreateArgs) => Promise<ICreateResponse>;
   handleSuccessCallback: (req: express.Request) => Promise<ISuccessResponse>;
   handleErrorCallback: (req: express.Request) => Promise<IErrorResponse>;
+  checkStatus:  (payment_id: string, payment_url: string) => Promise<IStatusResponse>;
 }
 
-var provider = config.payment.provider
-var payment: IPayment = require('./providers/' + provider)
+//Wrapper class for creating different payment providers
+class Payment {
 
-export function create(order: order.IOrder, args: ICreateArgs): Promise<ICreateResponse> {
-  return payment.create(order, args);
+  private provider: IPayment;
+
+  constructor(provider: string) {
+    this.provider = require('./providers/' + provider);
+  }
+
+  create(order: order.IOrder, args: ICreateArgs): Promise<ICreateResponse> {
+    return this.provider.create(order, args);
+  }
+
+  handleSuccessCallback(req: express.Request): Promise<ISuccessResponse> {
+    return this.provider.handleSuccessCallback(req);
+  }
+
+  handleErrorCallback(req: express.Request): Promise<IErrorResponse> {
+    return this.provider.handleErrorCallback(req);
+  }
+
+  checkStatus(payment_id: string, payment_url: string): Promise<IStatusResponse> {
+    return this.provider.checkStatus(paymentId);
+  }
 }
 
-export function handleSuccessCallback(req: express.Request): Promise<ISuccessResponse> {
-  return payment.handleSuccessCallback(req);
-}
-
-export function handleErrorCallback(req: express.Request): Promise<IErrorResponse> {
-  return payment.handleErrorCallback(req);
+// factory for creating payment providers
+export default function(provider: string): Payment {
+  return new Payment(provider);
 }

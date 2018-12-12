@@ -10,6 +10,8 @@ import crypto = require('crypto');
 import axios from 'axios';
 import express = require('express');
 
+const PROVIDER = 'checkout-v3';
+
 export function create(order: order.IOrder, args: payment.ICreateArgs): Promise<payment.ICreateResponse> {
 
   var nonce = uuidv4();
@@ -38,15 +40,20 @@ export function create(order: order.IOrder, args: payment.ICreateArgs): Promise<
     data: body,
     params: headers
   }).then( (resp: any) => {
+
+    //TODO: Verify response signature
     var createResp: payment.ICreateResponse = {
       payment_id: resp.data.transactionId,
-      redirect_url: resp.data.href
+      redirect_url: resp.data.href,
+      payment_url: resp.data.href,
+      payment_provider: PROVIDER
     }
     return createResp;
   });
 
 }
-
+/*
+// TODO: implement callback handlers
 export function handleSuccessCallback(req: express.Request): Promise<payment.ISuccessResponse> {
 
   return
@@ -57,6 +64,10 @@ export function handleErrorCallback(req: express.Request): Promise<payment.IErro
   return
 }
 
+export function checkStatus(payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
+  
+}
+*/
 function sign(headers: CheckoutHeaders, body?: CreateRequestBody): string {
   var payloadArray =
     Object.keys(headers)
@@ -115,7 +126,7 @@ function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs
     items: _.map(order.tickets, ticketToRequestBodyItem)
   }
 
-  return requestBody
+  return requestBody;
 }
 
 interface CreateRequestBody {
