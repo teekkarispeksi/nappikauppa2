@@ -26,8 +26,9 @@ function almostDeepClone<T extends {}>(obj: T): T {
 }
 
 export default class DiscountGroup extends React.Component<IDiscountGroupProps, IDiscountGroupState> {
-  constructor() {
-    super();
+
+  constructor(props) {
+    super(props);
     this.state = {discountGroups: null};
   }
 

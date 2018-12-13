@@ -38,8 +38,8 @@ function almostDeepClone<T extends {}>(obj: T): T {
 }
 
 export default class Show extends React.Component<IShowProps, IShowState> {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {venues: null, shows: null, show: null};
   }
 

@@ -20,7 +20,7 @@ export interface ITicketCountSelectorProps {
 
 export default class TicketCountSelector extends React.Component<ITicketCountSelectorProps, any> {
   constructor(props: any) {
-    super();
+    super(props);
     this.state = {error: null};
   }
 

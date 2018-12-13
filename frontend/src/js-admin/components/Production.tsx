@@ -37,8 +37,8 @@ function almostDeepClone<T extends {}>(obj: T): T {
 }
 
 export default class Production extends React.Component<IProductionProps, IProductionState> {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {production: null};
   }
 
