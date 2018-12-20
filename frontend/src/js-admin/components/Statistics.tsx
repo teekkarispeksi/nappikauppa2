@@ -26,8 +26,8 @@ function almostDeepClone<T extends {}>(obj: T): T {
 }
 
 export default class Statistics extends React.Component<IStatisticsProps, IStatisticsState> {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {statistics: null/*, production_id: 1*/};
   }
 

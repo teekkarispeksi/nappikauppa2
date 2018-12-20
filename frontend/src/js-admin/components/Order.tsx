@@ -25,8 +25,8 @@ function almostDeepClone<T extends {}>(obj: T): T {
 }
 
 export default class Order extends React.Component<IOrderProps, IOrderState> {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {order: null};
   }
 

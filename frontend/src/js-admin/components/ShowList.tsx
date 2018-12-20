@@ -18,8 +18,8 @@ export interface IShowListSate {
 }
 
 export default class ShowList extends React.Component<IShowListProps, IShowListSate> {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {shows: []};
   }
 

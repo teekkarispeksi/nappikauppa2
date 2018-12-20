@@ -71,7 +71,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
   timer: any;
 
   constructor(props: IStoreProps) {
-    super();
+    super(props);
 
     this.shows = [];
     this.tickets = [];

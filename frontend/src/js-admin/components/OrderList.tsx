@@ -21,7 +21,7 @@ export interface IOrderListState {
 
 export default class OrderList extends React.Component<IOrderListProps, IOrderListState> {
   constructor() {
-    super();
+    super({});
     this.state = {
       orders: [],
       show: null

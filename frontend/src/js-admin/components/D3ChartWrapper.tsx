@@ -27,8 +27,9 @@ export interface ID3ChartWrapperState {
 }
 
 export default class D3ChartWrapper extends React.Component<ID3ChartWrapperProps, ID3ChartWrapperState> {
+
   constructor(props: ID3ChartWrapperProps) {
-      super();
+      super(props);
       var state = JSON.parse(localStorage.getItem(props.id));
       if (!state) {
         state = {

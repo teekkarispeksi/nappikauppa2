@@ -17,8 +17,9 @@ export interface IHomeState {
 }
 
 export default class Home extends React.Component<any, IHomeState> {
-  constructor() {
-    super();
+
+  constructor(props) {
+    super(props);
     this.state = {venues: [], productions: []};
   }
 
