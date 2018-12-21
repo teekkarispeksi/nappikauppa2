@@ -15,9 +15,14 @@ import auth = require('./auth');
 import jsdom = require('jsdom');
 import fs = require('fs');
 
-// Paytrail wants to charge something, so they don't support minimal payments
-const PAYTRAIL_MIN_PAYMENT = 0.65;
-const PAYTRAIL_PREFIX = 'LIPPUKAUPPA';
+import {to, reject, resolve} from './util';
+import payment from './payment';
+import { ICreateArgs, ISuccessResponse, IErrorResponse, IStatusResponse, ICreateResponse } from './payment';
+import { IConnection } from 'mysql';
+import { Request } from 'express';
+
+const MIN_PAYMENT = 0.65;
+const DEFAULT_PROVIDER = config.payment.provider ? config.payment.provider : 'null-provider';
 
 export interface IReservedSeat {
   seat_id: number;
@@ -42,6 +47,7 @@ export interface IOrder {
   order_price: number;
   payment_id: string;
   payment_url: string;
+  payment_provider: string;
   show_id: number;
   status: 'seats-reserved' | 'payment-pending' | 'paid' | 'cancelled' | 'expired';
   time: string;
@@ -59,6 +65,7 @@ export interface IAdminOrderListItem {
   hash: string;
   payment_url: string;
   payment_id: string;
+  payment_provider: string;
   status: string;
   tickets_count: number;
   tickets_used_count: number;
@@ -72,6 +79,7 @@ export function checkExpired(): Promise<any> {
     {expire_minutes: config.expire_minutes});
 }
 
+/*
 export function checkPaytrailStatus(order_id: number): Promise<string> {
   var verification = [config.paytrail.password, config.paytrail.user, PAYTRAIL_PREFIX + order_id].join('&');
   var authcode = md5(verification).toUpperCase();
@@ -135,7 +143,13 @@ export function checkPaytrailStatus(order_id: number): Promise<string> {
     });
   });
 }
+*/
 
+export function checkPaymentStatus(order_id: number): Promise<any> {
+
+}
+
+/*
 export function checkAndUpdateStatus(order_id: number): Promise<any> {
   var status;
   return checkPaytrailStatus(order_id).then((_status: string) => {
@@ -154,7 +168,7 @@ export function checkAndUpdateStatus(order_id: number): Promise<any> {
       return paymentDone(order_id, params);
     }
   }).then((res) => ({status: status}));
-}
+}*/
 
 export function reserveSeats(show_id: number, seats: IReservedSeat[], user: string): Promise<IOrder> {
   log.info('Reserving seats', {show_id: show_id, seats: seats, user: user});
@@ -290,6 +304,7 @@ export function get(order_id: number): Promise<IOrder> {
       orders.payment_url, \
       orders.payment_id,\
       orders.status, \
+      orders.payment_provider,\
       \
       shows.title show_title, \
       date_format(shows.time, "%e.%c.%Y") show_date,  \
@@ -327,7 +342,7 @@ export function get(order_id: number): Promise<IOrder> {
     }
     var first = rows[0];
     var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'wants_email',
-    'time', 'order_price', 'payment_url', 'payment_id', 'status', 'show_id', 'venue_id']);
+    'time', 'order_price', 'payment_url', 'payment_id', 'status', 'show_id', 'venue_id', 'payment_provider']);
 
     res.tickets = _.filter(_.map(rows, function(row) {
       return _.pick(row,
@@ -354,6 +369,7 @@ export function getAllForShow(show_id: number): Promise<IAdminOrderListItem[]> {
     {show_id: show_id}));
 }
 
+/*
 export function preparePayment(order_id: number): Promise<any> {
   log.info('Preparing payment', {order_id: order_id});
 
@@ -460,8 +476,178 @@ export function preparePayment(order_id: number): Promise<any> {
       log.error('Failed to prepare payment', {error: err, order_id: order_id});
       throw err;
     });
+}*/
+
+export async function preparePayment(order_id: number): Promise<any> {
+
+  log.info('Preparing payment', {order_id: order_id});
+
+  let conn: IConnection, res, err: Error, provider: string, order: IOrder, createResp: ICreateResponse;
+
+  [conn, err] = await to<IConnection>(db.beginTransaction());
+  if(err) {
+    log.error('Failed to prepare payment', {error: err, order_id: order_id});
+    return reject(err);
+  }
+
+  log.debug('Check order payment status', {order_id});
+  [res, err] = await to(db.query('select status from nk2_orders where id = :order_id', {order_id}, conn));
+  if (err) {
+    log.error('Failed to prepare payment', {error: err, order_id: order_id});
+    await db.rollback(conn);
+    return reject(err);
+  }
+
+  log.debug('Set order status to payment-pending', {order_id});
+  [res, err] = await to(db.query('update nk2_orders set status = "payment-pending" where id = :order_id', {order_id}, conn));
+  if (err) {
+    log.error('Failed to prepare payment', {error: err, order_id: order_id});
+    await db.rollback(conn);
+    return reject(err);
+  }
+
+  log.debug('Check if order has valid payment provider', {order_id});
+  [res, err] = await to(db.query('select payment_provider from nk2_orders where id=:order_id',{order_id}, conn));
+  if (err) {
+    log.error('Failed to prepare payment', {error: err, order_id: order_id});
+    await db.rollback(conn);
+    return reject(err);
+  }
+
+  provider = res[0]['payment_provider'];
+  
+  if ( provider == null) {
+    provider = DEFAULT_PROVIDER;
+    log.debug('Set default provider to payment provider', {order_id});
+    [res, err] = await to(db.query('update nk2_orders set payment_provider = :provider where id = :order_id', {provider, order_id}, conn));
+    if(err) {
+    log.error('Failed to prepare payment', {error: err, order_id: order_id});
+    await db.rollback(conn);
+    return reject(err);
+    }
+  }
+
+  log.debug('Commit payment status and provider', {order_id});
+  [res, err] = await to(db.commit(conn));
+  if(err) {
+    log.error('Failed to prepare payment', {error: err, order_id: order_id});
+    return reject(err);
+  }
+
+  [order, err] = await to<IOrder>(get(order_id));
+  if (err) {
+    log.error('Failed to prepare payment', {error: err, order_id: order_id});
+    return reject(err);
+  }
+
+  const args: ICreateArgs = {
+    successRedirect: config.public_url + 'api/orders/' + order_id + '/success',
+    errorRedirect: config.public_url + 'api/orders/' + order_id + '/failure',
+    successCallback: config.public_url + 'api/orders/' + order_id + '/notify/success',
+    errorCallback: config.public_url + 'api/orders/' + order_id + '/notify/failure',
+  };
+
+  log.debug('Creating payment with handler', {order_id});
+  const handler = payment(provider);
+  [createResp, err] = await to<ICreateResponse>(handler.create(order, args));
+  if (err) {
+    log.error('Failed to prepare payment', {error: err, order_id: order_id});
+    return reject(err);
+  }
+
+  log.debug('Update payment handler')
+  [res, err] = await to(db.query('update nk2_orders set payment_id = :payment_id, payment_url = :payment_url where id = :order_id', {payment_id: createResp.payment_id, payment_url: createResp.payment_url, order_id}));
+  if (err) {
+    log.error('Failed to prepare payment', {error: err, order_id: order_id});
+    return reject(err);
+  }
+
+  log.info('Created payment for order'. {order_id});
+
+  return resolve(createResp);
 }
 
+export async function paymentDone(order_id: number, req: Request): Promise<any> {
+
+  let res, err: Error, successResp: ISuccessResponse, conn: IConnection, order: IOrder;
+
+  [conn, err] = await to(db.beginTransaction());
+  if (err) {
+    log.error('Payment done failed', {error: err, order_id});
+    return reject(err);
+  }
+
+  [res, err] = await to(db.query('select payment_provider from nk2_orders where id=:order_id', {order_id}, conn));
+  if (err) {
+    log.error(' Failed to get payment provider', {error: err,order_id});
+    return reject(err);
+  }
+
+  const provider = res[0]['payment_provider'];
+  
+  log.debug('Create payment handler', {order_id, provider});
+  const handler =  payment(provider);
+
+  log.debug('Handle success request', {order_id, provider});
+  [successResp, err] = await to(handler.handleSuccessCallback(req));
+  if (err) {
+    log.error('Payment succes callback handling failed', {error: err,order_id});
+    return reject(err);
+  }
+
+  log.info('Payment success callback handling succeeded', {order_id});
+
+  [res, err] = await to(db.query('select status from nk2_orders where id = :order_id', {order_id}, conn));
+  if (err) {
+    log.error('Payment done failed', {error: err, order_id});
+  }
+
+  if(res[0].status === 'paid') {
+    log.info('Order was already paid', {order_id: order_id});
+    await db.rollback(conn);
+    return resolve(null);
+  }
+
+  log.debug('Updating order payment status', {order_id});
+  [res, err] = await to(db.query('update nk2_orders set status = "paid", payment_id = :payment_id where id = :order_id',{order_id, payment_id: successResp.payment_id}, conn));
+  if (err) {
+    log.error('Updating payment status failed', {error: err, order_id});
+    await db.rollback(conn);
+    return reject(err);
+  }
+
+  [res, err] = await to(db.commit(conn));
+  if (err) {
+    log.error('Updating payment status failed', {error: err, order_id});
+    return reject(err);
+    }
+
+  log.debug('Order payment status updated', {order_id});
+
+  log.debug('Sending tickets', {order_id});
+  [res, err] = await to(sendTickets(order_id));
+  if (err) {
+    return reject(err);
+  }
+
+  log.debug('Getting updated order', {order_id});
+  [order, err] = await to<IOrder>(get(order_id));
+  if (err) {
+    return reject(err);
+  }
+
+  return resolve(order);
+}
+
+export async function paymentCancelled(order_id: number, req: Request): Promise<any> {
+
+  let res, err: Error, errorResp: IErrorResponse, conn: IConnection;
+
+
+
+}
+
+/*
 export function paymentCancelled(order_id: number, params): Promise<any> {
   log.info('Payment was cancelled', {order_id: order_id});
 
@@ -511,6 +697,7 @@ export function paymentDone(order_id: number, params): Promise<IOrder> {
   });
 
 }
+*/
 
 export function sendTickets(order_id: number): Promise<any> {
   log.info('Sending tickets', {order_id: order_id});

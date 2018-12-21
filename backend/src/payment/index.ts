@@ -27,9 +27,10 @@ export interface ICreateArgs {
 
 export interface ICreateResponse {
   payment_id: string;
-  redirect_url: string;
+  redirect_url?: string;
   payment_url: string;
   payment_provider: string;
+  payload?: any;
 }
 
 export interface ISuccessResponse {
