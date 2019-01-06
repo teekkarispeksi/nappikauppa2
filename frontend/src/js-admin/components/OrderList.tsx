@@ -62,6 +62,7 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
           <th>Status</th>
           <th>Edit</th>
           <th>Liput</th>
+          <th>Maksupalveluntarjoaja</th>
           <th>Maksulinkki</th>
         </tr>
           {this.state.orders.map((order) => {
@@ -84,6 +85,7 @@ export default class OrderList extends React.Component<IOrderListProps, IOrderLi
               <td>{order.status} {checkStatus}</td>
               <td>{editLink}</td>
               <td>{ticketLink}</td>
+              <td>{order.payment_provider}</td>
               <td>{paymentLink}</td>
             </tr>);
           })}
