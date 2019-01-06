@@ -3,7 +3,6 @@ const config = require('../../../config/config').payment['checkout-v3'];
 import order = require('../../order');
 import ticket = require('../../ticket');
 import log = require('../../log');
-import { to} from '../../util';
 
 import _ = require('underscore');
 import moment = require('moment');
@@ -17,13 +16,50 @@ const PROVIDER = 'checkout-v3';
 //Our database is using int type euros ,but checkout is using cents as value type so we need to do some conversion
 const EUR_TO_CENTS = 100
 
+interface CreateRequestBody {
+  stamp: string;
+  reference: string;
+  amount: number;
+  currency: 'EUR';
+  language: 'FI' | 'SV' | 'EN';
+  items: RequestBodyItem[];
+  customer: {
+    email: string;
+  };
+  redirectUrls: {
+    success: string;
+    cancel: string;
+  };
+  callbackUrls: {
+    success: string;
+    cancel: string;
+  }
+}
+
+interface RequestBodyItem {
+  unitPrice: number;
+  units: number;
+  vatPercentage: number;
+  productCode: string;
+  deliveryDate: string; // format yyyy-mm-dd
+}
+
+interface CheckoutHeaders{
+  'checkout-account': number;
+  'checkout-algorithm': 'sha256' | 'sha512';
+  'checkout-method': 'GET' | 'POST';
+  'checkout-nonce': string;
+  'checkout-timestamp': string;
+  'checkout-transaction_id'?: string;
+}
+
 log.info('Loaded provider: ' + PROVIDER);
 
 export async function create(order: order.IOrder, args: payment.ICreateArgs): Promise<payment.ICreateResponse> {
 
-  var nonce = uuidv4();
-  var body = orderToCreateRequestBody(order, args);
-  var headers: CheckoutHeaders = {
+  const nonce = uuidv4();
+  const body = orderToCreateRequestBody(order, args);
+  const headers: CheckoutHeaders = {
     'checkout-account': config.user,
     'checkout-algorithm': 'sha256',
     'checkout-method': 'POST',
@@ -31,43 +67,51 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
     'checkout-timestamp': moment().format()
   };
 
-  var signature = sign(headers, body);
+  const signature = sign(headers, body);
 
-  var httpHeaders = {
+  const httpHeaders = {
     'content-type': 'application/json',
     'charset': 'utf-8',
     'signature': signature
   };
 
-  let resp, err;
+  const verify = (resp: any) => {
+    //logging of conf-request-id is recommended in checkouts documentation
+    log.info('Checkout conf-request-id for order', {order_id: order.order_id, 'conf-request-id': resp.headers['conf-request-id']})
 
-  [resp, err] = await to(axios({
-    baseURL: 'https://api.checkout.fi',
-    method: 'post',
-    url: '/payments',
-    headers: httpHeaders,
-    data: body,
-    params: headers
-  }));
-
-  if (err) {
-    if (!verifySignature(err.response.headers.signature, err.response.headers, err.response.data)) {
-          log.error('Response signature validation failed', {order_id: order.order_id});
+    //verifying response signature
+    if (!verifySignature(resp.headers.signature, resp.headers, resp.data)) {
+      throw {name: 'Verification error', message: 'Signature verification failed'};
     }
-    log.error('Posting new payment failed', {error: {data: err.response.data, status: err.response.status, header: err.response.headers}, provider: PROVIDER});
+    //verifying nonce
+    if (resp.headers['checkout-nonce'] !== nonce) {
+      throw {name: 'Verification error', message: 'Nonce verification failed'};
+    }
+  }
+
+  try {
+    const resp = await axios({
+      baseURL: 'https://api.checkout.fi',
+      method: 'post',
+      url: '/payments',
+      headers: httpHeaders,
+      data: body,
+      params: headers
+    });
+
+    verify(resp);
+
+    return {
+      payment_id: resp.data.transactionId,
+      redirect_url: resp.data.href,
+      payment_url: resp.data.href,
+      payment_provider: PROVIDER,
+      payload: resp.data.providers
+    }
+  } catch (err) {
+    verify(err.response);
+    log.error('Create payment failed', {error: err.response.data, order_id: order.order_id});
     throw err.response.data;
-  }
-
-  if (!verifySignature(resp.headers.signature, resp.headers, resp.data)) {
-    throw {name: 'Verification error', message: 'Signature verification failed'};
-  }
-
-  return {
-    payment_id: resp.data.transactionId,
-    redirect_url: resp.data.href,
-    payment_url: resp.data.href,
-    payment_provider: PROVIDER,
-    payload: resp.data.providers
   }
 }
 
@@ -104,7 +148,7 @@ export async function checkStatus(payment_id: string, payment_url: string): Prom
 }
 
 function sign(headers: {[key: string]: any}, body?: CreateRequestBody): string {
-  var pArr =
+  const payloadArr =
     Object.keys(headers)
       .filter((value: string) => {
         return /^checkout-/.test(value);
@@ -112,13 +156,11 @@ function sign(headers: {[key: string]: any}, body?: CreateRequestBody): string {
       .sort()
       .map((key) => [ key, headers[key] ].join(':'))
 
-  var payload =  pArr.concat(body ? JSON.stringify(body) : '').join("\n");
-  var hmac = crypto
+  const payload =  payloadArr.concat(body ? JSON.stringify(body) : '').join("\n");
+  return crypto
     .createHmac('sha256', config.password)
     .update(payload)
     .digest('hex');
-
-  return hmac;
 }
 
 function verifySignature(expectedSignature: string, headers: {[key: string]: any}, body?: CreateRequestBody): boolean {
@@ -156,41 +198,4 @@ function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs
     },
     items: _.map(order.tickets, ticketToRequestBodyItem)
   }
-}
-
-interface CreateRequestBody {
-  stamp: string;
-  reference: string;
-  amount: number;
-  currency: 'EUR';
-  language: 'FI' | 'SV' | 'EN';
-  items: RequestBodyItem[];
-  customer: {
-    email: string;
-  };
-  redirectUrls: {
-    success: string;
-    cancel: string;
-  };
-  callbackUrls: {
-    success: string;
-    cancel: string;
-  }
-}
-
-interface RequestBodyItem {
-  unitPrice: number;
-  units: number;
-  vatPercentage: number;
-  productCode: string;
-  deliveryDate: string; // format yyyy-mm-dd
-}
-
-interface CheckoutHeaders{
-  'checkout-account': number;
-  'checkout-algorithm': 'sha256' | 'sha512';
-  'checkout-method': 'GET' | 'POST';
-  'checkout-nonce': string;
-  'checkout-timestamp': string;
-  'checkout-transaction_id'?: string;
 }
