@@ -17,7 +17,7 @@ import fs = require('fs');
 
 import {to, reject, resolve} from './util';
 import payment from './payment';
-import { ICreateArgs, ISuccessResponse, ICancelResponse, IStatusResponse, ICreateResponse } from './payment';
+import { ICreateArgs, ISuccessResponse, ICancelResponse, IStatusResponse, ICreateResponse, IPayment } from './payment';
 import { IConnection } from 'mysql';
 import { Request } from 'express';
 
@@ -79,9 +79,9 @@ export function checkExpired(): Promise<any> {
     {expire_minutes: config.expire_minutes});
 }
 
-export function checkPaymentStatus(order_id: number): Promise<string> {
+export async function checkPaymentStatus(order_id: number): Promise<string> {
 
-  let resp: IStatusResponse, err: Error, res;
+  let resp: IStatusResponse, err: Error, res: any, handler: IPayment;
 
   log.debug('Check payment status', {order_id});
 
@@ -93,7 +93,10 @@ export function checkPaymentStatus(order_id: number): Promise<string> {
   }
 
   log.debug('Create payment handler', {order_id});
-  const handler = payment(DEFAULT_PROVIDER);
+  [handler, err] = await to(getPaymentHandler(order_id));
+  if (err) {
+    return reject(err);
+  }
 
   [resp, err] = await to(handler.checkStatus(res[0].payment_id, res[0].payment_url))
   if (err) {
@@ -106,7 +109,7 @@ export function checkPaymentStatus(order_id: number): Promise<string> {
   return resolve(resp.status);
 }
 
-export function checkAndUpdateStatus(order_id: number): Promise<any> {
+export async function checkAndUpdateStatus(order_id: number): Promise<any> {
 
   let status: string,  err: Error, res;
 
@@ -117,14 +120,14 @@ export function checkAndUpdateStatus(order_id: number): Promise<any> {
 
   log.info('ADMIN: checked order payment status', {order_id: order_id, status: status});
 
-  if (status == 'paid') {
+  if (status === 'paid') {
    [res, err] = await to(updatePaymentStatusToPaid(order_id));
     if (err) {
       return reject(err);
     }
   }
 
-  else if (status = 'cancelled') {
+  else if (status === 'cancelled') {
     [res, err] = await to(deleteCancelledOrder(order_id));
     if (err) {
       return reject(err);
@@ -267,8 +270,8 @@ export function get(order_id: number): Promise<IOrder> {
       orders.price order_price,\
       orders.payment_url, \
       orders.payment_id,\
+      orders.payment_provider, \
       orders.status, \
-      orders.payment_provider,\
       \
       shows.title show_title, \
       date_format(shows.time, "%e.%c.%Y") show_date,  \
@@ -333,11 +336,53 @@ export function getAllForShow(show_id: number): Promise<IAdminOrderListItem[]> {
     {show_id: show_id}));
 }
 
+async function getPaymentHandler(order_id: number): Promise<IPayment> {
+
+  let res: any, err: Error, conn: IConnection;
+
+  [conn, err] = await to(db.beginTransaction());
+  if (err) {
+    log.error('Failed to get payment provider', {error: err, order_id});
+    return reject(err);
+  }
+
+  [res, err] = await to(db.query('select payment_provider from nk2_orders where id = :order_id', {order_id}, conn));
+  if (err) {
+    log.error('Failed to get payment provider', {error: err, order_id});
+    await db.rollback(conn);
+    return reject(err);
+  }
+
+  const provider = res[0].payment_provider;
+
+  if (!provider) {
+    log.info('No provider found, using default provider', {order_id});
+    [res, err] = await to(db.query('update nk2_orders set payment_provider = :provider where id = :order_id', {provider: DEFAULT_PROVIDER, order_id}, conn));
+    if (err) {
+      log.error('Failed to update payment provider', {error: err, order_id});
+      await db.rollback(conn);
+      return reject(err);
+    }
+
+    [res, err] = await to(db.commit(conn));
+    if (err) {
+      log.error('Failed to update payment provider', {error: err, order_id});
+      await db.rollback(conn);
+      return reject(err);
+    }
+  }
+
+  const handler: IPayment = payment(provider ? provider : DEFAULT_PROVIDER);
+
+  return resolve(handler);
+
+}
+
 export async function preparePayment(order_id: number): Promise<any> {
 
   log.info('Preparing payment', {order_id: order_id});
 
-  let conn: IConnection, res: any, err: Error, order: IOrder, createResp: ICreateResponse;
+  let conn: IConnection, res: any, err: Error, order: IOrder, createResp: ICreateResponse, handler: IPayment;
 
   [conn, err] = await to<IConnection>(db.beginTransaction());
   if(err) {
@@ -389,10 +434,13 @@ export async function preparePayment(order_id: number): Promise<any> {
     errorCallback: config.public_url + 'api/orders/' + order_id + '/notify/failure',
   };
 
-  const provider = DEFAULT_PROVIDER;
-
   log.debug('Creating payment with handler', {order_id});
-  const handler = payment(provider);
+
+  [handler, err] = await to(getPaymentHandler(order_id));
+  if (err) {
+    return reject(err);
+  }
+
   [createResp, err] = await to<ICreateResponse>(handler.create(order, args));
   if (err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
@@ -412,19 +460,20 @@ export async function preparePayment(order_id: number): Promise<any> {
 
   log.info('Created payment for order', {order_id});
 
-  return resolve(createResp);
+  return resolve({url: createResp.payment_url});
 }
 
 export async function paymentDone(order_id: number, req: Request): Promise<any> {
 
-  let res, err: Error, successResp: ISuccessResponse, conn: IConnection, order: IOrder;
-
-  const provider = DEFAULT_PROVIDER];
+  let res, err: Error, successResp: ISuccessResponse, conn: IConnection, order: IOrder, handler: IPayment;
   
-  log.debug('Create payment handler', {order_id, provider});
-  const handler =  payment(provider);
+  log.debug('Create payment handler', {order_id});
+    [handler, err] = await to(getPaymentHandler(order_id));
+  if (err) {
+    return reject(err);
+  }
 
-  log.debug('Handle success request', {order_id, provider});
+  log.debug('Handle success request', {order_id});
   [successResp, err] = await to(handler.handleSuccessCallback(req));
   if (err) {
     log.error('Payment succes handling failed', {error: err,order_id});
@@ -476,7 +525,7 @@ async function updatePaymentStatusToPaid(order_id: number): Promise<any> {
   }
 
   log.debug('Updating order payment status', {order_id});
-  [res, err] = await to(db.query('update nk2_orders set status = "paid", payment_id = :payment_id where id = :order_id',{order_id, payment_id: successResp.payment_id}, conn));
+  [res, err] = await to(db.query('update nk2_orders set status = "paid" where id = :order_id',{order_id}, conn));
   if (err) {
     log.error('Updating payment status failed', {error: err, order_id});
     await db.rollback(conn);
@@ -496,14 +545,15 @@ async function updatePaymentStatusToPaid(order_id: number): Promise<any> {
 
 export async function paymentCancelled(order_id: number, req: Request): Promise<any> {
 
-  let res, err: Error, cancelResp: ICancelResponse;
+  let res, err: Error, cancelResp: ICancelResponse, handler: IPayment;
 
   log.debug('Cancelling payment', {order_id});
 
-  const provider = DEFAULT_PROVIDER;
-
   log.debug('Create payment handler');
-  const handler = payment(provider);
+  [handler, err] = await to(getPaymentHandler(order_id));
+  if (err) {
+    return reject(err);
+  }
 
   log.debug('Handle payment cancel callback');
   [cancelResp, err] = await to(handler.handleCancelCallback(req));
@@ -626,7 +676,7 @@ export function kirjaaja(): Promise<any> {
     join nk2_venues v on v.id = s.venue_id \
     group by s.id, o.id') // direct insertion is safe due to parseInt and filter
     .then((rows: any[]) => {
-      var grouped = _.indexBy(rows, (row) => PAYTRAIL_PREFIX + row.order_id); // assumes an order has only tickets for a single show, maybe wrong in the future!
+      var grouped = _.indexBy(rows, (row) => 'LIPPUKAUPPA_' + row.order_id); // assumes an order has only tickets for a single show, maybe wrong in the future!
       return _.mapObject(grouped, (x) => ({price: x.price, performer: x.performer, city: x.description.split(' ').pop()})); // assumes description ends with the city name, as they should do!
     });
 }

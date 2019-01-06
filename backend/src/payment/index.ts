@@ -46,14 +46,14 @@ export interface ICancelResponse {
 export interface IStatusResponse {
   payment_id: string;
   payment_url: string;
-  status: 'paid' | 'cancelled' | 'payment-pendig' | 'expired';
+  status: 'paid' | 'cancelled' | 'payment-pendig' | 'expired' | 'not-implemented';
 }
 
 // Common payment provider interface
 export interface IPayment {
   create: (order: order.IOrder, args: ICreateArgs) => Promise<ICreateResponse>;
   handleSuccessCallback: (req: express.Request) => Promise<ISuccessResponse>;
-  handleErrorCallback: (req: express.Request) => Promise<IErrorResponse>;
+  handleCancelCallback: (req: express.Request) => Promise<ICancelResponse>;
   checkStatus:  (payment_id: string, payment_url: string) => Promise<IStatusResponse>;
 }
 

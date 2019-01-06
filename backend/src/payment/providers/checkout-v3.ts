@@ -1,7 +1,9 @@
 import payment = require('../index');
-const config = require('../../../config/config').payment.checkout;
+const config = require('../../../config/config').payment['checkout-v3'];
 import order = require('../../order');
 import ticket = require('../../ticket');
+import log = require('../../log');
+import { to, reject, resolve } from '../../util';
 
 import _ = require('underscore');
 import moment = require('moment');
@@ -12,7 +14,9 @@ import express = require('express');
 
 const PROVIDER = 'checkout-v3';
 
-export function create(order: order.IOrder, args: payment.ICreateArgs): Promise<payment.ICreateResponse> {
+log.info('Loaded provider: ' + PROVIDER)
+
+export async function create(order: order.IOrder, args: payment.ICreateArgs): Promise<payment.ICreateResponse> {
 
   var nonce = uuidv4();
   var body = orderToCreateRequestBody(order, args);
@@ -32,45 +36,83 @@ export function create(order: order.IOrder, args: payment.ICreateArgs): Promise<
     'signature': signature
   }
 
-  return axios.request({
-    baseURL: 'https://api.checkout.fi',
-    method: 'post',
-    url: '/payments',
-    headers: httpHeaders,
-    data: body,
-    params: headers
-  }).then( (resp: any) => {
+  let resp, err;
 
-    //TODO: Verify response signature
-    var createResp: payment.ICreateResponse = {
-      payment_id: resp.data.transactionId,
-      redirect_url: resp.data.href,
-      payment_url: resp.data.href,
-      payment_provider: PROVIDER
+  [resp, err] = await to(axios({
+      baseURL: 'https://api.checkout.fi',
+      method: 'post',
+      url: '/payments',
+      headers: httpHeaders,
+      data: body,
+      params: headers
+    }));
+
+  if (err) {
+    if (!verify(err.response.headers.signature, err.response.headers, err.response.data)) {
+          log.error('Response signature validation failed', {order_id: order.order_id});
     }
-    return createResp;
-  });
+    log.error('Posting new payment failed', {error: {data: err.response.data, status: err.response.status, header: err.response.headers}, provider: PROVIDER});
+    return reject(err.response.data);
+  }
 
+  if (!verify(resp.headers.signature, resp.headers, resp.data)) {
+    return reject({name: 'Verification error', message: 'Signature verification failed'});
+  }
+
+  const createResp: payment.ICreateResponse = {
+    payment_id: resp.data.transactionId,
+    redirect_url: resp.data.href,
+    payment_url: resp.data.href,
+    payment_provider: PROVIDER,
+    payload: resp.data.providers
+  }
+  
+  return resolve(createResp);
 }
-/*
+
 // TODO: implement callback handlers
 export function handleSuccessCallback(req: express.Request): Promise<payment.ISuccessResponse> {
+  const headers = req.query;
 
-  return
+  if (! verify(headers.signature, headers)) {
+    return reject({name: 'Verification error', message: 'Signature verification failed'});
+  }
+
+  return resolve({
+    payment_id: headers['checkout-transaction-id'],
+    payment_provider: PROVIDER,
+  });
 }
 
-export function handleErrorCallback(req: express.Request): Promise<payment.IErrorResponse> {
+export function handleCancelCallback(req: express.Request): Promise<payment.ICancelResponse> {
+  const headers = req.query;
 
-  return
+  if (! verify(headers.signature, headers)) {
+    return reject({name: 'Verification error', message: 'Signature verification failed'});
+  }
+
+  return resolve({
+    payment_id: headers['checkout-transaction-id'],
+    payment_provider: PROVIDER,
+  });
 }
 
 export function checkStatus(payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
-  
+
+
+  return resolve({
+    payment_id,
+    payment_url,
+    status: 'not-implemented',
+  });
 }
-*/
-function sign(headers: CheckoutHeaders, body?: CreateRequestBody): string {
+
+function sign(headers: {[key: string]: any}, body?: CreateRequestBody): string {
   var payloadArray =
     Object.keys(headers)
+      .filter((value: string) => {
+        return /^checkout-/.test(value);
+      })
       .sort()
       .map((key) => [ key, headers[key] ].join(':'))
 
@@ -86,19 +128,19 @@ function sign(headers: CheckoutHeaders, body?: CreateRequestBody): string {
     return hmac;
   }
 
-function verify(expectedSignature: string, headers: CheckoutHeaders, body?: CreateRequestBody): boolean {
+function verify(expectedSignature: string, headers: {[key: string]: any}, body?: CreateRequestBody): boolean {
   var signature = sign(headers, body);
-  return signature == expectedSignature
+  return signature === expectedSignature
 }
 
 function ticketToRequestBodyItem(ticket: ticket.ITicket): RequestBodyItem {
   
   var item: RequestBodyItem = {
-    unitPrice: ticket.ticket_price,
+    unitPrice: ticket.ticket_price * 100,
     units: 1,
     vatPercentage: 0,
     productCode: ticket.production_title + '-' + ticket.show_title + '-' + ticket.seat_number,
-    deliveryDate: moment().format('YYYY-MM-dd')
+    deliveryDate: moment().format('YYYY-MM-DD')
   }
 
   return item;

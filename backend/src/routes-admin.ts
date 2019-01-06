@@ -70,7 +70,7 @@ router.get('/orders/:orderid/tickets/:ticketid/:tickethash/use', (req: Request, 
 });
 
 router.get('/orders/:orderid/status', (req: Request, res: Response) => {
-  order.checkPaytrailStatus(req.params.orderid).then((result) => {
+  order.checkPaymentStatus(req.params.orderid).then((result) => {
     res.write(result);
     res.end();
   }, err(res));
