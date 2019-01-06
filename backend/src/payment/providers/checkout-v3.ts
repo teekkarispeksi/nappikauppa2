@@ -157,8 +157,9 @@ function sign(headers: {[key: string]: any}, body?: CreateRequestBody): string {
       .map((key) => [ key, headers[key] ].join(':'))
 
   const payload =  payloadArr.concat(body ? JSON.stringify(body) : '').join("\n");
+  const alg = headers['checkout-algorithm'];
   return crypto
-    .createHmac('sha256', config.password)
+    .createHmac(alg, config.password)
     .update(payload)
     .digest('hex');
 }

@@ -1,7 +1,6 @@
 import payment = require('../index');
 import order = require('../../order');
 import log = require('../../log');
-import { to } from '../../util';
 
 import uuidv4 = require('uuid/v4'); //used for nonce generation
 import express = require('express');
