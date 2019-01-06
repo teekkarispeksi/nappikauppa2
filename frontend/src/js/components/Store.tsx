@@ -355,10 +355,10 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
               if (res.err) {
                 this.setState({page: 'seats', paymentBegun: false});
               } else {
-                if (res.url[0] === '#') { // when skipping Paytrail
+                if (res.redirect_url[0] === '#') { // when skipping payment
                   this.setState(this._getInitialState(this.props));
                 }
-                window.location.href = res.url;
+                window.location.href = res.redirect_url;
               }
             }).bind(this));
     event.purchaseInitiated(this.order.order_price);
