@@ -12,6 +12,7 @@ import axios from 'axios';
 import express = require('express');
 
 const PROVIDER = 'checkout-v3';
+const SIGNATURE_ALGORITHM = 'sha256';
 
 //Our database is using int type euros ,but checkout is using cents as value type so we need to do some conversion
 const EUR_TO_CENTS = 100
@@ -157,7 +158,7 @@ function sign(headers: {[key: string]: any}, body?: CreateRequestBody): string {
       .map((key) => [ key, headers[key] ].join(':'))
 
   const payload =  payloadArr.concat(body ? JSON.stringify(body) : '').join("\n");
-  const alg = headers['checkout-algorithm'];
+  const alg = headers['checkout-algorithm'] ? headers['checkout-algorithm'] : SIGNATURE_ALGORITHM;
   return crypto
     .createHmac(alg, config.password)
     .update(payload)

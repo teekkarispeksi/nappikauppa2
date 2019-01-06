@@ -331,7 +331,7 @@ async function getPaymentHandler(order_id: number, provider?: string): Promise<I
 }
 
 export async function preparePayment(order_id: number): Promise<any> {
-  let conn: IConnection, res: any;
+  let conn: IConnection;
 
   log.info('Preparing payment', {order_id: order_id});
   try {
@@ -343,7 +343,7 @@ export async function preparePayment(order_id: number): Promise<any> {
 
   try {
     log.log('debug', 'Get order payment status', {order_id});
-    res = await db.query('select status from nk2_orders where id = :order_id', {order_id}, conn);
+    const res = await db.query('select status from nk2_orders where id = :order_id', {order_id}, conn);
     
     log.log('debug', 'Reject if status is not seats-reserved', {order_id});
     if (res[0]['status'] !== 'seats-reserved') {
