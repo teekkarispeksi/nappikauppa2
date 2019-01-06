@@ -170,16 +170,6 @@ function verifySignature(expectedSignature: string, headers: {[key: string]: any
   return signature === expectedSignature;
 }
 
-function ticketToRequestBodyItem(ticket: ticket.ITicket): RequestBodyItem {
-  return {
-    unitPrice: ticket.ticket_price * EUR_TO_CENTS,
-    units: 1,
-    vatPercentage: 0,
-    productCode: ticket.production_title + '-' + ticket.show_title + '-' + ticket.section_title + '-' + ticket.seat_number,
-    deliveryDate: moment().format('YYYY-MM-DD')
-  }
-}
-
 function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs): CreateRequestBody {
   return {
     stamp: order.order_id.toString(),
@@ -198,6 +188,12 @@ function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs
       success: args.successCallback,
       cancel: args.errorCallback
     },
-    items: _.map(order.tickets, ticketToRequestBodyItem)
+    items: [{
+      unitPrice: order.order_price * EUR_TO_CENTS,
+      units: 1,
+      vatPercentage: 0,
+      productCode: 'NAPPIKAUPPA2-TICKETS',
+      deliveryDate: moment().format('YYYY-MM-DD'),
+    }],
   }
 }
