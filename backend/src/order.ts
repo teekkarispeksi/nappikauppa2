@@ -81,60 +81,35 @@ export function checkExpired(): Promise<any> {
 
 export async function checkPaymentStatus(order_id: number): Promise<string> {
 
-  let resp: IStatusResponse, err: Error, res: any, handler: IPayment;
-
   log.log('debug', 'Check payment status', {order_id});
 
-  log.log('debug', 'Acquiring payment_id and payment_url', {order_id});
-  [res, err] = await to(db.query('select payment_id, payment_url from nk2_orders where id = :order_id', {order_id}));
-  if (err) {
+  try {
+    log.log('debug', 'Acquiring payment_id and payment_url', {order_id});
+    const res = await db.query('select payment_id, payment_url from nk2_orders where id = :order_id', {order_id});
+    const handler = await getPaymentHandler(order_id);
+    const resp = await handler.checkStatus(res[0].payment_id, res[0].payment_url)
+    
+    log.info('ADMIN: Payment status checked', {order_id});
+    return resp.status;
+   } catch(err) {
     log.error('Check payment status failed', {error: err, order_id});
-    throw err;
+    throw(err);
   }
-
-  log.log('debug', 'Create payment handler', {order_id});
-  [handler, err] = await to(getPaymentHandler(order_id));
-  if (err) {
-    throw err;
-  }
-
-  [resp, err] = await to(handler.checkStatus(res[0].payment_id, res[0].payment_url))
-  if (err) {
-    log.error('Check payment status failed', {error: err, order_id});
-    throw err;
-  }
-
-  log.info('Payment status checked', {order_id});
-
-  return resp.status;
 }
 
 export async function checkAndUpdateStatus(order_id: number): Promise<any> {
 
-  let status: string,  err: Error, res;
+  const status = await checkPaymentStatus(order_id);
 
-  [status, err] = await to(checkPaymentStatus(order_id));
-  if (err) {
-    throw err;
-  }
-
-  log.info('ADMIN: checked order payment status', {order_id: order_id, status: status});
+  log.info('ADMIN: Updating order payment status', {order_id: order_id, status: status});
 
   if (status === 'paid') {
-   [res, err] = await to(updatePaymentStatusToPaid(order_id));
-    if (err) {
-      throw err;
-    }
+    await updatePaymentStatusToPaid(order_id);
+  } else if (status === 'cancelled') {
+    await deleteCancelledOrder(order_id);
   }
 
-  else if (status === 'cancelled') {
-    [res, err] = await to(deleteCancelledOrder(order_id));
-    if (err) {
-      throw err;
-    }
-  }
-
-  return {status: status};
+  return {status};
 }
 
 export function reserveSeats(show_id: number, seats: IReservedSeat[], user: string): Promise<IOrder> {
@@ -336,251 +311,173 @@ export function getAllForShow(show_id: number): Promise<IAdminOrderListItem[]> {
     {show_id: show_id}));
 }
 
-async function getPaymentHandler(order_id: number): Promise<IPayment> {
+async function getPaymentHandler(order_id: number, provider?: string): Promise<IPayment> {
 
-  let res: any, err: Error, conn: IConnection;
+  let p = provider;
 
-  [conn, err] = await to(db.beginTransaction());
-  if (err) {
-    log.error('Failed to get payment provider', {error: err, order_id});
-    throw err;
-  }
+  if (p === undefined) {
+    log.log('debug', 'No provider given, acquiring one from database');
+    try {
+      const res = await db.query('select payment_provider from nk2_orders where id = :order_id', {order_id});
+      p = res[0].provider;
 
-  [res, err] = await to(db.query('select payment_provider from nk2_orders where id = :order_id', {order_id}, conn));
-  if (err) {
-    log.error('Failed to get payment provider', {error: err, order_id});
-    await db.rollback(conn);
-    throw err;
-  }
-
-  const provider = res[0].payment_provider;
-
-  if (!provider) {
-    log.info('No provider found, using default provider', {order_id});
-    [res, err] = await to(db.query('update nk2_orders set payment_provider = :provider where id = :order_id', {provider: DEFAULT_PROVIDER, order_id}, conn));
-    if (err) {
-      log.error('Failed to update payment provider', {error: err, order_id});
-      await db.rollback(conn);
-      throw err;
-    }
-
-    [res, err] = await to(db.commit(conn));
-    if (err) {
-      log.error('Failed to update payment provider', {error: err, order_id});
-      await db.rollback(conn);
+      if (p === null) throw "No provider assigned to order";
+    } catch (err) {
+      log.error('Failed to get payment provider', {error: err, order_id});
       throw err;
     }
   }
 
-  const handler: IPayment = payment(provider ? provider : DEFAULT_PROVIDER);
-
-  return handler;
+  return payment(p);
 }
 
 export async function preparePayment(order_id: number): Promise<any> {
+  let conn: IConnection, res: any;
 
   log.info('Preparing payment', {order_id: order_id});
-
-  let conn: IConnection, res: any, err: Error, order: IOrder, resp: ICreateResponse, handler: IPayment;
-
-  [conn, err] = await to<IConnection>(db.beginTransaction());
-  if(err) {
-    log.error('Failed to prepare payment -- could not acquire database connection', {error: err, order_id: order_id});
+  try {
+    conn = await db.beginTransaction();
+  } catch (err) {
+    log.error('Failed to prepare payment', {error: err, order_id});
     throw err;
   }
 
-  log.log('debug', 'Check order payment status', {order_id});
-  [res, err] = await to(db.query('select status from nk2_orders where id = :order_id', {order_id}, conn));
-  if (err) {
+  try {
+    log.log('debug', 'Get order payment status', {order_id});
+    res = await db.query('select status from nk2_orders where id = :order_id', {order_id}, conn);
+    
+    log.log('debug', 'Reject if status is not seats-reserved', {order_id});
+    if (res[0]['status'] !== 'seats-reserved') {
+      const err = {name: "Validation error", message: "Invalid order status"}
+      throw err;
+    }
+
+    log.log('debug', 'Set order status to payment-pendig and add payment provider', {order_id});
+    await db.query('update nk2_orders set status = "payment-pending", payment_provider = :provider where id = :order_id', {order_id, provider: DEFAULT_PROVIDER}, conn);
+
+    log.log('debug', 'Commit payment status changes', {order_id});
+    await db.commit(conn);
+
+  } catch (err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
     await db.rollback(conn);
     throw err;
   }
 
-  log.log('debug', 'Reject if status is not seats-reserved', {order_id});
-  if (res[0]['status'] !== 'seats-reserved'){
-    err = {name: "Validation error", message: "Invalid order status"}
-    log.error('Failed to prepare payment', {error: err, order_id:order_id})
-    await db.rollback(conn);
-    throw err;
-  }
+  try {
+    const order = await get(order_id);
+    const args: ICreateArgs = {
+      successRedirect: config.public_url + 'api/orders/' + order_id + '/success',
+      errorRedirect: config.public_url + 'api/orders/' + order_id + '/failure',
+      successCallback: config.public_url + 'api/orders/' + order_id + '/notify/success',
+      errorCallback: config.public_url + 'api/orders/' + order_id + '/notify/failure',
+    };
 
-  log.log('debug', 'Set order status to payment-pending', {order_id});
-  [res, err] = await to(db.query('update nk2_orders set status = "payment-pending" where id = :order_id', {order_id}, conn));
-  if (err) {
-    log.error('Failed to prepare payment', {error: err, order_id: order_id});
-    await db.rollback(conn);
-    throw err;
-  }
+    const handler = await getPaymentHandler(order_id, DEFAULT_PROVIDER);
+    const resp = await handler.create(order, args);
 
-  log.log('debug', 'Commit payment status', {order_id});
-  [res, err] = await to(db.commit(conn));
-  if(err) {
-    log.error('Failed to prepare payment', {error: err, order_id: order_id});
-    throw err;
-  }
+    log.log('debug','Update payment status', {order_id})
+    await db.query('update nk2_orders set payment_id = :payment_id, payment_url = :payment_url where id = :order_id', {payment_id: resp.payment_id, payment_url: resp.payment_url, order_id});
 
-  [order, err] = await to<IOrder>(get(order_id));
-  if (err) {
+    log.info('Created payment for order', {order_id});
+    return resp;
+  } catch (err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
     throw err;
   }
-
-  const args: ICreateArgs = {
-    successRedirect: config.public_url + 'api/orders/' + order_id + '/success',
-    errorRedirect: config.public_url + 'api/orders/' + order_id + '/failure',
-    successCallback: config.public_url + 'api/orders/' + order_id + '/notify/success',
-    errorCallback: config.public_url + 'api/orders/' + order_id + '/notify/failure',
-  };
-
-  log.log('debug', 'Creating payment handler to order', {order_id});
-
-  [handler, err] = await to(getPaymentHandler(order_id));
-  if (err) {
-    throw err;
-  }
-
-  [resp, err] = await to<ICreateResponse>(handler.create(order, args));
-  if (err) {
-    log.error('Failed to prepare payment', {error: err, order_id: order_id});
-    throw err;
-  }
-
-  log.log('debug','Update payment status', {order_id})
-  await db.query('update nk2_orders set payment_id = :payment_id, payment_url = :payment_url where id = :order_id', {payment_id: resp.payment_id, payment_url: resp.payment_url, order_id});
-  //Hack here a little bit, we are only interested in error, not result value
-  if (err) {
-    log.error('Failed to prepare payment', {error: err, order_id: order_id});
-    throw err;
-  }
-
-  log.log('debug', 'Updated payment info successfully', {order_id, res})
-
-
-  log.info('Created payment for order', {order_id});
-
-  return resp;
 }
 
 export async function paymentDone(order_id: number, req: Request): Promise<any> {
+  try {
+    log.log('debug', 'Create payment handler', {order_id});
+    const handler = await getPaymentHandler(order_id);
 
-  let res, err: Error, resp: ISuccessResponse, conn: IConnection, order: IOrder, handler: IPayment;
-  
-  log.log('debug', 'Create payment handler', {order_id});
-  [handler, err] = await to(getPaymentHandler(order_id));
-  if (err) {
-    throw err;
-  }
+    log.log('debug', 'Verify success', {order_id});
 
-  log.log('debug', 'Handle success request', {order_id});
-  [resp, err] = await to(handler.verifySuccess(req));
-  if (err) {
-    log.error('Payment succes handling failed', {error: err,order_id});
-    throw err;
-  }
+    const resp = await handler.verifySuccess(req);
+    log.info('Payment success verification succeeded', {order_id});
 
-  log.info('Payment success handling succeeded', {order_id});
-
-  if ( await updatePaymentStatusToPaid(order_id) ) {
-    log.log('debug', 'Sending tickets', {order_id});
-    [res, err] = await to(sendTickets(order_id));
-    if (err) {
-      throw err;
+    if ( await updatePaymentStatusToPaid(order_id) ) {
+      log.log('debug', 'Sending tickets', {order_id});
+      await sendTickets(order_id);
     }
-  }
 
-  log.log('debug', 'Getting updated order', {order_id});
-  [order, err] = await to<IOrder>(get(order_id));
-  if (err) {
+    log.log('debug', 'Getting updated order', {order_id});
+    const order = await get(order_id);
+    return order;
+  } catch (err) {
+    log.error('Payment success verification failed', {error: err, order_id});
     throw err;
   }
-
-  return order;
 }
 
 async function updatePaymentStatusToPaid(order_id: number): Promise<boolean> {
-
-  let res, err: Error, conn: IConnection;
-
-  [conn, err] = await to(db.beginTransaction());
-  if (err) {
-    log.error('Payment done failed', {error: err, order_id});
+  let conn: IConnection;
+  
+  try {
+    conn = await db.beginTransaction();
+  } catch (err) {
+    log.error('Payment status update to paid failed', {error: err, order_id});
     throw err;
   }
 
-  [res, err] = await to(db.query('select status from nk2_orders where id = :order_id', {order_id}, conn));
-  if (err) {
-    log.error('Payment done failed', {error: err, order_id});
-    throw err;
-    
-  }
+  try {
+    const res = await db.query('select status from nk2_orders where id = :order_id', {order_id}, conn);
+    if(res[0].status === 'paid') {
+      log.info('Order was already paid', {order_id: order_id});
+      await db.rollback(conn);
+      return false;
+    }
 
-  if(res[0].status === 'paid') {
-    log.info('Order was already paid', {order_id: order_id});
-    await db.rollback(conn);
-    return false;
-  }
-
-  log.log('debug', 'Updating order payment status', {order_id});
-  [res, err] = await to(db.query('update nk2_orders set status = "paid" where id = :order_id',{order_id}, conn));
-  if (err) {
+    log.log('debug', 'Updating order payment status', {order_id});
+    await db.query('update nk2_orders set status = "paid" where id = :order_id',{order_id}, conn);
+    await db.commit(conn);
+    return true;
+  } catch (err) {
     log.error('Updating payment status failed', {error: err, order_id});
     await db.rollback(conn);
     throw err;
   }
-
-  [res, err] = await to(db.commit(conn));
-  if (err) {
-    log.error('Updating payment status failed', {error: err, order_id});
-    throw err;
-  }
-
-  log.log('debug', 'Order payment status updated', {order_id});
-
-  return true;
 }
 
 export async function paymentCancelled(order_id: number, req: Request): Promise<any> {
+  try {
+    log.log('debug', 'Cancelling payment', {order_id});
+    const handler = await getPaymentHandler(order_id);
 
-  let res, err: Error, cancelResp: ICancelResponse, handler: IPayment;
+    log.log('debug', 'Handle payment cancel verification');
+    await handler.verifyCancel(req);
 
-  log.log('debug', 'Cancelling payment', {order_id});
-
-  log.log('debug', 'Create payment handler');
-  [handler, err] = await to(getPaymentHandler(order_id));
-  if (err) {
+    log.info('Payment cancel verification succeeded', {order_id});
+    return await deleteCancelledOrder(order_id);
+  } catch (err) {
+    log.error('Payment cancel verification failed', {error: err,order_id});
     throw err;
   }
-
-  log.log('debug', 'Handle payment cancel callback');
-
-  [cancelResp, err] = await to(handler.verifyCancel(req));
-  if (err) {
-    log.error('Payment cancel handling failed', {error: err,order_id});
-    throw err;
-  }
-
-  log.info('Payment cancel handling succeeded', {order_id});
-
-  return await deleteCancelledOrder(order_id);
-
 }
 
 async function deleteCancelledOrder(order_id: number): Promise<any> {
-
+  let conn: IConnection;
   try {
-    const res = await db.query('select status from nk2_orders where id = :order_id', {order_id});
-    if (res[0] === 'paid') {
-      log.warn('Order was already paid, refusing to delete order', {order_id});
-    } else {
-      log.info('Deleting order', {order_id});
-      await db.query('delete from nk2_orders where id = :order_id', {order_id});
-    }
-  } catch(err) {
+    conn = await db.beginTransaction()
+  } catch (err) {
     log.error('Payment cancelling failed', {error: err, order_id});
   }
 
-  return;
+  try {
+    const res = await db.query('select status from nk2_orders where id = :order_id', {order_id}, conn);
+    if (res[0] === 'paid') {
+      log.warn('Order was already paid, refusing to delete order', {order_id});
+      await db.rollback(conn);
+    } else {
+      log.info('Deleting order', {order_id});
+      await db.query('delete from nk2_orders where id = :order_id', {order_id}, conn);
+      await db.commit(conn);
+    }
+  } catch (err) {
+    log.error('Payment cancelling failed', {error: err, order_id});
+    await db.rollback(conn);
+  }
 }
 
 export function sendTickets(order_id: number): Promise<any> {
