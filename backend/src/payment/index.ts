@@ -38,7 +38,7 @@ export interface ISuccessResponse {
   payment_provider: string;
 }
 
-export interface IErrorResponse {
+export interface ICancelResponse {
   payment_id: string;
   payment_provider: string;
 }
@@ -74,12 +74,12 @@ class Payment {
     return this.provider.handleSuccessCallback(req);
   }
 
-  handleErrorCallback(req: express.Request): Promise<IErrorResponse> {
-    return this.provider.handleErrorCallback(req);
+  handleCancelCallback(req: express.Request): Promise<ICancelResponse> {
+    return this.provider.handleCancelCallback(req);
   }
 
   checkStatus(payment_id: string, payment_url: string): Promise<IStatusResponse> {
-    return this.provider.checkStatus(paymentId);
+    return this.provider.checkStatus(payment_id, payment_url);
   }
 }
 

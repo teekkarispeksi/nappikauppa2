@@ -17,7 +17,7 @@ import fs = require('fs');
 
 import {to, reject, resolve} from './util';
 import payment from './payment';
-import { ICreateArgs, ISuccessResponse, IErrorResponse, IStatusResponse, ICreateResponse } from './payment';
+import { ICreateArgs, ISuccessResponse, ICancelResponse, IStatusResponse, ICreateResponse } from './payment';
 import { IConnection } from 'mysql';
 import { Request } from 'express';
 
@@ -79,96 +79,60 @@ export function checkExpired(): Promise<any> {
     {expire_minutes: config.expire_minutes});
 }
 
-/*
-export function checkPaytrailStatus(order_id: number): Promise<string> {
-  var verification = [config.paytrail.password, config.paytrail.user, PAYTRAIL_PREFIX + order_id].join('&');
-  var authcode = md5(verification).toUpperCase();
+export function checkPaymentStatus(order_id: number): Promise<string> {
 
-  return new Promise<string>((resolve, reject) => {
-    var jar = request.jar();
-    request.post({
-        url: 'https://payment.paytrail.com/check-payment',
-        form: {
-          MERCHANT_ID: config.paytrail.user,
-          ORDER_NUMBER: PAYTRAIL_PREFIX + order_id,
-          AUTHCODE: authcode,
-          VERSION: '2',
-          CULTURE: 'fi_FI'
-        },
-        followAllRedirects: true, // paytrail sadness
-        jar: jar
-      },
-      function(err, response: any, body: string) {
-        (err) ? reject(err) : resolve(body);
-      });
-  }).then((body: string) => {
-    return new Promise<string>((resolve, reject) => {
-      jsdom.env({
-        html: body,
-        src: [fs.readFileSync('./node_modules/jquery/dist/jquery.js', 'utf-8')],
-        done: (err, window: any) => {
-          if (err) {
-            return reject(err);
-          }
+  let resp: IStatusResponse, err: Error, res;
 
-          var $ = window.$;
-          var rows = $('table tr');
-          if (rows.length !== 2) {
-            return reject('Row count doesnt match for order ' + order_id + ': got ' + rows.length + ' - expected only' +
-              ' headers ' + 'and one other');
-          }
+  log.debug('Check payment status', {order_id});
 
-          var cells = $(rows[1]).find('td');
-          if (cells.length !== 4) {
-            return reject('Column count doesnt match for order ' + order_id + ': got ' + cells.length + ', expected ' +
-              'four');
-          }
+  log.debug('Acquiring payment_id and payment_url', {order_id});
+  [res, err] = await to(db.query('select payment_id, payment_url from nk2_orders where id = :order_id', {order_id}));
+  if (err) {
+    log.error('Check payment status failed', {error: err, order_id});
+    return reject(err);
+  }
 
-          var text = cells[3].innerHTML;
-          var possible_status = {
-            'Maksettu (Maksu vahvistettu)': 'paid',
-            'Maksettu (Suoritettu)': 'paid',
-            'Peruuntunut': 'cancelled',
-            'Peruuntunut (Ei maksettu)': 'cancelled',
-            'Odottaa maksua': 'pending-payment'
-          };
+  log.debug('Create payment handler', {order_id});
+  const handler = payment(DEFAULT_PROVIDER);
 
-          if (_.has(possible_status, text)) {
-            return resolve(possible_status[text]);
-          } else {
-            return reject('Unknown status for order ' + order_id + ': "' + text + '"');
-          }
-        }
-      });
-    });
-  });
-}
-*/
+  [resp, err] = await to(handler.checkStatus(res[0].payment_id, res[0].payment_url))
+  if (err) {
+    log.error('Check payment status failed', {error: err, order_id});
+    return reject(err);
+  }
 
-export function checkPaymentStatus(order_id: number): Promise<any> {
+  log.info('Payment status checked', {order_id});
 
+  return resolve(resp.status);
 }
 
-/*
 export function checkAndUpdateStatus(order_id: number): Promise<any> {
-  var status;
-  return checkPaytrailStatus(order_id).then((_status: string) => {
-    status = _status;
-    log.info('ADMIN: checked order status from paytrail', {order_id: order_id, status: status});
-    var params, verification;
-    if (status === 'cancelled') {
-      params = {TIMESTAMP: '', RETURN_AUTHCODE: null};
-      verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, config.paytrail.password].join('|');
-      params.RETURN_AUTHCODE = md5(verification).toUpperCase();
-      return paymentCancelled(order_id, params);
-    } else if (status === 'paid') {
-      params = {PAID: 'checked', TIMESTAMP: '',  METHOD: '', RETURN_AUTHCODE: null};
-      verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
-      params.RETURN_AUTHCODE = md5(verification).toUpperCase();
-      return paymentDone(order_id, params);
+
+  let status: string,  err: Error, res;
+
+  [status, err] = await to(checkPaymentStatus(order_id));
+  if (err) {
+    return reject(err);
+  }
+
+  log.info('ADMIN: checked order payment status', {order_id: order_id, status: status});
+
+  if (status == 'paid') {
+   [res, err] = await to(updatePaymentStatusToPaid(order_id));
+    if (err) {
+      return reject(err);
     }
-  }).then((res) => ({status: status}));
-}*/
+  }
+
+  else if (status = 'cancelled') {
+    [res, err] = await to(deleteCancelledOrder(order_id));
+    if (err) {
+      return reject(err);
+    }
+  }
+
+  return resolve({status: status});
+}
 
 export function reserveSeats(show_id: number, seats: IReservedSeat[], user: string): Promise<IOrder> {
   log.info('Reserving seats', {show_id: show_id, seats: seats, user: user});
@@ -369,124 +333,15 @@ export function getAllForShow(show_id: number): Promise<IAdminOrderListItem[]> {
     {show_id: show_id}));
 }
 
-/*
-export function preparePayment(order_id: number): Promise<any> {
-  log.info('Preparing payment', {order_id: order_id});
-
-  return db.query('update nk2_orders set status = "payment-pending" where id = :order_id',
-    {order_id: order_id})
-    .then(() => get(order_id))
-    .then( (order: IOrder) => {
-      if (order.order_price < PAYTRAIL_MIN_PAYMENT) {
-        // as we skip Paytrail, we don't get their hash, but we can fake it
-        // TIMESTAMP and METHOD are only used for calculating the hash
-        log.info('Payment would have been smaller than minimum amount - giving for free',
-          {amount: order.order_price, minimum_amount: PAYTRAIL_MIN_PAYMENT, order_id: order_id});
-
-        var params = {PAID: 'free', TIMESTAMP: '',  METHOD: '', RETURN_AUTHCODE: null};
-        var verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
-        params.RETURN_AUTHCODE = md5(verification).toUpperCase();
-
-        return paymentDone(order_id, params).then((res) => ({url: '#ok/' + order.order_id + '/' + order.order_hash + '/' + btoa('' + order.order_price)}));
-      }
-
-      var ticket_rows = _.map(order.tickets, (ticket: ticket.ITicket) => {
-        return {
-          'title': 'Pääsylippu: ' + ticket.production_performer + ' / ' + ticket.production_title + ' / ' + ticket.show_title,
-          'code': ticket.ticket_id,
-          'amount': '1.00',
-          'price': ticket.ticket_price,
-          'vat': '0.00',
-          'discount': '0.00', // No discounts here. Price includes everything.
-          'type': '1'
-        };
-      });
-
-      if (order.discount_code && (order.tickets_total_price - order.order_price) > 0) {
-        var discount_amount = (order.tickets_total_price - order.order_price);
-        log.info('Using discount code', {discount_code: order.discount_code, discount_amount: discount_amount, order_id: order_id});
-        var discount_row = {
-          'title': 'Alennuskoodi: ' + order.discount_code,
-          'code': order.discount_code.replace(/[^\w]/gi, '').substr(0, 16), // paytrail API restriction
-          'amount': '1.00',
-          'price': -discount_amount,
-          'vat': '0.00',
-          'discount': '0.00',
-          'type': '1'
-        };
-        ticket_rows.push(discount_row);
-      }
-
-      var payment = {
-        'orderNumber': PAYTRAIL_PREFIX + order_id,
-        'currency': 'EUR',
-        'locale': 'fi_FI',
-        'urlSet': {
-          'success': config.public_url + 'api/orders/' + order_id + '/success',
-          'failure': config.public_url + 'api/orders/' + order_id + '/failure',
-          'notification': config.public_url + 'api/orders/' + order_id + '/notification'
-        },
-        'orderDetails': {
-          'includeVat': '1',
-          'contact': {
-            'email': order.email,
-            'firstName': order.name,
-            'lastName': ' ', // these one-space-only fields are required by Paytrail, must be non-empty
-            'address': {
-              'street': ' ',
-              'postalCode': ' ',
-              'postalOffice': ' ',
-              'country': 'FI'
-            }
-          },
-          'products': ticket_rows
-        }
-      };
-
-      log.info('Sending order details to Paytrail', {order_id: order_id});
-      return new Promise((resolve, reject) => {
-        request({
-          uri: 'https://payment.paytrail.com/api-payment/create',
-          method: 'POST',
-          json: true,
-          body: payment,
-          headers: {
-            'X-Verkkomaksut-Api-Version': '1'
-          },
-          auth: {
-            'user': config.paytrail.user,
-            'password': config.paytrail.password,
-            'sendImmediately': true
-          }
-        }, (err, response: any, body) => {
-          if (err || response.statusCode >= 400 || response.body.errorCode || response.body.errorMessage) {
-            log.error('Got an error from Paytrail', {error: err, responseBody: body, statusCode: response.statusCode, statusMessage: response.statusMessage,
-              requestHeaders: response.request.headers, requestBody: response.request.body, requestUri: response.request.uri, order_id: order_id});
-            reject(err);
-          }
-          var url = body.url;
-          db.query('update nk2_orders set payment_url = :url where id = :order_id',
-            {order_id: order_id, url: url});
-
-          resolve({url: url});
-        });
-      });
-    })
-    .catch((err) => {
-      log.error('Failed to prepare payment', {error: err, order_id: order_id});
-      throw err;
-    });
-}*/
-
 export async function preparePayment(order_id: number): Promise<any> {
 
   log.info('Preparing payment', {order_id: order_id});
 
-  let conn: IConnection, res, err: Error, provider: string, order: IOrder, createResp: ICreateResponse;
+  let conn: IConnection, res: any, err: Error, order: IOrder, createResp: ICreateResponse;
 
   [conn, err] = await to<IConnection>(db.beginTransaction());
   if(err) {
-    log.error('Failed to prepare payment', {error: err, order_id: order_id});
+    log.error('Failed to prepare payment -- could not acquire database connection', {error: err, order_id: order_id});
     return reject(err);
   }
 
@@ -494,6 +349,14 @@ export async function preparePayment(order_id: number): Promise<any> {
   [res, err] = await to(db.query('select status from nk2_orders where id = :order_id', {order_id}, conn));
   if (err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
+    await db.rollback(conn);
+    return reject(err);
+  }
+
+  log.debug('Reject if status is not seats-reserved', {order_id});
+  if (res[0]['status'] !== 'seats-reserved'){
+    err = {name: "Validation error", message: "Invalid order status"}
+    log.error('Failed to prepare payment', {error: err, order_id:order_id})
     await db.rollback(conn);
     return reject(err);
   }
@@ -506,28 +369,7 @@ export async function preparePayment(order_id: number): Promise<any> {
     return reject(err);
   }
 
-  log.debug('Check if order has valid payment provider', {order_id});
-  [res, err] = await to(db.query('select payment_provider from nk2_orders where id=:order_id',{order_id}, conn));
-  if (err) {
-    log.error('Failed to prepare payment', {error: err, order_id: order_id});
-    await db.rollback(conn);
-    return reject(err);
-  }
-
-  provider = res[0]['payment_provider'];
-  
-  if ( provider == null) {
-    provider = DEFAULT_PROVIDER;
-    log.debug('Set default provider to payment provider', {order_id});
-    [res, err] = await to(db.query('update nk2_orders set payment_provider = :provider where id = :order_id', {provider, order_id}, conn));
-    if(err) {
-    log.error('Failed to prepare payment', {error: err, order_id: order_id});
-    await db.rollback(conn);
-    return reject(err);
-    }
-  }
-
-  log.debug('Commit payment status and provider', {order_id});
+  log.debug('Commit payment status', {order_id});
   [res, err] = await to(db.commit(conn));
   if(err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
@@ -547,6 +389,8 @@ export async function preparePayment(order_id: number): Promise<any> {
     errorCallback: config.public_url + 'api/orders/' + order_id + '/notify/failure',
   };
 
+  const provider = DEFAULT_PROVIDER;
+
   log.debug('Creating payment with handler', {order_id});
   const handler = payment(provider);
   [createResp, err] = await to<ICreateResponse>(handler.create(order, args));
@@ -555,14 +399,18 @@ export async function preparePayment(order_id: number): Promise<any> {
     return reject(err);
   }
 
-  log.debug('Update payment handler')
-  [res, err] = await to(db.query('update nk2_orders set payment_id = :payment_id, payment_url = :payment_url where id = :order_id', {payment_id: createResp.payment_id, payment_url: createResp.payment_url, order_id}));
-  if (err) {
+  log.debug('Update payment handler', {order_id})
+  let arr = await to(db.query('update nk2_orders set payment_id = :payment_id, payment_url = :payment_url where id = :order_id', {payment_id: createResp.payment_id, payment_url: createResp.payment_url, order_id}));
+  //Hack here a little bit, we are only interested in error, not result value
+  if (arr[1]) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
     return reject(err);
   }
 
-  log.info('Created payment for order'. {order_id});
+  log.debug('Updated payment info successfully', {order_id, res})
+
+
+  log.info('Created payment for order', {order_id});
 
   return resolve(createResp);
 }
@@ -571,19 +419,7 @@ export async function paymentDone(order_id: number, req: Request): Promise<any> 
 
   let res, err: Error, successResp: ISuccessResponse, conn: IConnection, order: IOrder;
 
-  [conn, err] = await to(db.beginTransaction());
-  if (err) {
-    log.error('Payment done failed', {error: err, order_id});
-    return reject(err);
-  }
-
-  [res, err] = await to(db.query('select payment_provider from nk2_orders where id=:order_id', {order_id}, conn));
-  if (err) {
-    log.error(' Failed to get payment provider', {error: err,order_id});
-    return reject(err);
-  }
-
-  const provider = res[0]['payment_provider'];
+  const provider = DEFAULT_PROVIDER];
   
   log.debug('Create payment handler', {order_id, provider});
   const handler =  payment(provider);
@@ -591,11 +427,42 @@ export async function paymentDone(order_id: number, req: Request): Promise<any> 
   log.debug('Handle success request', {order_id, provider});
   [successResp, err] = await to(handler.handleSuccessCallback(req));
   if (err) {
-    log.error('Payment succes callback handling failed', {error: err,order_id});
+    log.error('Payment succes handling failed', {error: err,order_id});
     return reject(err);
   }
 
-  log.info('Payment success callback handling succeeded', {order_id});
+  log.info('Payment success handling succeeded', {order_id});
+
+
+  [res, err] = await to(updatePaymentStatusToPaid(order_id));
+  if (err) {
+    return reject(err);
+  }
+
+  log.debug('Sending tickets', {order_id});
+  [res, err] = await to(sendTickets(order_id));
+  if (err) {
+    return reject(err);
+  }
+
+  log.debug('Getting updated order', {order_id});
+  [order, err] = await to<IOrder>(get(order_id));
+  if (err) {
+    return reject(err);
+  }
+
+  return resolve(order);
+}
+
+async function updatePaymentStatusToPaid(order_id: number): Promise<any> {
+
+  let res, err: Error, conn: IConnection;
+
+  [conn, err] = await to(db.beginTransaction());
+  if (err) {
+    log.error('Payment done failed', {error: err, order_id});
+    return reject(err);
+  }
 
   [res, err] = await to(db.query('select status from nk2_orders where id = :order_id', {order_id}, conn));
   if (err) {
@@ -624,80 +491,48 @@ export async function paymentDone(order_id: number, req: Request): Promise<any> 
 
   log.debug('Order payment status updated', {order_id});
 
-  log.debug('Sending tickets', {order_id});
-  [res, err] = await to(sendTickets(order_id));
-  if (err) {
-    return reject(err);
-  }
-
-  log.debug('Getting updated order', {order_id});
-  [order, err] = await to<IOrder>(get(order_id));
-  if (err) {
-    return reject(err);
-  }
-
-  return resolve(order);
+  return resolve({order_id});
 }
 
 export async function paymentCancelled(order_id: number, req: Request): Promise<any> {
 
-  let res, err: Error, errorResp: IErrorResponse, conn: IConnection;
+  let res, err: Error, cancelResp: ICancelResponse;
 
+  log.debug('Cancelling payment', {order_id});
 
+  const provider = DEFAULT_PROVIDER;
 
-}
+  log.debug('Create payment handler');
+  const handler = payment(provider);
 
-/*
-export function paymentCancelled(order_id: number, params): Promise<any> {
-  log.info('Payment was cancelled', {order_id: order_id});
+  log.debug('Handle payment cancel callback');
+  [cancelResp, err] = await to(handler.handleCancelCallback(req));
 
-  var verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, config.paytrail.password].join('|');
-  var verification_hash = md5(verification).toUpperCase();
-
-  if (verification_hash === params.RETURN_AUTHCODE) {
-    log.info('Verification hash matches - deleting order', {order_id: order_id});
-    return db.query('delete from nk2_orders where id = :order_id',
-      {order_id: order_id});
-  } else {
-    log.error('Hash verification failed!',
-      {order_id: order_id, verification_hash: verification_hash, return_authcode: params.RETURN_AUTHCODE});
-    throw 'Hash verification failed';
-  }
-}
-
-export function paymentDone(order_id: number, params): Promise<IOrder> {
-  log.info('Payment done - verifying', {order_id: order_id});
-
-  var verification = [PAYTRAIL_PREFIX + order_id, params.TIMESTAMP, params.PAID, params.METHOD, config.paytrail.password].join('|');
-  var verification_hash = md5(verification).toUpperCase();
-
-  if (verification_hash !== params.RETURN_AUTHCODE) {
-    log.error('Hash verification failed!',
-      {order_id: order_id, verification_hash: verification_hash, return_authcode: params.RETURN_AUTHCODE});
-    throw 'Hash verification failed!';
+    if (err) {
+    log.error('Payment cancel handling failed', {error: err,order_id});
+    return reject(err);
   }
 
-  log.info('Verification ok', {order_id: order_id});
+  log.info('Payment cancel handling succeeded', {order_id});
 
-  return db.query('select status from nk2_orders where id = :order_id', {order_id: order_id})
-  .then((rows) => {
-    if (rows[0].status === 'paid') {
-      log.info('Order was already paid', {order_id: order_id});
-      return null;
-    }
-    return db.query('update nk2_orders set status = "paid", payment_id = :payment_id where id = :order_id', { order_id: order_id, payment_id: params.PAID})
-    .then(() => sendTickets(order_id))
-    .catch((err) => {
-      log.error('Updating payment status failed', {error: err, order_id: order_id});
-      return Promise.reject('Updating payment status failed');
-    });
-  })
-  .then(() => {
-    return get(order_id);
-  });
+  return await to(deleteCancelledOrder(order_id));
 
 }
-*/
+
+async function deleteCancelledOrder(order_id: number): Promise<any> {
+
+  let res, err: Error;
+
+  log.info('Deleting order', {order_id});
+
+  [res, err] = await to(db.query('delete from nk2_orders where id = :order_id', {order_id: order_id}));
+  if (err) {
+    log.error('Payment cancelled failed', {error: err, order_id});
+    return reject(err);
+  }
+
+  return resolve({});
+}
 
 export function sendTickets(order_id: number): Promise<any> {
   log.info('Sending tickets', {order_id: order_id});
