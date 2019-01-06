@@ -15,7 +15,7 @@ import auth = require('./auth');
 import jsdom = require('jsdom');
 import fs = require('fs');
 
-import {to, reject, resolve} from './util';
+import {to} from './util';
 import payment from './payment';
 import { ICreateArgs, ISuccessResponse, ICancelResponse, IStatusResponse, ICreateResponse, IPayment } from './payment';
 import { IConnection } from 'mysql';
@@ -89,24 +89,24 @@ export async function checkPaymentStatus(order_id: number): Promise<string> {
   [res, err] = await to(db.query('select payment_id, payment_url from nk2_orders where id = :order_id', {order_id}));
   if (err) {
     log.error('Check payment status failed', {error: err, order_id});
-    return reject(err);
+    throw err;
   }
 
   log.log('debug', 'Create payment handler', {order_id});
   [handler, err] = await to(getPaymentHandler(order_id));
   if (err) {
-    return reject(err);
+    throw err;
   }
 
   [resp, err] = await to(handler.checkStatus(res[0].payment_id, res[0].payment_url))
   if (err) {
     log.error('Check payment status failed', {error: err, order_id});
-    return reject(err);
+    throw err;
   }
 
   log.info('Payment status checked', {order_id});
 
-  return resolve(resp.status);
+  return resp.status;
 }
 
 export async function checkAndUpdateStatus(order_id: number): Promise<any> {
@@ -115,7 +115,7 @@ export async function checkAndUpdateStatus(order_id: number): Promise<any> {
 
   [status, err] = await to(checkPaymentStatus(order_id));
   if (err) {
-    return reject(err);
+    throw err;
   }
 
   log.info('ADMIN: checked order payment status', {order_id: order_id, status: status});
@@ -123,18 +123,18 @@ export async function checkAndUpdateStatus(order_id: number): Promise<any> {
   if (status === 'paid') {
    [res, err] = await to(updatePaymentStatusToPaid(order_id));
     if (err) {
-      return reject(err);
+      throw err;
     }
   }
 
   else if (status === 'cancelled') {
     [res, err] = await to(deleteCancelledOrder(order_id));
     if (err) {
-      return reject(err);
+      throw err;
     }
   }
 
-  return resolve({status: status});
+  return {status: status};
 }
 
 export function reserveSeats(show_id: number, seats: IReservedSeat[], user: string): Promise<IOrder> {
@@ -343,14 +343,14 @@ async function getPaymentHandler(order_id: number): Promise<IPayment> {
   [conn, err] = await to(db.beginTransaction());
   if (err) {
     log.error('Failed to get payment provider', {error: err, order_id});
-    return reject(err);
+    throw err;
   }
 
   [res, err] = await to(db.query('select payment_provider from nk2_orders where id = :order_id', {order_id}, conn));
   if (err) {
     log.error('Failed to get payment provider', {error: err, order_id});
     await db.rollback(conn);
-    return reject(err);
+    throw err;
   }
 
   const provider = res[0].payment_provider;
@@ -361,33 +361,32 @@ async function getPaymentHandler(order_id: number): Promise<IPayment> {
     if (err) {
       log.error('Failed to update payment provider', {error: err, order_id});
       await db.rollback(conn);
-      return reject(err);
+      throw err;
     }
 
     [res, err] = await to(db.commit(conn));
     if (err) {
       log.error('Failed to update payment provider', {error: err, order_id});
       await db.rollback(conn);
-      return reject(err);
+      throw err;
     }
   }
 
   const handler: IPayment = payment(provider ? provider : DEFAULT_PROVIDER);
 
-  return resolve(handler);
-
+  return handler;
 }
 
 export async function preparePayment(order_id: number): Promise<any> {
 
   log.info('Preparing payment', {order_id: order_id});
 
-  let conn: IConnection, res: any, err: Error, order: IOrder, createResp: ICreateResponse, handler: IPayment;
+  let conn: IConnection, res: any, err: Error, order: IOrder, resp: ICreateResponse, handler: IPayment;
 
   [conn, err] = await to<IConnection>(db.beginTransaction());
   if(err) {
     log.error('Failed to prepare payment -- could not acquire database connection', {error: err, order_id: order_id});
-    return reject(err);
+    throw err;
   }
 
   log.log('debug', 'Check order payment status', {order_id});
@@ -395,7 +394,7 @@ export async function preparePayment(order_id: number): Promise<any> {
   if (err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
     await db.rollback(conn);
-    return reject(err);
+    throw err;
   }
 
   log.log('debug', 'Reject if status is not seats-reserved', {order_id});
@@ -403,7 +402,7 @@ export async function preparePayment(order_id: number): Promise<any> {
     err = {name: "Validation error", message: "Invalid order status"}
     log.error('Failed to prepare payment', {error: err, order_id:order_id})
     await db.rollback(conn);
-    return reject(err);
+    throw err;
   }
 
   log.log('debug', 'Set order status to payment-pending', {order_id});
@@ -411,48 +410,48 @@ export async function preparePayment(order_id: number): Promise<any> {
   if (err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
     await db.rollback(conn);
-    return reject(err);
+    throw err;
   }
 
   log.log('debug', 'Commit payment status', {order_id});
   [res, err] = await to(db.commit(conn));
   if(err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
-    return reject(err);
+    throw err;
   }
 
   [order, err] = await to<IOrder>(get(order_id));
   if (err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
-    return reject(err);
+    throw err;
   }
 
   const args: ICreateArgs = {
-    successRedirect: config.public_url + 'api/orders/' + order_id + '/success',
-    errorRedirect: config.public_url + 'api/orders/' + order_id + '/failure',
-    successCallback: config.public_url + 'api/orders/' + order_id + '/notify/success',
-    errorCallback: config.public_url + 'api/orders/' + order_id + '/notify/failure',
+    successRedirect: 'https://example.org/' + 'api/orders/' + order_id + '/success',
+    errorRedirect: 'https://example.org/' + 'api/orders/' + order_id + '/failure',
+    successCallback: 'https://example.org/' + 'api/orders/' + order_id + '/notify/success',
+    errorCallback: 'https://example.org/' + 'api/orders/' + order_id + '/notify/failure',
   };
 
-  log.log('debug', 'Creating payment with handler', {order_id});
+  log.log('debug', 'Creating payment handler to order', {order_id});
 
   [handler, err] = await to(getPaymentHandler(order_id));
   if (err) {
-    return reject(err);
+    throw err;
   }
 
-  [createResp, err] = await to<ICreateResponse>(handler.create(order, args));
+  [resp, err] = await to<ICreateResponse>(handler.create(order, args));
   if (err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
-    return reject(err);
+    throw err;
   }
 
   log.log('debug','Update payment status', {order_id})
-  await db.query('update nk2_orders set payment_id = :payment_id, payment_url = :payment_url where id = :order_id', {payment_id: createResp.payment_id, payment_url: createResp.payment_url, order_id});
+  await db.query('update nk2_orders set payment_id = :payment_id, payment_url = :payment_url where id = :order_id', {payment_id: resp.payment_id, payment_url: resp.payment_url, order_id});
   //Hack here a little bit, we are only interested in error, not result value
   if (err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
-    return reject(err);
+    throw err;
   }
 
   log.log('debug', 'Updated payment info successfully', {order_id, res})
@@ -460,68 +459,66 @@ export async function preparePayment(order_id: number): Promise<any> {
 
   log.info('Created payment for order', {order_id});
 
-  return resolve(createResp);
+  return resp;
 }
 
 export async function paymentDone(order_id: number, req: Request): Promise<any> {
 
-  let res, err: Error, successResp: ISuccessResponse, conn: IConnection, order: IOrder, handler: IPayment;
+  let res, err: Error, resp: ISuccessResponse, conn: IConnection, order: IOrder, handler: IPayment;
   
   log.log('debug', 'Create payment handler', {order_id});
-    [handler, err] = await to(getPaymentHandler(order_id));
+  [handler, err] = await to(getPaymentHandler(order_id));
   if (err) {
-    return reject(err);
+    throw err;
   }
 
   log.log('debug', 'Handle success request', {order_id});
-  [successResp, err] = await to(handler.handleSuccessCallback(req));
+  [resp, err] = await to(handler.verifySuccess(req));
   if (err) {
     log.error('Payment succes handling failed', {error: err,order_id});
-    return reject(err);
+    throw err;
   }
 
   log.info('Payment success handling succeeded', {order_id});
 
-
-  [res, err] = await to(updatePaymentStatusToPaid(order_id));
-  if (err) {
-    return reject(err);
-  }
-
-  log.log('debug', 'Sending tickets', {order_id});
-  [res, err] = await to(sendTickets(order_id));
-  if (err) {
-    return reject(err);
+  if ( await updatePaymentStatusToPaid(order_id) ) {
+    log.log('debug', 'Sending tickets', {order_id});
+    [res, err] = await to(sendTickets(order_id));
+    if (err) {
+      throw err;
+    }
   }
 
   log.log('debug', 'Getting updated order', {order_id});
   [order, err] = await to<IOrder>(get(order_id));
   if (err) {
-    return reject(err);
+    throw err;
   }
 
-  return resolve(order);
+  return order;
 }
 
-async function updatePaymentStatusToPaid(order_id: number): Promise<any> {
+async function updatePaymentStatusToPaid(order_id: number): Promise<boolean> {
 
   let res, err: Error, conn: IConnection;
 
   [conn, err] = await to(db.beginTransaction());
   if (err) {
     log.error('Payment done failed', {error: err, order_id});
-    return reject(err);
+    throw err;
   }
 
   [res, err] = await to(db.query('select status from nk2_orders where id = :order_id', {order_id}, conn));
   if (err) {
     log.error('Payment done failed', {error: err, order_id});
+    throw err;
+    
   }
 
   if(res[0].status === 'paid') {
     log.info('Order was already paid', {order_id: order_id});
     await db.rollback(conn);
-    return resolve(null);
+    return false;
   }
 
   log.log('debug', 'Updating order payment status', {order_id});
@@ -529,18 +526,18 @@ async function updatePaymentStatusToPaid(order_id: number): Promise<any> {
   if (err) {
     log.error('Updating payment status failed', {error: err, order_id});
     await db.rollback(conn);
-    return reject(err);
+    throw err;
   }
 
   [res, err] = await to(db.commit(conn));
   if (err) {
     log.error('Updating payment status failed', {error: err, order_id});
-    return reject(err);
-    }
+    throw err;
+  }
 
   log.log('debug', 'Order payment status updated', {order_id});
 
-  return resolve({order_id});
+  return true;
 }
 
 export async function paymentCancelled(order_id: number, req: Request): Promise<any> {
@@ -552,36 +549,38 @@ export async function paymentCancelled(order_id: number, req: Request): Promise<
   log.log('debug', 'Create payment handler');
   [handler, err] = await to(getPaymentHandler(order_id));
   if (err) {
-    return reject(err);
+    throw err;
   }
 
   log.log('debug', 'Handle payment cancel callback');
-  [cancelResp, err] = await to(handler.handleCancelCallback(req));
 
-    if (err) {
+  [cancelResp, err] = await to(handler.verifyCancel(req));
+  if (err) {
     log.error('Payment cancel handling failed', {error: err,order_id});
-    return reject(err);
+    throw err;
   }
 
   log.info('Payment cancel handling succeeded', {order_id});
 
-  return await to(deleteCancelledOrder(order_id));
+  return await deleteCancelledOrder(order_id);
 
 }
 
 async function deleteCancelledOrder(order_id: number): Promise<any> {
 
-  let res, err: Error;
-
-  log.info('Deleting order', {order_id});
-
-  [res, err] = await to(db.query('delete from nk2_orders where id = :order_id', {order_id: order_id}));
-  if (err) {
-    log.error('Payment cancelled failed', {error: err, order_id});
-    return reject(err);
+  try {
+    const res = await db.query('select status from nk2_orders where id = :order_id', {order_id});
+    if (res[0] === 'paid') {
+      log.warn('Order was already paid, refusing to delete order', {order_id});
+    } else {
+      log.info('Deleting order', {order_id});
+      await db.query('delete from nk2_orders where id = :order_id', {order_id});
+    }
+  } catch(err) {
+    log.error('Payment cancelling failed', {error: err, order_id});
   }
 
-  return resolve({});
+  return;
 }
 
 export function sendTickets(order_id: number): Promise<any> {

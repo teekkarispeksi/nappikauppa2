@@ -1,7 +1,7 @@
 import payment = require('../index');
 import order = require('../../order');
 import log = require('../../log');
-import { to, reject, resolve } from '../../util';
+import { to } from '../../util';
 
 import uuidv4 = require('uuid/v4'); //used for nonce generation
 import express = require('express');
@@ -189,25 +189,25 @@ log.warn('USING NULL PROVIDER TO HANDLE PAYMENTS, ALL ORDERS ARE AUTOPAID AND ON
 
   log.info('ORDER ID: ' + order.order_id);
 
-  return resolve(createResp);
+  return createResp;
 
 }
 
 
-export function handleSuccessCallback(req: express.Request): Promise<payment.ISuccessResponse> {
+export async function verifySuccess(req: express.Request): Promise<payment.ISuccessResponse> {
   log.warn('USING NULL PROVIDER TO HANDLE PAYMENTS, ALL ORDERS ARE AUTOPAID OR REJECTED AND ON MEMORY CACHED');
 
   const p = cache[lastCreated];
 
   cache[lastCreated].status = "paid";
 
-  return resolve({
+  return {
     payment_id: p.payment_id,
     payment_provider: PROVIDER,
-  });
+  };
 }
 
-export function handleCancelCallback(req: express.Request): Promise<payment.ICancelResponse> {
+export async function verifyCancel(req: express.Request): Promise<payment.ICancelResponse> {
   log.warn('USING NULL PROVIDER TO HANDLE PAYMENTS, ALL ORDERS ARE PAID OR REJECTED AND ON MEMORY CACHED');
 
   const payment_id = req.query.id;
@@ -215,20 +215,20 @@ export function handleCancelCallback(req: express.Request): Promise<payment.ICan
 
   cache[lastCreated].status = "cancelled";
 
-  return resolve({
+  return {
     payment_id: p.payment_id,
     payment_provider: PROVIDER,
-  });
+  };
 }
 
 
-export function checkStatus(payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
+export async function checkStatus(payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
   log.warn('USING NULL PROVIDER TO HANDLE PAYMENTS, ALL ORDERS ARE AUTOPAID OR REJECTED AND ON MEMORY CACHED');
   const p = cache[payment_id];
 
-  return resolve({
+  return {
     payment_id,
     payment_url,
     status: p.status,
-  });
+  };
 }

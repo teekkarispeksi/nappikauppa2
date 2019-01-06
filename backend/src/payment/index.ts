@@ -52,8 +52,8 @@ export interface IStatusResponse {
 // Common payment provider interface
 export interface IPayment {
   create: (order: order.IOrder, args: ICreateArgs) => Promise<ICreateResponse>;
-  handleSuccessCallback: (req: express.Request) => Promise<ISuccessResponse>;
-  handleCancelCallback: (req: express.Request) => Promise<ICancelResponse>;
+  verifySuccess: (req: express.Request) => Promise<ISuccessResponse>;
+  verifyCancel: (req: express.Request) => Promise<ICancelResponse>;
   checkStatus:  (payment_id: string, payment_url: string) => Promise<IStatusResponse>;
 }
 
@@ -70,12 +70,12 @@ class Payment {
     return this.provider.create(order, args);
   }
 
-  handleSuccessCallback(req: express.Request): Promise<ISuccessResponse> {
-    return this.provider.handleSuccessCallback(req);
+  verifySuccess(req: express.Request): Promise<ISuccessResponse> {
+    return this.provider.verifySuccess(req);
   }
 
-  handleCancelCallback(req: express.Request): Promise<ICancelResponse> {
-    return this.provider.handleCancelCallback(req);
+  verifyCancel(req: express.Request): Promise<ICancelResponse> {
+    return this.provider.verifyCancel(req);
   }
 
   checkStatus(payment_id: string, payment_url: string): Promise<IStatusResponse> {

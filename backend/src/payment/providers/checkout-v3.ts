@@ -3,7 +3,7 @@ const config = require('../../../config/config').payment['checkout-v3'];
 import order = require('../../order');
 import ticket = require('../../ticket');
 import log = require('../../log');
-import { to, reject, resolve } from '../../util';
+import { to} from '../../util';
 
 import _ = require('underscore');
 import moment = require('moment');
@@ -13,6 +13,9 @@ import axios from 'axios';
 import express = require('express');
 
 const PROVIDER = 'checkout-v3';
+
+//Our database is using int type euros ,but checkout is using cents as value type so we need to do some conversion
+const EUR_TO_CENTS = 100
 
 log.info('Loaded provider: ' + PROVIDER);
 
@@ -26,7 +29,7 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
     'checkout-method': 'POST',
     'checkout-nonce': nonce,
     'checkout-timestamp': moment().format()
-  }
+  };
 
   var signature = sign(headers, body);
 
@@ -34,81 +37,74 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
     'content-type': 'application/json',
     'charset': 'utf-8',
     'signature': signature
-  }
+  };
 
   let resp, err;
 
   [resp, err] = await to(axios({
-      baseURL: 'https://api.checkout.fi',
-      method: 'post',
-      url: '/payments',
-      headers: httpHeaders,
-      data: body,
-      params: headers
-    }));
+    baseURL: 'https://api.checkout.fi',
+    method: 'post',
+    url: '/payments',
+    headers: httpHeaders,
+    data: body,
+    params: headers
+  }));
 
   if (err) {
-    if (!verify(err.response.headers.signature, err.response.headers, err.response.data)) {
+    if (!verifySignature(err.response.headers.signature, err.response.headers, err.response.data)) {
           log.error('Response signature validation failed', {order_id: order.order_id});
     }
     log.error('Posting new payment failed', {error: {data: err.response.data, status: err.response.status, header: err.response.headers}, provider: PROVIDER});
-    return reject(err.response.data);
+    throw err.response.data;
   }
 
-  if (!verify(resp.headers.signature, resp.headers, resp.data)) {
-    return reject({name: 'Verification error', message: 'Signature verification failed'});
+  if (!verifySignature(resp.headers.signature, resp.headers, resp.data)) {
+    throw {name: 'Verification error', message: 'Signature verification failed'};
   }
 
-  const createResp: payment.ICreateResponse = {
+  return {
     payment_id: resp.data.transactionId,
     redirect_url: resp.data.href,
     payment_url: resp.data.href,
     payment_provider: PROVIDER,
     payload: resp.data.providers
   }
-  
-  return resolve(createResp);
 }
 
-// TODO: implement callback handlers
-export function handleSuccessCallback(req: express.Request): Promise<payment.ISuccessResponse> {
-  const headers = req.query;
+export async function verifySuccess(req: express.Request): Promise<payment.ISuccessResponse> {
 
-  if (! verify(headers.signature, headers)) {
-    return reject({name: 'Verification error', message: 'Signature verification failed'});
+  if (! verifySignature(req.query.signature, req.query)) {
+    throw {name: 'Verification error', message: 'Signature verification failed'};
   }
 
-  return resolve({
-    payment_id: headers['checkout-transaction-id'],
+  return {
+    payment_id: req.query['checkout-transaction-id'],
     payment_provider: PROVIDER,
-  });
+  };
 }
 
-export function handleCancelCallback(req: express.Request): Promise<payment.ICancelResponse> {
-  const headers = req.query;
+export async function verifyCancel(req: express.Request): Promise<payment.ICancelResponse> {
 
-  if (! verify(headers.signature, headers)) {
-    return reject({name: 'Verification error', message: 'Signature verification failed'});
+  if (! verifySignature(req.query.signature, req.query)) {
+    throw {name: 'Verification error', message: 'Signature verification failed'};
   }
 
-  return resolve({
-    payment_id: headers['checkout-transaction-id'],
+  return {
+    payment_id: req.query['checkout-transaction-id'],
     payment_provider: PROVIDER,
-  });
+  };
 }
 
-export function checkStatus(payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
-
-
-  return resolve({
+export async function checkStatus(payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
+  return {
     payment_id,
     payment_url,
     status: 'not-implemented',
-  });
+  };
 }
 
 function sign(headers: {[key: string]: any}, body?: CreateRequestBody): string {
-  var payloadArray =
+  var pArr =
     Object.keys(headers)
       .filter((value: string) => {
         return /^checkout-/.test(value);
@@ -116,42 +112,35 @@ function sign(headers: {[key: string]: any}, body?: CreateRequestBody): string {
       .sort()
       .map((key) => [ key, headers[key] ].join(':'))
 
-  var payload: string;
-  if(body) payload = payloadArray.concat(JSON.stringify(body)).join("\n");
-  else payload = payloadArray.concat('').join("\n");
-
+  var payload =  pArr.concat(body ? JSON.stringify(body) : '').join("\n");
   var hmac = crypto
     .createHmac('sha256', config.password)
     .update(payload)
     .digest('hex');
 
-    return hmac;
-  }
+  return hmac;
+}
 
-function verify(expectedSignature: string, headers: {[key: string]: any}, body?: CreateRequestBody): boolean {
+function verifySignature(expectedSignature: string, headers: {[key: string]: any}, body?: CreateRequestBody): boolean {
   var signature = sign(headers, body);
-  return signature === expectedSignature
+  return signature === expectedSignature;
 }
 
 function ticketToRequestBodyItem(ticket: ticket.ITicket): RequestBodyItem {
-  
-  var item: RequestBodyItem = {
-    unitPrice: ticket.ticket_price * 100,
+  return {
+    unitPrice: ticket.ticket_price * EUR_TO_CENTS,
     units: 1,
     vatPercentage: 0,
-    productCode: ticket.production_title + '-' + ticket.show_title + '-' + ticket.seat_number,
+    productCode: ticket.production_title + '-' + ticket.show_title + '-' + ticket.section_title + '-' + ticket.seat_number,
     deliveryDate: moment().format('YYYY-MM-DD')
   }
-
-  return item;
 }
 
 function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs): CreateRequestBody {
-
-  var requestBody: CreateRequestBody = {
+  return {
     stamp: order.order_id.toString(),
     reference: order.order_hash,
-    amount: order.order_price * 100,
+    amount: order.order_price * EUR_TO_CENTS,
     currency: 'EUR',
     language: 'FI',
     customer: {
@@ -167,8 +156,6 @@ function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs
     },
     items: _.map(order.tickets, ticketToRequestBodyItem)
   }
-
-  return requestBody;
 }
 
 interface CreateRequestBody {
