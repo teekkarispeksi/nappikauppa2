@@ -14,7 +14,7 @@ import express = require('express');
 
 const PROVIDER = 'checkout-v3';
 
-log.info('Loaded provider: ' + PROVIDER)
+log.info('Loaded provider: ' + PROVIDER);
 
 export async function create(order: order.IOrder, args: payment.ICreateArgs): Promise<payment.ICreateResponse> {
 
