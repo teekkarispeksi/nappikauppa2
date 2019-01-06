@@ -460,7 +460,7 @@ export async function preparePayment(order_id: number): Promise<any> {
 
   log.info('Created payment for order', {order_id});
 
-  return resolve({url: createResp.payment_url});
+  return resolve(createResp);
 }
 
 export async function paymentDone(order_id: number, req: Request): Promise<any> {
