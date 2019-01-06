@@ -427,10 +427,10 @@ export async function preparePayment(order_id: number): Promise<any> {
   }
 
   const args: ICreateArgs = {
-    successRedirect: 'https://example.org/' + 'api/orders/' + order_id + '/success',
-    errorRedirect: 'https://example.org/' + 'api/orders/' + order_id + '/failure',
-    successCallback: 'https://example.org/' + 'api/orders/' + order_id + '/notify/success',
-    errorCallback: 'https://example.org/' + 'api/orders/' + order_id + '/notify/failure',
+    successRedirect: config.public_url + 'api/orders/' + order_id + '/success',
+    errorRedirect: config.public_url + 'api/orders/' + order_id + '/failure',
+    successCallback: config.public_url + 'api/orders/' + order_id + '/notify/success',
+    errorCallback: config.public_url + 'api/orders/' + order_id + '/notify/failure',
   };
 
   log.log('debug', 'Creating payment handler to order', {order_id});
