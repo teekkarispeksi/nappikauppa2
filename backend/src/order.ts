@@ -15,7 +15,6 @@ import auth = require('./auth');
 import jsdom = require('jsdom');
 import fs = require('fs');
 
-import {to} from './util';
 import payment from './payment';
 import { ICreateArgs, ISuccessResponse, ICancelResponse, IStatusResponse, ICreateResponse, IPayment } from './payment';
 import { IConnection } from 'mysql';
