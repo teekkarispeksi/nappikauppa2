@@ -333,6 +333,7 @@ async function getPaymentHandler(order_id: number, provider?: string): Promise<I
 export async function preparePayment(order_id: number): Promise<any> {
   let conn: IConnection;
   let provider = DEFAULT_PROVIDER;
+  let status = 'payment-pending';
 
   log.info('Preparing payment', {order_id: order_id});
   try {
@@ -350,10 +351,11 @@ export async function preparePayment(order_id: number): Promise<any> {
     if (res[0]['order_price'] <= MIN_PAYMENT) {
       log.log('debug', 'Using no-provider as payment provider', {order_id});
       provider = 'no-provider';
+      status = 'paid';
     } 
 
     log.log('debug', 'Set order status to payment-pending and add payment provider', {order_id});
-    await db.query('update nk2_orders set status = "payment-pending", payment_provider = :provider where id = :order_id', {order_id, provider}, conn);
+    await db.query('update nk2_orders set status = :status, payment_provider = :provider where id = :order_id', {order_id, provider, status}, conn);
 
     log.log('debug', 'Commit payment status changes', {order_id});
     await db.commit(conn);
