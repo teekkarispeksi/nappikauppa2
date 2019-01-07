@@ -57,7 +57,6 @@ interface CheckoutHeaders{
 log.info('Loaded provider: ' + PROVIDER);
 
 export async function create(order: order.IOrder, args: payment.ICreateArgs): Promise<payment.ICreateResponse> {
-
   const nonce = uuidv4();
   const body = orderToCreateRequestBody(order, args);
   const headers: CheckoutHeaders = {
@@ -77,16 +76,13 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
   };
 
   const verify = (resp: any) => {
+
     //logging of conf-request-id is recommended in checkouts documentation
     log.info('Checkout conf-request-id for order', {order_id: order.order_id, 'conf-request-id': resp.headers['conf-request-id']})
 
     //verifying response signature
     if (!verifySignature(resp.headers.signature, resp.headers, resp.data)) {
       throw {name: 'Verification error', message: 'Signature verification failed'};
-    }
-    //verifying nonce
-    if (resp.headers['checkout-nonce'] !== nonce) {
-      throw {name: 'Verification error', message: 'Nonce verification failed'};
     }
   }
 
@@ -117,7 +113,6 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
 }
 
 export async function verifySuccess(req: express.Request): Promise<payment.ISuccessResponse> {
-
   if (! verifySignature(req.query.signature, req.query)) {
     throw {name: 'Verification error', message: 'Signature verification failed'};
   }
@@ -129,7 +124,6 @@ export async function verifySuccess(req: express.Request): Promise<payment.ISucc
 }
 
 export async function verifyCancel(req: express.Request): Promise<payment.ICancelResponse> {
-
   if (! verifySignature(req.query.signature, req.query)) {
     throw {name: 'Verification error', message: 'Signature verification failed'};
   }
@@ -149,16 +143,15 @@ export async function checkStatus(payment_id: string, payment_url: string): Prom
 }
 
 function sign(headers: {[key: string]: any}, body?: CreateRequestBody): string {
-  const payloadArr =
-    Object.keys(headers)
-      .filter((value: string) => {
-        return /^checkout-/.test(value);
-      })
-      .sort()
-      .map((key) => [ key, headers[key] ].join(':'))
+  const payloadArray = Object.keys(headers)
+    .filter((value: string) => {
+      return /^checkout-/.test(value);
+    })
+    .sort()
+    .map((key) => [ key, headers[key] ].join(':'));
 
-  const payload =  payloadArr.concat(body ? JSON.stringify(body) : '').join("\n");
-  const alg = headers['checkout-algorithm'] ? headers['checkout-algorithm'] : SIGNATURE_ALGORITHM;
+  const payload =  payloadArray.concat(body ? JSON.stringify(body) : '').join("\n");
+  const alg = headers['checkout-algorithm'] || SIGNATURE_ALGORITHM;
   return crypto
     .createHmac(alg, config.password)
     .update(payload)
