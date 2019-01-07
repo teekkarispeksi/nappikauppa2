@@ -135,6 +135,7 @@ export async function verifyCancel(req: express.Request): Promise<payment.ICance
 }
 
 export async function checkStatus(payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
+  log.warn("Check status is not implemented", {provider: PROVIDER});
   return {
     payment_id,
     payment_url,
