@@ -62,7 +62,7 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
   const body = orderToCreateRequestBody(order, args);
   const headers: CheckoutHeaders = {
     'checkout-account': config.user,
-    'checkout-algorithm': 'sha256',
+    'checkout-algorithm': SIGNATURE_ALGORITHM,
     'checkout-method': 'POST',
     'checkout-nonce': nonce,
     'checkout-timestamp': moment().format()
