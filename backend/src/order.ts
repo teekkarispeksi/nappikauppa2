@@ -21,7 +21,7 @@ import { IConnection } from 'mysql';
 import { Request } from 'express';
 
 const MIN_PAYMENT = 0.65;
-const DEFAULT_PROVIDER = config.payment.provider ? config.payment.provider : 'null-provider';
+const DEFAULT_PROVIDER = config.payment.provider ? config.payment.provider : 'no-provider';
 
 export interface IReservedSeat {
   seat_id: number;
@@ -332,22 +332,28 @@ async function getPaymentHandler(order_id: number, provider?: string): Promise<I
 
 export async function preparePayment(order_id: number): Promise<any> {
   let conn: IConnection;
+  let provider = DEFAULT_PROVIDER;
 
   log.info('Preparing payment', {order_id: order_id});
   try {
     conn = await db.beginTransaction();
 
     log.log('debug', 'Get order payment status', {order_id});
-    const res = await db.query('select status from nk2_orders where id = :order_id', {order_id}, conn);
+    const res = await db.query('select status, price as order_price from nk2_orders where id = :order_id', {order_id}, conn);
     
     log.log('debug', 'Reject if status is not seats-reserved', {order_id});
     if (res[0]['status'] !== 'seats-reserved') {
-      const err = {name: "Validation error", message: "Invalid order status"}
-      throw err;
+      throw {name: "Status error", message: "Invalid order status"};
     }
 
+    log.log('debug', 'Use no-provider as payment provider if order price is under min payment', {order_id});
+    if (res[0]['order_price'] <= MIN_PAYMENT) {
+      log.log('debug', 'Using no-provider as payment provider', {order_id});
+      provider = 'no-provider';
+    } 
+
     log.log('debug', 'Set order status to payment-pending and add payment provider', {order_id});
-    await db.query('update nk2_orders set status = "payment-pending", payment_provider = :provider where id = :order_id', {order_id, provider: DEFAULT_PROVIDER}, conn);
+    await db.query('update nk2_orders set status = "payment-pending", payment_provider = :provider where id = :order_id', {order_id, provider}, conn);
 
     log.log('debug', 'Commit payment status changes', {order_id});
     await db.commit(conn);
@@ -367,7 +373,7 @@ export async function preparePayment(order_id: number): Promise<any> {
       errorCallback: config.public_url + 'api/orders/' + order_id + '/notify/failure',
     };
 
-    const handler = await getPaymentHandler(order_id, DEFAULT_PROVIDER);
+    const handler = await getPaymentHandler(order_id, provider);
     const resp = await handler.create(order, args);
 
     log.log('debug','Update payment status', {order_id})
