@@ -16,4 +16,4 @@ fi
 # Starting test docker database with rebuilding database container
 echo "Starting test database container..."
 cd docker/nappikauppa2-test/
-docker-compose up -d --build
+docker-compose up -d

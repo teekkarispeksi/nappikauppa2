@@ -5,6 +5,7 @@ services:
     build:
       context: ../../
       dockerfile: docker/nappikauppa2-test/Dockerfile-db
+    image: nk2-test-db:0.1
     ports:
       - "127.0.0.1:3306:3306"
     volumes:

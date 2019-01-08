@@ -138,19 +138,25 @@ router.post('/orders/:orderid/preparePayment', (req: Request, res: Response) => 
 });
 
 router.get('/orders/:orderid/success', (req: Request, res: Response) => {
-  order.paymentDone(parseInt(req.params.orderid), req.query).then((order) => {
+  order.paymentDone(parseInt(req.params.orderid), req).then((order) => {
     res.redirect(config.public_url + '#ok/' + order.order_id + '/' + order.order_hash + '/' + btoa('' + order.order_price));
   });
 });
 
-router.get('/orders/:orderid/notification', (req: Request, res: Response) => {
-  order.paymentDone(parseInt(req.params.orderid), req.query).then(function(order) {
+router.get('/orders/:orderid/notify/success', (req: Request, res: Response) => {
+  order.paymentDone(parseInt(req.params.orderid), req).then((order) => {
+    res.sendStatus(200);
+  });
+});
+
+router.get('/orders/:orderid/notify/failure', (req: Request, res: Response) => {
+  order.paymentCancelled(parseInt(req.params.orderid), req).then((order) => {
     res.sendStatus(200);
   });
 });
 
 router.get('/orders/:orderid/failure', (req: Request, res: Response) => {
-  order.paymentCancelled(parseInt(req.params.orderid), req.query).then( () => { res.redirect(config.public_url + '#fail'); });
+  order.paymentCancelled(parseInt(req.params.orderid), req).then( () => { res.redirect(config.public_url + '#fail'); });
 });
 
 router.get('/orders/:orderid/:orderhash/tickets(.pdf)?', (req: Request, res: Response) => {

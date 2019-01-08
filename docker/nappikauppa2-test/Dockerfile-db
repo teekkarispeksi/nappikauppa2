@@ -8,10 +8,10 @@ RUN mkdir /usr/sql && chmod 644 /usr/sql
 ADD db /usr/sql
 
 #Creating schema file
-RUN cat /usr/sql/tables.sql > /usr/sql/schema.sql && \
-cat /usr/sql/evolutions/01_add_production_to_discount_code.sql >> /usr/sql/schema.sql && \
-cat /usr/sql/venues.sql >> /usr/sql/schema.sql
-
-RUN cp /usr/sql/schema.sql /docker-entrypoint-initdb.d/
+RUN cp /usr/sql/tables.sql /docker-entrypoint-initdb.d/a.sql && \
+cp /usr/sql/evolutions/01_add_production_to_discount_code.sql /docker-entrypoint-initdb.d/b.sql && \
+cp /usr/sql/venues.sql /docker-entrypoint-initdb.d/c.sql && \
+cp /usr/sql/test-data.sql /docker-entrypoint-initdb.d/d.sql && \
+cp /usr/sql/evolutions/02_add_payment_provider_to_order.sql /docker-entrypoint-initdb.d/e.sql
 
 EXPOSE 3306
