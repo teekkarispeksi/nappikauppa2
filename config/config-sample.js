@@ -19,7 +19,7 @@ module.exports = {
   },
   payment: {
     provider: 'checkout-v3',
-    checkout-v3: {
+    'checkout-v3': {
       user: '375917',
       password: 'SAIPPUAKAUPPIAS'
     },

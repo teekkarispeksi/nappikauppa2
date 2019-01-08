@@ -33,16 +33,6 @@ export interface ICreateResponse {
   payload?: any;
 }
 
-export interface ISuccessResponse {
-  payment_id: string;
-  payment_provider: string;
-}
-
-export interface ICancelResponse {
-  payment_id: string;
-  payment_provider: string;
-}
-
 export interface IStatusResponse {
   payment_id: string;
   payment_url: string;
@@ -52,8 +42,8 @@ export interface IStatusResponse {
 // Common payment provider interface
 export interface IPayment {
   create: (order: order.IOrder, args: ICreateArgs) => Promise<ICreateResponse>;
-  verifySuccess: (req: express.Request) => Promise<ISuccessResponse>;
-  verifyCancel: (req: express.Request) => Promise<ICancelResponse>;
+  verifySuccess: (req: express.Request) => Promise<void>;
+  verifyCancel: (req: express.Request) => Promise<void>;
   checkStatus:  (payment_id: string, payment_url: string) => Promise<IStatusResponse>;
 }
 
@@ -70,11 +60,11 @@ class Payment {
     return this.provider.create(order, args);
   }
 
-  verifySuccess(req: express.Request): Promise<ISuccessResponse> {
+  verifySuccess(req: express.Request): Promise<void> {
     return this.provider.verifySuccess(req);
   }
 
-  verifyCancel(req: express.Request): Promise<ICancelResponse> {
+  verifyCancel(req: express.Request): Promise<void> {
     return this.provider.verifyCancel(req);
   }
 

@@ -16,7 +16,7 @@ import jsdom = require('jsdom');
 import fs = require('fs');
 
 import payment from './payment';
-import { ICreateArgs, ISuccessResponse, ICancelResponse, IStatusResponse, ICreateResponse, IPayment } from './payment';
+import { ICreateArgs, IStatusResponse, ICreateResponse, IPayment } from './payment';
 import { IConnection } from 'mysql';
 import { Request } from 'express';
 
@@ -396,7 +396,7 @@ export async function paymentDone(order_id: number, req: Request): Promise<any> 
 
     log.log('debug', 'Verify success', {order_id});
 
-    const resp = await handler.verifySuccess(req);
+    await handler.verifySuccess(req);
     log.info('Payment success verification succeeded', {order_id});
 
     if ( await updatePaymentStatusToPaid(order_id) ) {

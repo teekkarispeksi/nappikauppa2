@@ -112,26 +112,16 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
   }
 }
 
-export async function verifySuccess(req: express.Request): Promise<payment.ISuccessResponse> {
+export async function verifySuccess(req: express.Request): Promise<void> {
   if (! verifySignature(req.query.signature, req.query)) {
     throw {name: 'Verification error', message: 'Signature verification failed'};
   }
-
-  return {
-    payment_id: req.query['checkout-transaction-id'],
-    payment_provider: PROVIDER,
-  };
 }
 
-export async function verifyCancel(req: express.Request): Promise<payment.ICancelResponse> {
+export async function verifyCancel(req: express.Request): Promise<void> {
   if (! verifySignature(req.query.signature, req.query)) {
     throw {name: 'Verification error', message: 'Signature verification failed'};
   }
-
-  return {
-    payment_id: req.query['checkout-transaction-id'],
-    payment_provider: PROVIDER,
-  };
 }
 
 export async function checkStatus(payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {

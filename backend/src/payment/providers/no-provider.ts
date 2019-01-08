@@ -15,11 +15,11 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
   }
 }
 
-export async function verifySuccess(req: express.Request): Promise<payment.ISuccessResponse> {
+export async function verifySuccess(req: express.Request): Promise<void> {
   throw {name: 'Not Implemented', message: 'Success verification is not implemented'}
 }
 
-export async function verifyCancel(req: express.Request): Promise<payment.ICancelResponse> {
+export async function verifyCancel(req: express.Request): Promise<void> {
   throw {name: 'Not Implemented', message: 'Cancel verification is not implemented'}
 }
 
