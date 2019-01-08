@@ -1,3 +1,4 @@
+import payment = require('../index');
 import {ICreateArgs, ICreateResponse, IStatusResponse } from '../index';
 const config = require('../../../config/config').payment['paytrail'];
 import order = require('../../order');
@@ -7,6 +8,7 @@ import { Request } from 'express';
 
 import axios from 'axios';
 import md5 = require('md5');
+import _ = require('underscore');
 
 const PROVIDER = 'paytrail';
 
@@ -22,23 +24,11 @@ const CLIENT = axios.create({
 
 export async function create(order: order.IOrder, args: ICreateArgs): Promise<ICreateResponse> {
 
-  const data = {
-    orderNumber: order.order_id,
-    currency: "EUR",
-    locale: "fi_FI",
-    urlSet: {
-      success: args.successRedirect,
-      failure: args.errorRedirect,
-      notification: args.successCallback,
-    },
-    price: order.order_price + '.00',
-  }
-
   try {
     const resp = await CLIENT({
       url: '/create',
       method: 'post',
-      data,
+      data: orderToCreateBody(order, args),
     });
 
     return {
@@ -102,4 +92,58 @@ export async function checkStatus(payment_id: string, payment_url: string): Prom
 
 function verify(fields: string[], expectedHash: string): boolean {
   return expectedHash === md5(fields.join('|')).toUpperCase();
+}
+
+function orderToCreateBody(order: order.IOrder, args: ICreateArgs) {
+  var ticket_rows = _.map(order.tickets, (ticket: ticket.ITicket) => {
+    return {
+      title: payment.getTicketTitle(ticket),
+      code: ticket.ticket_id,
+      amount: '1.00',
+      price: ticket.ticket_price,
+      vat: '0.00',
+      discount: '0.00',
+      type: '1',
+    }
+  });
+
+  if(order.discount_code && (order.tickets_total_price > order.order_price)) {
+    var discount = order.tickets_total_price - order.order_price;
+    log.info('Using discount code', {discount_code: order.discount_code, discount_amount: discount, order_id: order.order_id});
+    ticket_rows.push({
+      title: 'Alennuskoodi: ' + order.discount_code,
+      code: order.discount_code.replace(/[^\w]/gi, '').substr(0, 16), // paytrail API restriction
+      amount: '1.00',
+      price: -discount,
+      vat: '0.00',
+      discount: '0.00',
+      type: '1'
+    });
+  }
+
+  return {
+    orderNumber: payment.getOrderId(order),
+    currency: 'EUR',
+    locale: 'fi_FI',
+    urlSet: {
+      success: args.successRedirect,
+      failure: args.errorRedirect,
+      notification: args.successCallback,
+    },
+    orderDetails: {
+      includeVat: '1',
+      contact: {
+        email: order.email,
+        firstName: order.name,
+        lastName: ' ',
+        address: {
+          street: ' ',
+          postalCode: ' ',
+          postalOffice: ' ',
+          country: 'FI'
+        },
+      },
+      products: ticket_rows,
+    },
+  }
 }

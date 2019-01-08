@@ -1,4 +1,5 @@
 import order = require('../order');
+import ticket = require('../ticket');
 import express = require('express');
 
 /*
@@ -17,6 +18,8 @@ import express = require('express');
  * 
  * Provider implementations can be found from folder ./providers
  */
+
+ const PAYMENT_PREFIX = 'NAPPIKAUPPA2_';
 
 export interface ICreateArgs {
   successCallback: string;
@@ -76,4 +79,13 @@ class Payment {
 // factory for creating payment providers
 export default function(provider: string): Payment {
   return new Payment(provider);
+}
+
+//helper functions for payment provider implementations
+export function getOrderId(order: order.IOrder): string {
+  return PAYMENT_PREFIX + order.order_id;
+}
+
+export function getTicketTitle(ticket: ticket.ITicket): string {
+  return 'Pääsylippu: ' + ticket.production_performer + ' / ' + ticket.production_title + ' / ' + ticket.show_title;
 }

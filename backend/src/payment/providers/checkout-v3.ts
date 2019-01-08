@@ -25,6 +25,7 @@ interface CreateRequestBody {
   language: 'FI' | 'SV' | 'EN';
   items: RequestBodyItem[];
   customer: {
+    firstName: string;
     email: string;
   };
   redirectUrls: {
@@ -156,13 +157,14 @@ function verifySignature(expectedSignature: string, headers: {[key: string]: any
 
 function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs): CreateRequestBody {
   return {
-    stamp: order.order_id.toString(),
+    stamp: payment.getOrderId(order),
     reference: order.order_hash,
     amount: order.order_price * EUR_TO_CENTS,
     currency: 'EUR',
     language: 'FI',
     customer: {
-      email: order.email
+      firstName: order.name,
+      email: order.email,
     },
     redirectUrls: {
       success: args.successRedirect,
@@ -176,7 +178,7 @@ function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs
       unitPrice: order.order_price * EUR_TO_CENTS,
       units: 1,
       vatPercentage: 0,
-      productCode: 'NAPPIKAUPPA2-TICKETS',
+      productCode: payment.getOrderId(order),
       deliveryDate: moment().format('YYYY-MM-DD'),
     }],
   }
