@@ -9,6 +9,9 @@ import { Request } from 'express';
 import axios from 'axios';
 import md5 = require('md5');
 import _ = require('underscore');
+import request = require('request');
+import jsdom = require('jsdom');
+import fs = require('fs');
 
 const PROVIDER = 'paytrail';
 
@@ -81,13 +84,81 @@ export async function verifyCancel(req: Request): Promise<void> {
   }
 }
 
-export async function checkStatus(payment_id: string, payment_url: string): Promise<IStatusResponse> {
-  log.warn("Check status is not implemented", {provider: PROVIDER});
-  return {
-    payment_id,
-    payment_url,
-    status: 'not-implemented',
-  };
+export async function checkStatus(order_id: number, payment_id: string, payment_url: string): Promise<IStatusResponse> {
+  try {
+
+    const body = await getStatusPage(order_id);
+    const status = await parseStatusPage(body, order_id);
+    return {
+      payment_id,
+      payment_url,
+      status
+    }
+  } catch (err) {
+    log.error('Failed to check payment status', {error: err, order_id});
+    throw err;
+  }
+}
+
+function getStatusPage(order_id: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const jar = request.jar();
+    const authcode = md5([config.password, config.user, payment.getOrderId(order_id)].join('&')).toUpperCase();
+    request.post({
+      url: 'https://payment.paytrail.com/check-payment',
+      form: {
+        MERCHANT_ID: config.user,
+        ORDER_NUMBER: payment.getOrderId(order_id),
+        AUTHCODE: authcode,
+        VERSION: '2',
+        CULTURE: 'fi_FI',
+      },
+      followAllRedirects: true, // Really paytrail, this is sad.
+      jar: jar,
+    }, (err, response, body: string) => {
+      err ? reject(err) : resolve(body);
+    });
+  })
+}
+
+function parseStatusPage(body: string, order_id: number): Promise<'paid' | 'cancelled' | 'payment-pending'> {
+  return new Promise((resolve, reject) => {
+    jsdom.env({
+      html: body,
+      src: [fs.readFileSync('./node_modules/jquery/dist/jquery.js', 'utf-8')],
+      done: (err, window: any) => {
+        if (err) reject(err);
+
+        var $ = window.$;
+        var rows = $('table tr');
+        if (rows.length !== 2) {
+            return reject('Row count doesnt match for order ' + order_id + ': got ' + rows.length + ' - expected only' +
+              ' headers ' + 'and one other');
+        }
+
+        var cells = $(rows[1]).find('td');
+        if (cells.length !== 4) {
+          return reject('Column count doesnt match for order ' + order_id + ': got ' + cells.length + ', expected ' +
+            'four');
+        }
+
+        var text = cells[3].innerHTML;
+        var possible_status = {
+          'Maksettu (Maksu vahvistettu)': 'paid',
+          'Maksettu (Suoritettu)': 'paid',
+          'Peruuntunut': 'cancelled',
+          'Peruuntunut (Ei maksettu)': 'cancelled',
+          'Odottaa maksua': 'payment-pending'
+        };
+
+        if (_.has(possible_status, text)) {
+          return resolve(possible_status[text]);
+        } else {
+          return reject('Unknown status for order ' + order_id + ': "' + text + '"');
+        }
+      }
+    });
+  });
 }
 
 function verify(fields: string[], expectedHash: string): boolean {
@@ -122,7 +193,7 @@ function orderToCreateBody(order: order.IOrder, args: ICreateArgs) {
   }
 
   return {
-    orderNumber: payment.getOrderId(order),
+    orderNumber: payment.getOrderId(order.order_id),
     currency: 'EUR',
     locale: 'fi_FI',
     urlSet: {

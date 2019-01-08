@@ -39,7 +39,7 @@ export interface ICreateResponse {
 export interface IStatusResponse {
   payment_id: string;
   payment_url: string;
-  status: 'paid' | 'cancelled' | 'payment-pendig' | 'expired' | 'not-implemented';
+  status: 'paid' | 'cancelled' | 'payment-pending' | 'expired' | 'not-implemented';
 }
 
 // Common payment provider interface
@@ -47,7 +47,7 @@ export interface IPayment {
   create: (order: order.IOrder, args: ICreateArgs) => Promise<ICreateResponse>;
   verifySuccess: (req: express.Request) => Promise<void>;
   verifyCancel: (req: express.Request) => Promise<void>;
-  checkStatus:  (payment_id: string, payment_url: string) => Promise<IStatusResponse>;
+  checkStatus:  (order_id: number, payment_id: string, payment_url: string) => Promise<IStatusResponse>;
 }
 
 //Wrapper class for creating different payment providers
@@ -71,8 +71,8 @@ class Payment {
     return this.provider.verifyCancel(req);
   }
 
-  checkStatus(payment_id: string, payment_url: string): Promise<IStatusResponse> {
-    return this.provider.checkStatus(payment_id, payment_url);
+  checkStatus(order_id: number, payment_id: string, payment_url: string): Promise<IStatusResponse> {
+    return this.provider.checkStatus(order_id, payment_id, payment_url);
   }
 }
 
@@ -82,8 +82,8 @@ export default function(provider: string): Payment {
 }
 
 //helper functions for payment provider implementations
-export function getOrderId(order: order.IOrder): string {
-  return PAYMENT_PREFIX + order.order_id;
+export function getOrderId(order_id: number): string {
+  return PAYMENT_PREFIX + order_id;
 }
 
 export function getTicketTitle(ticket: ticket.ITicket): string {

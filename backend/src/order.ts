@@ -86,7 +86,7 @@ export async function checkPaymentStatus(order_id: number): Promise<string> {
     log.log('debug', 'Acquiring payment_id and payment_url', {order_id});
     const res = await db.query('select payment_id, payment_url from nk2_orders where id = :order_id', {order_id});
     const handler = await getPaymentHandler(order_id);
-    const resp = await handler.checkStatus(res[0].payment_id, res[0].payment_url)
+    const resp = await handler.checkStatus(order_id, res[0].payment_id, res[0].payment_url)
     
     log.info('ADMIN: Payment status checked', {order_id});
     return resp.status;

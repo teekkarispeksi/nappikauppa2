@@ -23,7 +23,7 @@ export async function verifyCancel(req: express.Request): Promise<void> {
   throw {name: 'Not Implemented', message: 'Cancel verification is not implemented'}
 }
 
-export async function checkStatus(payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
+export async function checkStatus(order_id: number, payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
   return {
     payment_id,
     payment_url,

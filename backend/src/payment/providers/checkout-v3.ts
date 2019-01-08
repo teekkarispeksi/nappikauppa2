@@ -104,7 +104,6 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
       redirect_url: resp.data.href,
       payment_url: resp.data.href,
       payment_provider: PROVIDER,
-      payload: resp.data.providers
     }
   } catch (err) {
     verify(err.response);
@@ -125,7 +124,7 @@ export async function verifyCancel(req: express.Request): Promise<void> {
   }
 }
 
-export async function checkStatus(payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
+export async function checkStatus(order_id: number, payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
   log.warn("Check status is not implemented", {provider: PROVIDER});
   return {
     payment_id,
@@ -157,7 +156,7 @@ function verifySignature(expectedSignature: string, headers: {[key: string]: any
 
 function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs): CreateRequestBody {
   return {
-    stamp: payment.getOrderId(order),
+    stamp: payment.getOrderId(order.order_id),
     reference: order.order_hash,
     amount: order.order_price * EUR_TO_CENTS,
     currency: 'EUR',
@@ -178,7 +177,7 @@ function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs
       unitPrice: order.order_price * EUR_TO_CENTS,
       units: 1,
       vatPercentage: 0,
-      productCode: payment.getOrderId(order),
+      productCode: payment.getOrderId(order.order_id),
       deliveryDate: moment().format('YYYY-MM-DD'),
     }],
   }
