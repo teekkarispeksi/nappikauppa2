@@ -320,7 +320,7 @@ async function getPaymentHandler(order_id: number, provider?: string): Promise<I
       const res = await db.query('select payment_provider from nk2_orders where id = :order_id', {order_id});
       p = res[0].payment_provider;
       log.log('debug', 'Got provider', {order_id, payment_provider: p})
-      if (p === null || p === undefined) throw "No provider assigned to order";
+      if (!p) throw "No provider assigned to order";
     } catch (err) {
       log.error('Failed to get payment provider', {error: err, order_id});
       throw err;
@@ -351,11 +351,10 @@ export async function preparePayment(order_id: number): Promise<any> {
     if (res[0]['order_price'] <= MIN_PAYMENT) {
       log.log('debug', 'Using no-provider as payment provider', {order_id});
       provider = 'no-provider';
-      status = 'paid';
     } 
 
     log.log('debug', 'Set order status to payment-pending and add payment provider', {order_id});
-    await db.query('update nk2_orders set status = :status, payment_provider = :provider where id = :order_id', {order_id, provider, status}, conn);
+    await db.query('update nk2_orders set status = "payment-pending", payment_provider = :provider where id = :order_id', {order_id, provider}, conn);
 
     log.log('debug', 'Commit payment status changes', {order_id});
     await db.commit(conn);

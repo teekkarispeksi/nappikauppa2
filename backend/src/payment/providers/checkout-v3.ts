@@ -113,13 +113,13 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
 }
 
 export async function verifySuccess(req: express.Request): Promise<void> {
-  if (! verifySignature(req.query.signature, req.query)) {
+  if (!verifySignature(req.query.signature, req.query)) {
     throw {name: 'Verification error', message: 'Signature verification failed'};
   }
 }
 
 export async function verifyCancel(req: express.Request): Promise<void> {
-  if (! verifySignature(req.query.signature, req.query)) {
+  if (!verifySignature(req.query.signature, req.query)) {
     throw {name: 'Verification error', message: 'Signature verification failed'};
   }
 }
@@ -156,7 +156,7 @@ function verifySignature(expectedSignature: string, headers: {[key: string]: any
 
 function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs): CreateRequestBody {
   return {
-    stamp: payment.getOrderId(order.order_id),
+    stamp: payment.orderIdToName(order.order_id),
     reference: order.order_hash,
     amount: order.order_price * EUR_TO_CENTS,
     currency: 'EUR',
@@ -177,7 +177,7 @@ function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs
       unitPrice: order.order_price * EUR_TO_CENTS,
       units: 1,
       vatPercentage: 0,
-      productCode: payment.getOrderId(order.order_id),
+      productCode: payment.orderIdToName(order.order_id),
       deliveryDate: moment().format('YYYY-MM-DD'),
     }],
   }

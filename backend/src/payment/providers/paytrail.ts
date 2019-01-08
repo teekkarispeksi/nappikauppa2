@@ -58,7 +58,7 @@ export async function verifySuccess(req: Request): Promise<void> {
       config.password,
     ];
 
-    if(!verify(fields, req.query.RETURN_AUTHCODE)) {
+    if(!verifySignature(fields, req.query.RETURN_AUTHCODE)) {
       throw {name: 'Verification error', message: 'Signature verification failed'}; 
     }
   } catch (err) {
@@ -75,7 +75,7 @@ export async function verifyCancel(req: Request): Promise<void> {
       config.password,
     ];
 
-    if(!verify(fields, req.query.RETURN_AUTHCODE)) {
+    if(!verifySignature(fields, req.query.RETURN_AUTHCODE)) {
       throw {name: 'Verification error', message: 'Signature verification failed'};
     }
   } catch (err) {
@@ -103,12 +103,12 @@ export async function checkStatus(order_id: number, payment_id: string, payment_
 function getStatusPage(order_id: number): Promise<string> {
   return new Promise((resolve, reject) => {
     const jar = request.jar();
-    const authcode = md5([config.password, config.user, payment.getOrderId(order_id)].join('&')).toUpperCase();
+    const authcode = md5([config.password, config.user, payment.orderIdToName(order_id)].join('&')).toUpperCase();
     request.post({
       url: 'https://payment.paytrail.com/check-payment',
       form: {
         MERCHANT_ID: config.user,
-        ORDER_NUMBER: payment.getOrderId(order_id),
+        ORDER_NUMBER: payment.orderIdToName(order_id),
         AUTHCODE: authcode,
         VERSION: '2',
         CULTURE: 'fi_FI',
@@ -161,7 +161,7 @@ function parseStatusPage(body: string, order_id: number): Promise<'paid' | 'canc
   });
 }
 
-function verify(fields: string[], expectedHash: string): boolean {
+function verifySignature(fields: string[], expectedHash: string): boolean {
   return expectedHash === md5(fields.join('|')).toUpperCase();
 }
 
@@ -193,7 +193,7 @@ function orderToCreateBody(order: order.IOrder, args: ICreateArgs) {
   }
 
   return {
-    orderNumber: payment.getOrderId(order.order_id),
+    orderNumber: payment.orderIdToName(order.order_id),
     currency: 'EUR',
     locale: 'fi_FI',
     urlSet: {

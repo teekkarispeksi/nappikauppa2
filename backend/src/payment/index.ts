@@ -19,7 +19,7 @@ import express = require('express');
  * Provider implementations can be found from folder ./providers
  */
 
- const PAYMENT_PREFIX = 'NAPPIKAUPPA2_';
+ const PAYMENT_PREFIX = 'LIPPUKAUPPA_';
 
 export interface ICreateArgs {
   successCallback: string;
@@ -82,7 +82,7 @@ export default function(provider: string): Payment {
 }
 
 //helper functions for payment provider implementations
-export function getOrderId(order_id: number): string {
+export function orderIdToName(order_id: number): string {
   return PAYMENT_PREFIX + order_id;
 }
 
