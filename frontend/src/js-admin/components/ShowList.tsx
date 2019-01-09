@@ -35,7 +35,9 @@ export default class ShowList extends React.Component<IShowListProps, IShowListS
         <h2>Näytökset: {this.props.production ? this.props.production.title : ''}</h2>
         <p><a href={'#shows/'}>Luo uusi näytös</a></p>
         <ul>
-          {this.state.shows.map((show) =>
+          {this.state.shows
+            .sort((a: IShow, b: IShow) =>  Moment.tz(a.time, 'Europe/Helsinki').valueOf() - Moment.tz(b.time, 'Europe/Helsinki').valueOf())
+            .map((show) =>
             <li key={show.id}>
               <a href={'#shows/' + show.id}>{Moment.tz(show.time, 'Europe/Helsinki').format('D.M.YYYY')} {show.title}</a>
               &nbsp;-&nbsp;
