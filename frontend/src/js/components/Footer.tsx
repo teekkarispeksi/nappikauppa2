@@ -19,7 +19,7 @@ export default class Footer extends React.Component<any, any> {
         <p>Verkkopankkimaksamiseen liittyvän maksunvälityspalvelun toteuttaa Checkout Finland Oy (2196606-6)
         yhteistyössä suomalaisten pankkien ja luottolaitosten kanssa. Käyttäjän kannalta palvelu toimii
         aivan kuten perinteinen verkkomaksaminenkin.</p>
-        /*<h2>Maksupalvelutarjoaja</h2>
+        {/*<h2>Maksupalvelutarjoaja</h2>
         <p>Maksunvälityspalvelun toteuttajana ja maksupalveluntarjoajana toimii Paytrail Oyj (2122839-7)
         yhteistyössä suomalaisten pankkien ja luottolaitosten kanssa. Paytrail Oyj näkyy maksun saajana
         tiliotteella tai korttilaskulla ja välittää maksun kauppiaalle. Paytrail Oyj:llä on maksulaitoksen
@@ -33,7 +33,7 @@ export default class Footer extends React.Component<any, any> {
         <h2>Verkkopankit</h2>
         <p>Verkkopankkimaksamiseen liittyvän maksunvälityspalvelun toteuttaa Paytrail Oyj (2122839-7)
         yhteistyössä suomalaisten pankkien ja luottolaitosten kanssa. Käyttäjän kannalta palvelu toimii
-        aivan kuten perinteinen verkkomaksaminenkin.</p>*/
+        aivan kuten perinteinen verkkomaksaminenkin.</p>*/}
       </div>
     );
   }
