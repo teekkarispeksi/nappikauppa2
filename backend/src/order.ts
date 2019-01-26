@@ -437,10 +437,20 @@ async function updatePaymentStatusToPaid(order_id: number): Promise<boolean> {
 }
 
 export async function paymentCancelled(order_id: number, req: Request): Promise<any> {
+
+  let handler: IPayment
+
   try {
     log.log('debug', 'Cancelling payment', {order_id});
-    const handler = await getPaymentHandler(order_id);
+    handler = await getPaymentHandler(order_id);
+  } catch (err) {
+    // No payment handler found, silent fail as order is already deleted from database
+    log.info('Payment was already cancelled', {order_id});
+    return
+  }
 
+  // We have valid provider handler
+  try {
     log.log('debug', 'Handle payment cancel verification');
     await handler.verifyCancel(req);
 
