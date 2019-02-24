@@ -4,7 +4,10 @@ declare var config: {analytics: {google: string, fb: string}};
 
 
 let GA = config.analytics.google ? require('react-ga') : null;
-let FB = config.analytics.fb ? require('react-facebook-pixel') : null;
+
+// .default is required in import
+// Javascript, URHG :(
+let FB = config.analytics.fb ? require('react-facebook-pixel').default : null;
 
 export function page() {
   if (GA) { GA.pageview('/' + window.location.hash); }
