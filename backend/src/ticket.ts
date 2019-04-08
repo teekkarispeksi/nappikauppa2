@@ -44,7 +44,7 @@ export function generatePdf(tickets: ITicket[]) {
     var showDate = ticket.show_date + ' klo ' + ticket.show_time; // '20.4.2015 klo 19:00';
     var show = ticket.show_title; // 'Helsinki VI';
     // 'PERMANTO, RIVI 8, PAIKKA 154' for numbered, 'NUMEROIMATON' for unnumbered;
-    var seat = ticket.row_name ? ticket.section_title + ', ' + ticket.row_name + ' ' + ticket.row + ', paikka ' + ticket.seat_number : ticket.section_title;
+    var seat = ticket.row_name ? ticket.row_name + ' ' + ticket.row + ', paikka ' + ticket.seat_number : '';
     var venueDescription = ticket.venue_description.split('\n');
     var venue = venueDescription[0]; // 'Aleksanterin teatteri, Helsinki';
     var address = venueDescription[1]; // 'Bulevardi 23-27 / Albertinkatu 32';
@@ -52,7 +52,7 @@ export function generatePdf(tickets: ITicket[]) {
     if (i > 0) {
       doc.addPage();
     }
-    doc.rect(30, 30, 15, 135)
+    doc.rect(30, 30, 15, 155)
         .fill('#FEF035') // yellow
 
         .font('mp-bold')
@@ -73,11 +73,15 @@ export function generatePdf(tickets: ITicket[]) {
         .fontSize(16)
         .text(showDate)
 
-        .moveDown(0.8)
+        .moveDown(0.7)
+        .font('mp-bold')
+        .text(ticket.section_title.toUpperCase())
+
+        .moveDown(0.2)
         .font('mp-bold')
         .text(seat.toUpperCase())
 
-        .moveDown(0.8)
+        .moveDown(0.7)
         .font('mp')
         .text(venue)
         .moveUp(0.2)
