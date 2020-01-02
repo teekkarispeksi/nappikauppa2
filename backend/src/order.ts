@@ -563,6 +563,17 @@ export function useTicket(order_id: number, ticket_id: number, ticket_hash: stri
   });
 }
 
+/** Anonymize PII after 6 months. To be executed daily, from app.ts. */
+export function anonymize(): Promise<any> {
+  log.info('Anonymizing orders that are older than 6 moths');
+  return db.query('update nk2_orders o \
+    set name = "Anonymous", email = "anonymous@" \
+    where o.time + interval 6 month < now()')
+    .then(resp => {
+      log.info('Anonymized orders', {count: resp.changedRows});
+    });
+}
+
 export function kirjaaja(): Promise<any> {
   log.info('Fetching info for Kirjaaja');
   // some order might not have tickets, if the seats have been changed (i.e. removed from the order that was paid and a new order was created using discount code or something similar)
