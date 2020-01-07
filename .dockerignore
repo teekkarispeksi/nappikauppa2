@@ -1,0 +1,13 @@
+# Do not send version control to docker daemon
+.git
+.gitignore
+
+# Documentation files
+LICENSE.md
+README.md
+doc
+
+# Editor configurations
+.vscode
+.devcontainer
+.editorconfig
