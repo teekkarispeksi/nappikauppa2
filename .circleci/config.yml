@@ -51,20 +51,21 @@ jobs:
   # Publish job for pushing image to container registry
   publish:
     executor: docker-runner
-    - attach_workspace:
-        at: /tmp/workspace
-    - setup_remote_docker
-    - run:
-        name: Load archived Docker image
-        command: docker load -i /tmp/workspace/image.tar
-    - run:
-        name: Publish docker image to container registry
-        command: |
-          echo "$REGISTRY_PASS" | docker login -u $REGISTRY_USERNAME --password-stdin $REGISTRY_URL
-          IMAGE_TAG=${CIRCLE_TAG}
-          docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
-          docker push $IMAGE_NAME:latest
-          docker push $IMAGE_NAME:$IMAGE_TAG
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Publish docker image to container registry
+          command: |
+            echo "$REGISTRY_PASS" | docker login -u $REGISTRY_USERNAME --password-stdin $REGISTRY_URL
+            IMAGE_TAG=${CIRCLE_TAG}
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+            docker push $IMAGE_NAME:latest
+            docker push $IMAGE_NAME:$IMAGE_TAG
 workflows:
   version: 2
   build-n-publish:
