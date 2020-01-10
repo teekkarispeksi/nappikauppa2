@@ -1,6 +1,7 @@
 # Do not send version control to docker daemon
 .git
 .gitignore
+/log/.gitignore
 
 # Documentation files
 LICENSE.md
@@ -11,3 +12,11 @@ doc
 .vscode
 .devcontainer
 .editorconfig
+
+# CI
+.circleci
+
+# Build directories
+/backend/build
+/frontend/build
+app.js
