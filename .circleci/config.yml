@@ -20,7 +20,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - restore-cache:
+      - restore_cache:
           keys:
             - v1-{{ .Branch }}
           paths:
