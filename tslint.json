@@ -26,11 +26,11 @@
       200
     ],
     "member-access": false,
-    "member-ordering": [
-      true,
-      "static-before-instance",
-      "variables-before-functions"
-    ],
+    "member-ordering": {
+      "options": {
+        "order": "fields-first"
+      }
+    },
     "no-any": false,
     "no-arg": true,
     "no-bitwise": true,
@@ -59,7 +59,6 @@
     "no-trailing-whitespace": true,
     "no-unreachable": false,
     "no-unused-expression": true,
-    "no-use-before-declare": true,
     "no-var-keyword": false,
     "no-var-requires": false,
     "object-literal-sort-keys": false,
