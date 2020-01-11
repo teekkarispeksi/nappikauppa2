@@ -61,6 +61,9 @@ RUN npm install -g typescript@~3.7 tslint@~5.20 gulp-cli@~2.2
 # Copy post create command
 COPY ./post-create.sh /usr/local/bin/post-create.sh
 
+# Copy entrypoint
+COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
+
 # Create non-root development user and required directories
 
 # User args, override these from docker-compose.yml

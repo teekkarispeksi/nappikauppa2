@@ -1,6 +1,6 @@
 FROM mariadb:10.4
 
-ENV MYSQL_ROOT_PASSWORD=nappikauppa2-test MYSQL_DATABASE nappikauppa2-test
+ENV MYSQL_ROOT_PASSWORD=nappikauppa2-test MYSQL_DATABASE=nappikauppa2-test
 
 RUN mkdir /usr/sql && chmod 644 /usr/sql
 
