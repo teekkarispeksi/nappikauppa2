@@ -24,12 +24,12 @@ jobs:
           keys:
             - v1-{{ .Branch }}
           paths:
-            - /cache/image.tar
+            - ./image.tar
       - run:
           name: Load Docker image cache
           command: |
             set +o pipefail
-            docker load -i /cache/image.tar | true
+            docker load -i ./image.tar | true
       - run:
           name: Build Nappikauppa2 Docker image
           command: |
@@ -38,12 +38,10 @@ jobs:
           name: Save Docker image
           command: |
             docker save -o image.tar $IMAGE_NAME
-            mkdir -p /cache
-            cp ./image.tar /cache/image.tar
       - save_cache:
           key: v1-{{ .Branch }}-{{ epoch }}
           paths:
-            - /cache/image.tar
+            - ./image.tar
       - persist_to_workspace:
           root: .
           paths:
