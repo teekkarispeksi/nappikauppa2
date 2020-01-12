@@ -80,18 +80,6 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     this.state = this._getInitialState(props);
   }
 
-  private _getInitialState(props: IStoreProps) {
-    return {
-      page: 'home',
-      show: null,
-      paymentBegun: false,
-      reservationError: null,
-      conflictingSeatIds: [],
-      chosenSeatIds: [],
-      reservedSeatIds: []
-    } as IStoreState;
-  }
-
   componentWillMount() {
     if (this.props.action) {
       // clean the ok/fail hash in the url
@@ -200,10 +188,10 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
             for (var ticket of conflictingTickets) {
               var section = this.venue.sections[ticket.section.id];
               var sectionSeatIds = _.values(section.seats).map((s: ISeat) => s.id); // _.keys returns strings, we need ints
-              var freeSeatIds = _.chain(sectionSeatIds)
-               .difference(reservedSeatIds)
-               .difference(chosenSeatIds)
-               .shuffle().value();
+              var freeSeatIds: number[] = _.shuffle(_.filter(
+                sectionSeatIds,
+                id => !_.contains(reservedSeatIds, id) &&  !_.contains(chosenSeatIds, id),
+              ));
               if (freeSeatIds.length === 0) {
                 enoughTicketsLeft = false;
                 break;
@@ -398,6 +386,19 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
     );
   }
 
+  private _getInitialState(props: IStoreProps) {
+    return {
+      page: 'home',
+      show: null,
+      paymentBegun: false,
+      reservationError: null,
+      conflictingSeatIds: [],
+      chosenSeatIds: [],
+      reservedSeatIds: []
+    } as IStoreState;
+  }
+
+  // tslint:disable-next-line: member-ordering
   render() {
     var seatSelectorElem, shoppingCartElem, contactsElem, finalConfirmationElem;
     if (!this.production) {
