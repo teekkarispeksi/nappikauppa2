@@ -73,9 +73,6 @@ RUN ARCH= && alpineArch="$(apk --print-arch)" \
   && rm -f "node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz" \
   && apk del .build-deps
 
-# Add non root user
-RUN addgroup -g 1000 node && adduser -u 1000 -G node -s /bin/sh -D node
-
 # Builder image
 FROM base AS builder
 
@@ -92,12 +89,6 @@ COPY ./scripts/docker-build.sh /usr/local/bin/docker-build
 # Copy source files
 COPY . /workspace
 
-# Setup file ownership and permissions
-RUN chown -R 1000:1000 /workspace
-
-# Change to non root user
-USER node
-
 # Install dependencies and run build script
 RUN npm ci \
   && /usr/local/bin/docker-build
@@ -108,16 +99,12 @@ RUN rm -rf /workspace/node_modules && npm ci --only=prod
 # Production image
 FROM base AS prod
 
-# Really sad if CI requires this line for permissions to work
-USER root
 
-RUN mkdir -p /app \
-  && chown -R 1000:1000 /app
+RUN mkdir -p /app
 
 COPY ./scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 
 WORKDIR /app
-USER node
 
 COPY --from=builder /workspace/build /app
 COPY --from=builder /workspace/node_modules /app/node_modules
