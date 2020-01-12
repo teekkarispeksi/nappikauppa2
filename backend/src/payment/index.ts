@@ -4,7 +4,7 @@ import express = require('express');
 
 /*
  * Module implements abstract payment provider
- * 
+ *
  * Usage:
  *
  *   //Importing payment module
@@ -12,10 +12,10 @@ import express = require('express');
  *
  *   //create new checkout-v3 payment provider
  *   const checkout = payment('checkout-v3');
- *   
+ *
  *   //create new payment from order
  *   const resp = checkout.create(order, args);
- * 
+ *
  * Provider implementations can be found from folder ./providers
  */
 
@@ -81,7 +81,7 @@ export default function(provider: string): Payment {
   return new Payment(provider);
 }
 
-//helper functions for payment provider implementations
+// helper functions for payment provider implementations
 export function orderIdToName(order_id: number): string {
   return PAYMENT_PREFIX + order_id;
 }

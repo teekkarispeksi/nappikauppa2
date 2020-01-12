@@ -2,9 +2,6 @@
 
 import db = require('./db');
 import log = require('./log');
-import order = require('./order');
-import _ = require('underscore');
-import promise = require('es6-promise');
 
 export interface IProduction {
   id: number;

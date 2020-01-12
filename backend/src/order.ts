@@ -1,22 +1,16 @@
 'use strict';
 
-import btoa = require('btoa');
-
 var config = require('../config/config.js');
 import db = require('./db');
 import log = require('./log');
 import mail = require('./mail');
-import request = require('request');
 import uuidv4 = require('uuid/v4');
 import _ = require('underscore');
 import ticket =  require('./ticket');
-import md5 = require('md5');
 import auth = require('./auth');
-import jsdom = require('jsdom');
-import fs = require('fs');
 
 import payment from './payment';
-import { ICreateArgs, IStatusResponse, ICreateResponse, IPayment } from './payment';
+import { ICreateArgs, IPayment } from './payment';
 import { IConnection } from 'mysql';
 import { Request } from 'express';
 
@@ -86,11 +80,11 @@ export async function checkPaymentStatus(order_id: number): Promise<string> {
     log.log('debug', 'Acquiring payment_id and payment_url', {order_id});
     const res = await db.query('select payment_id, payment_url from nk2_orders where id = :order_id', {order_id});
     const handler = await getPaymentHandler(order_id);
-    const resp = await handler.checkStatus(order_id, res[0].payment_id, res[0].payment_url)
-    
+    const resp = await handler.checkStatus(order_id, res[0].payment_id, res[0].payment_url);
+
     log.info('ADMIN: Payment status checked', {order_id});
     return resp.status;
-   } catch(err) {
+   } catch (err) {
     log.error('Check payment status failed', {error: err, order_id});
     throw(err);
   }
@@ -282,10 +276,10 @@ export function get(order_id: number): Promise<IOrder> {
       return Promise.reject('No orders found for given id!');
     }
     var first = rows[0];
-    var res: IOrder = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'wants_email',
-    'time', 'order_price', 'payment_url', 'payment_id', 'status', 'show_id', 'venue_id', 'payment_provider']);
+    var res = _.pick(first, ['order_id', 'order_hash', 'name', 'email', 'discount_code', 'wants_email',
+    'time', 'order_price', 'payment_url', 'payment_id', 'status', 'show_id', 'venue_id', 'payment_provider']) as IOrder;
 
-    res.tickets = _.filter(_.map(rows, function(row) {
+    res.tickets = _.filter(_.map(rows, function(row: any) {
       return _.pick(row,
         ['ticket_id', 'show_id', 'show_title', 'show_date', 'show_time', 'venue_title', 'venue_description', 'seat_id', 'discount_group_id',
           'discount_group_title', 'ticket_hash', 'ticket_price', 'used_time', 'row', 'seat_number', 'section_id', 'section_title', 'row_name',
@@ -319,8 +313,8 @@ async function getPaymentHandler(order_id: number, provider?: string): Promise<I
     try {
       const res = await db.query('select payment_provider from nk2_orders where id = :order_id', {order_id});
       p = res[0].payment_provider;
-      log.log('debug', 'Got provider', {order_id, payment_provider: p})
-      if (!p) throw "No provider assigned to order";
+      log.log('debug', 'Got provider', {order_id, payment_provider: p});
+      if (!p) { throw 'No provider assigned to order'; }
     } catch (err) {
       log.error('Failed to get payment provider', {error: err, order_id});
       throw err;
@@ -341,17 +335,17 @@ export async function preparePayment(order_id: number): Promise<any> {
 
     log.log('debug', 'Get order payment status', {order_id});
     const res = await db.query('select status, price as order_price from nk2_orders where id = :order_id', {order_id}, conn);
-    
+
     log.log('debug', 'Reject if status is not seats-reserved', {order_id});
-    if (res[0]['status'] !== 'seats-reserved') {
-      throw {name: "Status error", message: "Invalid order status"};
+    if (res[0].status !== 'seats-reserved') {
+      throw {name: 'Status error', message: 'Invalid order status'};
     }
 
     log.log('debug', 'Use no-provider as payment provider if order price is under min payment', {order_id});
-    if (res[0]['order_price'] <= MIN_PAYMENT) {
+    if (res[0].order_price <= MIN_PAYMENT) {
       log.log('debug', 'Using no-provider as payment provider', {order_id});
       provider = 'no-provider';
-    } 
+    }
 
     log.log('debug', 'Set order status to payment-pending and add payment provider', {order_id});
     await db.query('update nk2_orders set status = "payment-pending", payment_provider = :provider where id = :order_id', {order_id, provider}, conn);
@@ -361,7 +355,7 @@ export async function preparePayment(order_id: number): Promise<any> {
 
   } catch (err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
-    if (conn) await db.rollback(conn);
+    if (conn) { await db.rollback(conn); }
     throw err;
   }
 
@@ -377,7 +371,7 @@ export async function preparePayment(order_id: number): Promise<any> {
     const handler = await getPaymentHandler(order_id, provider);
     const resp = await handler.create(order, args);
 
-    log.log('debug','Update payment status', {order_id})
+    log.log('debug', 'Update payment status', {order_id});
     await db.query('update nk2_orders set payment_id = :payment_id, payment_url = :payment_url where id = :order_id', {payment_id: resp.payment_id, payment_url: resp.payment_url, order_id});
 
     log.info('Created payment for order', {order_id});
@@ -414,31 +408,31 @@ export async function paymentDone(order_id: number, req: Request): Promise<any> 
 
 async function updatePaymentStatusToPaid(order_id: number): Promise<boolean> {
   let conn: IConnection;
-  
+
   try {
     conn = await db.beginTransaction();
-    
+
     const res = await db.query('select status from nk2_orders where id = :order_id', {order_id}, conn);
-    if(res[0].status === 'paid') {
+    if (res[0].status === 'paid') {
       log.info('Order was already paid', {order_id: order_id});
       await db.rollback(conn);
       return false;
     }
 
     log.log('debug', 'Updating order payment status', {order_id});
-    await db.query('update nk2_orders set status = "paid" where id = :order_id',{order_id}, conn);
+    await db.query('update nk2_orders set status = "paid" where id = :order_id', {order_id}, conn);
     await db.commit(conn);
     return true;
   } catch (err) {
     log.error('Updating payment status failed', {error: err, order_id});
-    if (conn) await db.rollback(conn);
+    if (conn) { await db.rollback(conn); }
     throw err;
   }
 }
 
 export async function paymentCancelled(order_id: number, req: Request): Promise<any> {
 
-  let handler: IPayment
+  let handler: IPayment;
 
   try {
     log.log('debug', 'Cancelling payment', {order_id});
@@ -446,7 +440,7 @@ export async function paymentCancelled(order_id: number, req: Request): Promise<
   } catch (err) {
     // No payment handler found, silent fail as order is already deleted from database
     log.info('Payment was already cancelled', {order_id});
-    return
+    return;
   }
 
   // We have valid provider handler
@@ -457,7 +451,7 @@ export async function paymentCancelled(order_id: number, req: Request): Promise<
     log.info('Payment cancel verification succeeded', {order_id});
     return await deleteCancelledOrder(order_id);
   } catch (err) {
-    log.error('Payment cancel verification failed', {error: err,order_id});
+    log.error('Payment cancel verification failed', {error: err, order_id});
     throw err;
   }
 }
@@ -478,7 +472,7 @@ async function deleteCancelledOrder(order_id: number): Promise<any> {
     }
   } catch (err) {
     log.error('Payment cancelling failed', {error: err, order_id});
-    if (conn) await db.rollback(conn);
+    if (conn) { await db.rollback(conn); }
     throw err;
   }
 }

@@ -70,14 +70,14 @@ router.get('/orders/:orderid/tickets/:ticketid/:tickethash/use', (req: Request, 
 });
 
 router.get('/orders/:orderid/status', (req: Request, res: Response) => {
-  order.checkPaymentStatus(req.params.orderid).then((result) => {
+  order.checkPaymentStatus(Number(req.params.orderid)).then((result) => {
     res.write(result);
     res.end();
   }, err(res));
 });
 
 router.get('/orders/:orderid/checkAndUpdateStatus', (req: Request, res: Response) => {
-  order.checkAndUpdateStatus(req.params.orderid).then(ok(res), err(res));
+  order.checkAndUpdateStatus(Number(req.params.orderid)).then(ok(res), err(res));
 });
 
 router.get('/venues', (req: Request, res: Response) => {
