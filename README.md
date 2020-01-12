@@ -41,8 +41,51 @@ Development server supports livereload for detecting frontend changes
 
 **DO NOT USE DEVELOPEMENT DOCKER DATABASE IN PRODUCTION** Development docker database file is not for production use, if you want to run database inside docker, please create own image for that purposes.
 
+## Building docker image
 
-## CircleCI setup
+1. Check out this repository
+2. Move to repository root
+3. Run `docker build -t teekkarispeksi/nappikauppa2:latest .` and wait magic to happen
 
+Build results to single alpine based docker image which is ready for execution.
 
 ## Deploying docker image to production
+
+We use [portainer](https://www.portainer.io/) on top of [docker swarm](https://docs.docker.com/engine/swarm/) for running application stack in production.
+
+### Sample stack.yml
+
+Sample swarm stack configuration
+
+```yml
+version: '3.7'
+
+services:
+  nappikauppa:
+    image: teekkarispeksi/nappikauppa2:latest
+    configs:
+      - source: nappikauppa-config
+        target: /app/config/config.js
+      - source: nappikauppa-frontend-config
+        target: /app/config/frontend-config.js
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+configs:
+  nappikauppa-config:
+    name: nappikauppa2.config.v1.js
+    external: true
+  nappikauppa-frontend-config:
+    name: nappikauppa2.frontend-config.v1.js
+    external: true
+
+```
