@@ -81,6 +81,7 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
     return JSON.parse(req.responseText).ok === true;
   }
 
+  // tslint:disable-next-line: member-ordering
   render() {
     var active = this.props.active;
     var divClass = 'shopping-stage contact-input';
