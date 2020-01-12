@@ -1,6 +1,6 @@
 # Production dockerfile
 
-# Use alpine as base image instead of debian, as this will result to smaller bundle size
+# Use alpine as base image instead of debian, as this will result to smaller image size
 FROM alpine:3.10 AS base
 
 # Install dependencies
@@ -116,14 +116,14 @@ COPY ./scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 WORKDIR /app
 USER node
 
-COPY --from=builder /workspace/build/* /app
+COPY --from=builder /workspace/build /app
 COPY --from=builder /workspace/node_modules /app/node_modules
+COPY ./healthcheck.js /app/healthcheck.js
 
 EXPOSE 80
 
-COPY ./healthcheck.js /app/healthcheck.js
 HEALTHCHECK --interval=10s --timeout=5s --start-period=60s \
   CMD node /app/healthcheck.js
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
-CMD ["app.js"]
+CMD ["node", "/app/app.js"]
