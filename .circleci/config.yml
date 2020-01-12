@@ -35,7 +35,7 @@ jobs:
           command: |
             docker build --cache-from=$IMAGE_NAME -t $IMAGE_NAME:latest .
       - run:
-          name: Archive Docker image
+          name: Save Docker image
           command: |
             docker save -o image.tar $IMAGE_NAME
             mkdir -p /cache
