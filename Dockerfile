@@ -108,6 +108,9 @@ RUN rm -rf /workspace/node_modules && npm ci --only=prod
 # Production image
 FROM base AS prod
 
+# Really sad if CI requires this line for permissions to work
+USER root
+
 RUN mkdir -p /app \
   && chown -R 1000:1000 /app
 
