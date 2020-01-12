@@ -11,7 +11,7 @@ import less from 'gulp-less';
 import concat from 'gulp-concat';
 import cssmin from 'gulp-clean-css';
 import sourcemaps from 'gulp-sourcemaps';
-import uglify from 'gulp-uglify';
+import terser from 'gulp-terser';
 import tslint from 'gulp-tslint';
 import cache from 'gulp-cached';
 import ts from 'gulp-typescript';
@@ -122,7 +122,7 @@ function createFrontendProd(name, startFile, sourceFiles, targetFile, targetDir)
 
   const bundler = browserify({
       entries: startFile
-    })      
+    })
     .add('typings/index.d.ts')
     .plugin(tsify, {files: []})
     .transform(babelify, {
@@ -135,7 +135,7 @@ function createFrontendProd(name, startFile, sourceFiles, targetFile, targetDir)
     return stream
       .pipe(source(targetFile))
       .pipe(buffer())
-      .pipe(uglify())
+      .pipe(terser())
       .pipe(gulp.dest(targetDir));
   }
 
@@ -182,7 +182,7 @@ function createBackendDev(name, sourceFiles, targetDir, tsconfig) {
 }
 
 function createBackendProd(name, sourceFiles, targetDir, tsconfig) {
-  
+
   const tsProject = ts.createProject(tsconfig);
 
   const taskFn = () => {
