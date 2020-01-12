@@ -7,9 +7,6 @@ version: 2.1
 executors:
   # Custom docker in docker executor
   docker-runner:
-    environment:
-      # Docker image name
-      IMAGE_NAME: teekkarispeksi/nappikauppa2
     docker:
       # Use latest debian buildpack deps as CI runtime
       - image: circleci/buildpack-deps:buster
