@@ -112,7 +112,7 @@ COPY ./healthcheck.js /app/healthcheck.js
 
 EXPOSE 80
 
-HEALTHCHECK --interval=10s --timeout=5s --start-period=60s \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s \
   CMD node /app/healthcheck.js
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
