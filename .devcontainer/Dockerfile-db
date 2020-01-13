@@ -1,0 +1,16 @@
+FROM mariadb:10.4
+
+ENV MYSQL_ROOT_PASSWORD=nappikauppa2-test MYSQL_DATABASE=nappikauppa2-test
+
+RUN mkdir /usr/sql && chmod 644 /usr/sql
+
+ADD db /usr/sql
+
+# Creating schema file
+RUN cp /usr/sql/tables.sql /docker-entrypoint-initdb.d/00-tables.sql && \
+cp /usr/sql/evolutions/01_add_production_to_discount_code.sql /docker-entrypoint-initdb.d/01-evol.sql && \
+cp /usr/sql/venues.sql /docker-entrypoint-initdb.d/02-venues.sql && \
+cp /usr/sql/test-data.sql /docker-entrypoint-initdb.d/03-test-data.sql && \
+cp /usr/sql/evolutions/02_add_payment_provider_to_order.sql /docker-entrypoint-initdb.d/04-evol.sql
+
+EXPOSE 3306

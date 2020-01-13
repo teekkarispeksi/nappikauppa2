@@ -3,9 +3,7 @@
 var config = require('../config/config.js');
 import log = require('./log');
 import mysql = require('mysql');
-import promise = require('es6-promise');
 
-var Promise = promise.Promise;
 
 config.db.dateStrings = true;
 var db = mysql.createPool(config.db);

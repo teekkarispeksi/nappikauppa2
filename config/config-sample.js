@@ -3,7 +3,7 @@ module.exports = {
   public_url: 'http://127.0.0.1:3000/',
   expire_minutes: 15,
   db: {
-    host: 'localhost',
+    host: 'database',
     user: 'root',
     password: 'nappikauppa2-test',
     database: 'nappikauppa2-test'

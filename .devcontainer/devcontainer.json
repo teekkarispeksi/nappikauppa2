@@ -1,0 +1,14 @@
+// Devcontainer definition for nappikauppa2
+// See https://aka.ms/vscode-remote/devcontainer.json for format details.
+{
+	"name": "nappikauppa2-dev",
+  "dockerComposeFile": "./docker-compose.yml",
+  "shutdownAction": "stopCompose",
+  "workspaceFolder": "/workspace",
+  "service": "nappikauppa",
+  "postCreateCommand": "/usr/local/bin/post-create.sh",
+
+	"extensions": [
+		"ms-vscode.vscode-typescript-tslint-plugin"
+	]
+}

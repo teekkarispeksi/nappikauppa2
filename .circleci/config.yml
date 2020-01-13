@@ -1,129 +1,79 @@
-# Javascript Node CircleCI 2.0 configuration file
+# Nappikauppa2 CircleCI configuration file
 #
-# Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
-version: 2
-jobs:
-  build:
+# Builds nappikauppa2 docker image and publishes it to container registry
+
+# Use newer version 2.1 which supports executors
+version: 2.1
+executors:
+  # Custom docker in docker executor
+  docker-runner:
     docker:
-      - image: circleci/node:8.12
-
-    working_directory: ~/repo
-
+      # Use latest debian buildpack deps as CI runtime
+      - image: circleci/buildpack-deps:buster
+jobs:
+  # Build job for creating production image using multistage docker file
+  build:
+    executor: docker-runner
     steps:
       - checkout
-
+      - setup_remote_docker
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "yarn.lock" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: yarn install --frozen-lockfile
-
-      - save_cache:
+            - v1-{{ .Branch }}
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "yarn.lock" }}
-
-      - run: yarn run build
-      - run: ./scripts/build_build.sh
-      - run: git describe --tags > tag
-
+            - ./image.tar
+      - run:
+          name: Load Docker image cache
+          command: |
+            set +o pipefail
+            docker load -i ./image.tar | true
+      - run:
+          name: Build Nappikauppa2 Docker image
+          command: |
+            docker build --cache-from=$IMAGE_NAME -t $IMAGE_NAME:latest .
+      - run:
+          name: Save Docker image
+          command: |
+            docker save -o image.tar $IMAGE_NAME
+      - save_cache:
+          key: v1-{{ .Branch }}-{{ epoch }}
+          paths:
+            - ./image.tar
       - persist_to_workspace:
           root: .
           paths:
-            - build
-            - tag
-            - scripts
-
-      # run tests!
-      # - run: yarn test
-  package:
-      docker:
-        - image: circleci/node:8.12
-
-      working_directory: ~/repo
-
-      steps:
-        - attach_workspace:
-            at: .
-        - run: mkdir /tmp/artifacts
-        - run: cd build && yarn install --production
-        - run: cd build && tar -czf /tmp/artifacts/nappikauppa2-`cat ../tag`.tar.gz *
-        - store_artifacts:
-            path: /tmp/artifacts
-        - persist_to_workspace:
-            root: /tmp
-            paths:
-              - artifacts
-
-  deploy-staging:
-      docker:
-        - image: circleci/node:8.12
-      environment:
-        APPNAME: nappikauppa2-staging
-      working_directory: ~/repo
-      steps:
-        - attach_workspace:
-            at: .
-        - run: mkdir -p ~/.ssh && echo $HOST_SSHKEY >> ~/.ssh/known_hosts
-        - run: echo 'export FILE=artifacts/nappikauppa2-`cat ./tag`.tar.gz' >> $BASH_ENV
-        - run: echo 'export DIR=$STAGING_DIR' >> $BASH_ENV
-        - run: ./scripts/deploy_tar.sh
-
-  deploy-production:
-      docker:
-        - image: circleci/node:8.12
-      environment:
-        APPNAME: nappikauppa2
-      working_directory: ~/repo
-      steps:
-        - attach_workspace:
-            at: .
-        - run: mkdir -p ~/.ssh && echo $HOST_SSHKEY >> ~/.ssh/known_hosts
-        - run: echo 'export FILE=artifacts/nappikauppa2-`cat ./tag`.tar.gz' >> $BASH_ENV
-        - run: echo 'export DIR=$PRODUCTION_DIR' >> $BASH_ENV
-        - run: ./scripts/deploy_tar.sh
-
+            - ./image.tar
+  # Publish job for pushing image to container registry
+  publish:
+    executor: docker-runner
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Publish docker image to container registry
+          command: |
+            echo "$REGISTRY_PASS" | docker login -u $REGISTRY_USERNAME --password-stdin $REGISTRY_URL
+            IMAGE_TAG=${CIRCLE_TAG}
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+            docker push $IMAGE_NAME:latest
+            docker push $IMAGE_NAME:$IMAGE_TAG
 workflows:
   version: 2
-  build-n-deploy:
+  build-n-publish:
     jobs:
-      # build is run for all tags and commits on any branches
+      # Run build for every commit and tag
       - build:
           filters:
             tags:
               only: /.*/
-      # all tags are packaged into artifacts
-      - package:
+      # All tags are published to container registry
+      - publish:
           requires:
             - build
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-      # all tags are depoyed to staging
-      - deploy-staging:
-          requires:
-            - package
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-      # tags wait for approval to deploy to production
-      - hold:
-          type: approval
-          requires:
-           - deploy-staging
-          filters:
-            tags:
-              only: /.*/
-      - deploy-production:
-          requires:
-            - hold
           filters:
             tags:
               only: /.*/

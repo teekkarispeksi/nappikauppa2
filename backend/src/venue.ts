@@ -55,7 +55,7 @@ export function getAll(venue_id?: number): Promise<IVenue[]> {
       var first = dbRows[0];
       // convert the sql results into a json tree
       // begins with venue info
-      var res: IVenue = _.pick(first, ['venue_title', 'description', 'ticket_type', 'layout_src']);
+      var res: IVenue = _.pick(first, ['venue_title', 'description', 'ticket_type', 'layout_src']) as IVenue;
       res.id = first.venue_id;
 
       // groupBy creates a dictionary (object) containing lists
@@ -64,13 +64,13 @@ export function getAll(venue_id?: number): Promise<IVenue[]> {
       res.sections = _.mapObject(sections, (dbRowsForSection: any) => {
         first = dbRowsForSection[0]; // dbRowsForSection is a list of seats
 
-        var section: ISection = _.pick(first, ['section_title', 'row_name']);
+        var section: ISection = _.pick(first, ['section_title', 'row_name']) as ISection;
         section.id = first.section_id; // we want to call this 'id' instead of 'section_id'
 
         // turn seats into a dictionary with indexBy and use mapObject to strip venue & section info
         var seats = _.indexBy(dbRowsForSection, (dbRow: any) => dbRow.seat_id);
         section.seats = _.mapObject(seats, (dbRowForSeat: any) => {
-          var seat: ISeat = _.pick(dbRowForSeat, ['seat_id', 'row', 'number', 'x_coord', 'y_coord', 'inactive']);
+          var seat: ISeat = _.pick(dbRowForSeat, ['seat_id', 'row', 'number', 'x_coord', 'y_coord', 'inactive']) as unknown as ISeat;
           seat.id = dbRowForSeat.seat_id; // we want to call this 'id' instead of 'seat_id'
           return seat;
         });

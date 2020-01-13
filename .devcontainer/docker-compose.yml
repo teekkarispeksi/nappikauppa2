@@ -1,0 +1,58 @@
+version: '3.7' # Compose file version
+
+services:
+  # Development container
+  nappikauppa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Arguments for devcontainer
+        USERNAME: ${USER}
+        GROUPNAME: ${USER}
+        # UID and GID, replace with your own uid and gid
+        UID: 1000
+        GID: 1000
+    ports:
+      # Exposed ports
+      - 3000:3000
+      - 35729:35729
+    volumes:
+      # mount workspace
+      - ..:/workspace
+      # Mount vscode server cache
+      - vscode-server:/server/.vscode-server
+      # Mount node-modules cache
+      - node-modules:/workspace/node_modules
+      # Mount gitconfig, so git works more nicer
+      - ${HOME}/.gitconfig:/server/.gitconfig
+      # Mount ssh config, so access to git remote works more seamless
+      - ${HOME}/.ssh:/server/.ssh
+      # Add custom configuration mounts such as .bashrc files here
+    networks:
+      - nappikauppa
+    command: sleep infinity # Prevents container from exiting
+
+  # Database builder
+  database:
+    build:
+      # use project level context
+      context: ../
+      dockerfile: ./.devcontainer/Dockerfile-db
+    image: nk2-test-db
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - nappikauppa
+
+volumes:
+  # Database data
+  db-data:
+  # vscode remote cache
+  vscode-server:
+  # node modules cache
+  node-modules:
+
+networks:
+  # Nappikauppa network for development
+  nappikauppa:

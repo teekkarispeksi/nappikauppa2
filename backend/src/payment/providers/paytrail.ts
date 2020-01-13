@@ -15,7 +15,7 @@ import fs = require('fs');
 
 const PROVIDER = 'paytrail';
 
-//Creating https client with custom configuration
+// Creating https client with custom configuration
 const CLIENT = axios.create({
   baseURL: 'https://payment.paytrail.com/api-payment/',
   headers: { 'X-Verkkomaksut-Api-Version': 1 },
@@ -59,10 +59,10 @@ export async function verifySuccess(req: Request): Promise<void> {
     ];
 
     if(!verifySignature(fields, req.query.RETURN_AUTHCODE)) {
-      throw {name: 'Verification error', message: 'Signature verification failed'}; 
+      throw {name: 'Verification error', message: 'Signature verification failed'};
     }
   } catch (err) {
-    log.error('Verify cancel failed', {error: err})
+    log.error('Verify cancel failed', {error: err});
     throw err;
   }
 }
@@ -75,11 +75,11 @@ export async function verifyCancel(req: Request): Promise<void> {
       config.password,
     ];
 
-    if(!verifySignature(fields, req.query.RETURN_AUTHCODE)) {
+    if ( !verifySignature(fields, req.query.RETURN_AUTHCODE) ) {
       throw {name: 'Verification error', message: 'Signature verification failed'};
     }
   } catch (err) {
-    log.error('Verify cancel failed', {error: err})
+    log.error('Verify cancel failed', {error: err});
     throw err;
   }
 }

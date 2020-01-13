@@ -75,7 +75,7 @@ router.post('/log', jsonParser, (req: Request, res: Response) => {
 });
 
 router.get('/discountCode/:productionid/:code', checkUserSilently, (req: IRequestWithUser, res: Response) => {
-  discountCode.check(req.params.code, req.params.productionid, req.user).then(ok(res), err(res));
+  discountCode.check(req.params.code, Number(req.params.productionid), req.user).then(ok(res), err(res));
 });
 
 router.get('/productions/latest', (req: Request, res: Response) => {

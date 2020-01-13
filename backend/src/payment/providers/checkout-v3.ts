@@ -6,7 +6,7 @@ import log = require('../../log');
 
 import _ = require('underscore');
 import moment = require('moment');
-import uuidv4 = require('uuid/v4'); //used for nonce generation
+import uuidv4 = require('uuid/v4'); // used for nonce generation
 import crypto = require('crypto');
 import axios from 'axios';
 import express = require('express');
@@ -14,8 +14,9 @@ import express = require('express');
 const PROVIDER = 'checkout-v3';
 const SIGNATURE_ALGORITHM = 'sha256';
 
-//Our database is using int type euros ,but checkout is using cents as value type so we need to do some conversion
-const EUR_TO_CENTS = 100
+// Our database is using int type euros, but checkout is using
+// cents as value type so we need to do some conversion
+const EUR_TO_CENTS = 100;
 
 interface CreateRequestBody {
   stamp: string;
@@ -46,7 +47,7 @@ interface RequestBodyItem {
   deliveryDate: string; // format yyyy-mm-dd
 }
 
-interface CheckoutHeaders{
+interface CheckoutHeaders {
   'checkout-account': number;
   'checkout-algorithm': 'sha256' | 'sha512';
   'checkout-method': 'GET' | 'POST';
@@ -78,14 +79,14 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
 
   const verify = (resp: any) => {
 
-    //logging of conf-request-id is recommended in checkouts documentation
+    // logging of conf-request-id is recommended in checkouts documentation
     log.info('Checkout conf-request-id for order', {order_id: order.order_id, 'conf-request-id': resp.headers['conf-request-id']})
 
-    //verifying response signature
+    // verifying response signature
     if (!verifySignature(resp.headers.signature, resp.headers, resp.data)) {
       throw {name: 'Verification error', message: 'Signature verification failed'};
     }
-  }
+  };
 
   try {
     const resp = await axios({
@@ -104,7 +105,7 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
       redirect_url: resp.data.href,
       payment_url: resp.data.href,
       payment_provider: PROVIDER,
-    }
+    };
   } catch (err) {
     verify(err.response);
     log.error('Create payment failed', {error: err.response.data, order_id: order.order_id});
@@ -141,7 +142,7 @@ function sign(headers: {[key: string]: any}, body?: CreateRequestBody): string {
     .sort()
     .map((key) => [ key, headers[key] ].join(':'));
 
-  const payload =  payloadArray.concat(body ? JSON.stringify(body) : '').join("\n");
+  const payload =  payloadArray.concat(body ? JSON.stringify(body) : '').join('\n');
   const alg = headers['checkout-algorithm'] || SIGNATURE_ALGORITHM;
   return crypto
     .createHmac(alg, config.password)
