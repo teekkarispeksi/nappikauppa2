@@ -7,6 +7,23 @@ import $ = require('jquery');
 
 import Button from './Button';
 
+
+/**
+ * From html spec for form input type email.
+ * Source: https://html.spec.whatwg.org/multipage/input.html#e-mail-state-(type=email)
+ */
+const EMAIL_TEST_REGEX = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+/**
+ * Test utility for checking if value is valid email.
+ *
+ * Implementation uses REGEXP and follows HTML form input
+ * type email specification.
+ */
+function isValidEmail(email: string): boolean {
+  return EMAIL_TEST_REGEX.test(email);
+}
+
 export interface IContactsProps {
   active: boolean;
   discount_code?: string;
@@ -60,7 +77,7 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
     if (!this.state.name) {
       errors.push('name');
     }
-    if (!_.contains(this.state.email, '@')) {
+    if (!isValidEmail(this.state.email)) {
       errors.push('email');
     }
     if (this.state.discount_code && !this._checkDiscountCode(this.props.production_id, this.state.discount_code)) {
