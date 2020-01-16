@@ -15,7 +15,12 @@ module.exports = {
         },
     from: '',
     errors_to: '',
-    errors_from: ''
+    errors_from: '',
+    info_list: {
+      name: '',
+      from: '',
+      tag: '',
+    }
   },
   payment: {
     provider: 'checkout-v3',

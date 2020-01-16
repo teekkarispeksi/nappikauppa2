@@ -11,6 +11,7 @@ import auth = require('./auth');
 
 import payment from './payment';
 import { ICreateArgs, IPayment } from './payment';
+import infoList =  require('./info-list');
 import { IConnection } from 'mysql';
 import { Request } from 'express';
 
@@ -375,6 +376,10 @@ export async function preparePayment(order_id: number): Promise<any> {
     await db.query('update nk2_orders set payment_id = :payment_id, payment_url = :payment_url where id = :order_id', {payment_id: resp.payment_id, payment_url: resp.payment_url, order_id});
 
     log.info('Created payment for order', {order_id});
+
+    // If payment creation is successful add order to mailing list
+    // function checks if user wants email before adding user to list
+    infoList.addOrderToMailingList(order);
     return resp;
   } catch (err) {
     log.error('Failed to prepare payment', {error: err, order_id: order_id});
