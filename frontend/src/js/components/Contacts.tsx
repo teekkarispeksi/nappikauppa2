@@ -38,6 +38,7 @@ export interface IContactsState {
   name?: string;
   email?: string;
   discount_code?: string;
+  /** Currently means that user wants to join our email info list */
   wants_email?: boolean;
   errors?: string[];
 }
@@ -151,7 +152,7 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
               readOnly={!active}
               onChange={this.onValueChange.bind(this, 'wants_email')}
               checked={this.state.wants_email} >
-            Haluan tiedon ensi vuoden lipunmyynnin alkamisesta
+              Haluan liittyä tiedotuslistalle
           </Bootstrap.Checkbox>
         </div>
         <div>
