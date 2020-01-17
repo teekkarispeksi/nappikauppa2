@@ -313,11 +313,17 @@ async function getPaymentHandler(order_id: number, provider?: string): Promise<I
     log.log('debug', 'No provider given, acquiring one from database');
     try {
       const res = await db.query('select payment_provider from nk2_orders where id = :order_id', {order_id});
+      // Check case if order is already deleted
+      if (res[0] === undefined ) {
+        throw new Error('Order is removed from database');
+      }
       p = res[0].payment_provider;
       log.log('debug', 'Got provider', {order_id, payment_provider: p});
       if (!p) { throw 'No provider assigned to order'; }
     } catch (err) {
-      log.error('Failed to get payment provider', {error: err, order_id});
+      // Only warn on provider not found
+      // Error is logged as error by caller
+      log.warn('Failed to get payment provider', {error: err, order_id});
       throw err;
     }
   }

@@ -82,7 +82,7 @@ export default class Statistics extends React.Component<IStatisticsProps, IStati
         <h3>Kokonaistuotto / näytös</h3>
         <D3ChartWrapper id={this.props.production_id + '-cumrevenue'}
           data={byShow} chartSeries={byShowSeries}
-          x={(d) => d.title.substr(0, 14)} xScale={'ordinal'} showXGrid={false} >
+          x={(d) => d.title} xScale={'ordinal'} showXGrid={false} >
           <D3.BarChart />
         </D3ChartWrapper>
         <br />
