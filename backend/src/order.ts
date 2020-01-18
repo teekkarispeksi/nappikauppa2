@@ -116,9 +116,11 @@ export function reserveSeats(show_id: number, seats: IReservedSeat[], user: stri
     throw err;
   })
   .then((connection) => {
+    // Update order status first
     return db.query('insert into nk2_orders (time, status, hash) values (now(), "seats-reserved", :hash)', {hash: uuidv4()}, connection)
     .then((res) => {
       order_id = res.insertId;
+      // Start creatgin tickets
       log.info('Order created - creating tickets', {order_id: order_id});
 
       // Blargh. We want to do multiple inserts in a single query AND have one value resolved
@@ -156,7 +158,14 @@ export function reserveSeats(show_id: number, seats: IReservedSeat[], user: stri
     })
     .then((res) => get(order_id))
     .catch((err) => {
-      log.error('Creating tickets failed - rolling back', {order_id: order_id, error: err});
+      // Check for ER_DUP_ENTRY as it is normal error
+      // when some of seats are already reserved
+      if (err.code && err.code === 'ER_DUP_ENTRY') {
+        log.info('Creating tickets failed - some of seats are already reserved', {order_id: order_id});
+      } else {
+        log.error('Creating tickets failed - rolling back', {order_id: order_id, error: err});
+      }
+
       return db.rollback(connection).then(() => Promise.reject(err));
     });
   });

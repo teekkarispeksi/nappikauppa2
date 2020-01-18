@@ -13,6 +13,30 @@ db.on('error', function(err) {
   throw err;
 });
 
+/**
+ * Helper for handling database errror logging
+ * @param err Mysql error
+ */
+function logDbError(err: mysql.IError) {
+  // Log error if this is not mysql error
+  if (!err.errno) {
+    log.error('DB: Node or protocol error', {error: err});
+    return;
+  }
+
+  switch (err.errno) {
+    case 1062:
+      // ER_DUP_ENTRY
+      // Duplicate entry error
+      log.warn(`DB: ${err.message}`, {error: err});
+      break;
+    default:
+      // Default error handling
+      log.error(`DB: Database error: ${err.message}`, {error: err});
+      break;
+  }
+}
+
 // Use :param style binding instead of question marks
 export function format(query: string, values?: {}) {
   if (!values) {
@@ -43,7 +67,7 @@ export function query(query: string, params?: {}, connection?: mysql.IConnection
     var handle = connection || db;
     handle.query(sql, (err, res) => {
       if (err) {
-        log.error('DB error when executing query: \n', sql);
+        logDbError(err);
         reject(err);
       } else {
         resolve(res);
@@ -67,3 +91,5 @@ export function rollback(connection: mysql.IConnection): Promise<any> {
     connection.release();
   });
 }
+
+
