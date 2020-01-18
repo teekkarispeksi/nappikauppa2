@@ -30,11 +30,19 @@ import event = require('../event');
 const EXPIRATION_IN_MINUTES = 15;
 const DISCOUNT_GROUP_DEFAULT = 1;
 
-var scrollToElem = (elemstr) => {
-  $('html, body').animate({
-    scrollTop: $(elemstr)[0].offsetTop
-  });
-};
+/**
+ * Helper for scrolling page to specific element
+ * If element queried with elemstr is not found,
+ * helper does nothing
+ */
+function scrollToElem(elemstr: string) {
+  const elem = $(elemstr)[0];
+  if (elem && elem.offsetTop) {
+    $('html, body').animate({
+      scrollTop: elem.offsetTop
+    });
+  }
+}
 
 export interface ITicket {
   seat: ISeat;

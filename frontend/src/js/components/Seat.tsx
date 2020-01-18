@@ -14,9 +14,18 @@ export interface ISeatProps extends React.Props<any> {
   onClick: any;
 }
 
-var toTitleCase = function(str: string) {
-  return str[0].toUpperCase() + str.substr(1);
-};
+/**
+ * Converts first letter of string to uppercase
+ * @param str String to convert
+ */
+function toTitleCase(str: string) {
+  // Do conversion only if string has length greater than zero
+  if (str && str.length > 0) {
+    return str[0].toUpperCase() + str.substr(1);
+  }
+
+  return str;
+}
 
 export default class Seat extends React.Component<ISeatProps, any> {
   shouldComponentUpdate(nextProps: ISeatProps, nextState: any) {
