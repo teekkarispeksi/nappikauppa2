@@ -53,7 +53,7 @@ interface CheckoutHeaders {
   'checkout-method': 'GET' | 'POST';
   'checkout-nonce': string;
   'checkout-timestamp': string;
-  'checkout-transaction_id'?: string;
+  'checkout-transaction-id'?: string;
 }
 
 log.info('Loaded provider: ' + PROVIDER);
@@ -126,12 +126,72 @@ export async function verifyCancel(req: express.Request): Promise<void> {
 }
 
 export async function checkStatus(order_id: number, payment_id: string, payment_url: string): Promise<payment.IStatusResponse> {
-  log.warn("Check status is not implemented", {provider: PROVIDER});
-  return {
-    payment_id,
-    payment_url,
-    status: 'not-implemented',
+  const nonce = uuidv4();
+  const checkoutHeaders: CheckoutHeaders = {
+    'checkout-account': config.user,
+    'checkout-algorithm': SIGNATURE_ALGORITHM,
+    'checkout-method': 'GET',
+    'checkout-nonce': nonce,
+    'checkout-timestamp': moment().format(),
+    'checkout-transaction-id': payment_id,
   };
+
+  const signature = sign(checkoutHeaders);
+
+  const verify = (resp) => {
+    log.info('Checkout conf-request-id for order', {order_id: order_id, 'conf-request-id': resp.headers['conf-request-id']});
+
+    // verifying response signature
+    if (!verifySignature(resp.headers.signature, resp.headers, resp.data)) {
+      throw {name: 'Verification error', message: 'Signature verification failed'};
+    }
+
+  };
+
+  try {
+    const resp = await axios({
+      baseURL: 'https://api.checkout.fi',
+      method: 'get',
+      url: `/payments/${payment_id}`,
+      headers:  {
+        ...checkoutHeaders,
+        signature,
+      }
+    });
+
+    verify(resp);
+
+    let status: payment.PaymentStatus = 'not-implemented';
+
+    // Parse response status
+    switch (resp.data.status) {
+      case 'fail':
+        status = 'cancelled';
+        break;
+
+      case 'ok':
+        status = 'paid';
+        break;
+
+      case 'new':
+      case 'pending':
+      default:
+        status = 'payment-pending';
+        break;
+    }
+
+    return {
+      payment_id,
+      payment_url,
+      status
+    };
+
+  } catch (err) {
+    verify(err.response);
+    log.error('Check payment status failed', {error: err.response.data, order_id: order_id});
+    throw err.response.data;
+  }
+
 }
 
 function sign(headers: {[key: string]: any}, body?: CreateRequestBody): string {
