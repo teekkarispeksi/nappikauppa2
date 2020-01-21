@@ -459,7 +459,8 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       <div id='admin' className='shopping-stage'>
       <h4>Hei, {this.state.auth}!</h4>
       <p>Siirry admin-puolelle <a href='admin'>tästä</a>.</p>
-      <p><Button disabled={this.tickets.length === 0} onClick={() => {this.tickets.forEach((t) => t.discount_group_id = 3); this.forceUpdate(); }}>Ilmaislipuiksi</Button></p>
+      <p><Button disabled={this.tickets.length === 0} onClick={() => {this.tickets.forEach((t) => t.discount_group_id = 3); this.forceUpdate(); }}>Ilmaislipuiksi</Button>
+      <Button disabled={this.tickets.length === 0} onClick={() => {this.tickets.forEach((t) => t.discount_group_id = 9); this.forceUpdate(); }}>Ryhmälipuiksi</Button></p>
       </div>
     ) : null;
 
