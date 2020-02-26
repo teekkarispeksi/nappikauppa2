@@ -11,7 +11,7 @@ let FB = config.analytics.fb ? require('react-facebook-pixel').default : null;
 
 export function page() {
   if (GA) { GA.pageview('/' + window.location.hash); }
-  if (FB) { FB.pageView(); }
+  if (FB) { FB.track('Lead', {}); }
 }
 
 export function init() {
