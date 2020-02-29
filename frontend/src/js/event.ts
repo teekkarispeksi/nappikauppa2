@@ -11,12 +11,12 @@ let FB = config.analytics.fb ? require('react-facebook-pixel').default : null;
 
 export function page() {
   if (GA) { GA.pageview('/' + window.location.hash); }
-  if (FB) { FB.track('Lead', {}); }
 }
 
 export function init() {
   if (GA) { GA.initialize(config.analytics.google); }
   if (FB) { FB.init(config.analytics.fb); }
+  if (FB) { FB.pageView(); }
   page();
 }
 
