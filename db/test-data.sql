@@ -73,7 +73,7 @@ insert into nk2_orders (name, email, discount_code, time, price, payment_id, res
 insert into nk2_tickets (order_id, show_id, seat_id, discount_group_id, hash, price, used_time) values
     (1, 1, 2, 1, '0123456789', 18.00, null),
     (2, 1, 3, 2, 'abcdef', 14.00, null),
-    (2, 1, 1, 4, 'free!', 0.00, null),
+    (2, 1, 1, 3, 'free!', 0.00, null),
     (3, 2, 10, 1, 'unnumbered', 14.00, null);
 
 

@@ -36,10 +36,12 @@ export interface ICreateResponse {
   payload?: any;
 }
 
+export type PaymentStatus = 'paid' | 'cancelled' | 'payment-pending' | 'expired' | 'not-implemented';
+
 export interface IStatusResponse {
   payment_id: string;
   payment_url: string;
-  status: 'paid' | 'cancelled' | 'payment-pending' | 'expired' | 'not-implemented';
+  status: PaymentStatus;
 }
 
 // Common payment provider interface
