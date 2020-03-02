@@ -78,7 +78,7 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
     if (!this.state.name) {
       errors.push('name');
     }
-    if (!isValidEmail(this.state.email)) {
+    if (!isValidEmail(this.state.email.trim())) {
       errors.push('email');
     }
     if (this.state.discount_code && !this._checkDiscountCode(this.props.production_id, this.state.discount_code)) {
@@ -87,7 +87,12 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
 
     this.setState({errors: errors});
     if (errors.length === 0) {
-      this.props.onSaveOrderInfo(_.clone(this.state));
+      this.props.onSaveOrderInfo({
+        name: this.state.name.trim(),
+        email: this.state.email.trim(),
+        discount_code: this.state.discount_code.trim(),
+        wants_email: this.state.wants_email
+      });
     }
   }
 
