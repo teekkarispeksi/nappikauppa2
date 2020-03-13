@@ -37,7 +37,7 @@ export default class ShowSelector extends React.Component<IShowSelectorProps, an
               progressBar = (<div className='sold-out'>Ulkopuolinen lipunmyynti</div>);
             } else if (show.reserved_percentage < 100) {
               if (Moment.tz(show.inactivate_time, 'Europe/Helsinki') < Moment()) {
-                progressBar = (<div className='sold-out'>Ovimyynti</div>);
+                progressBar = (<div className='sold-out'>Peruutettu</div>);
               } else {
                 progressBar = (<Bootstrap.ProgressBar min={0} max={100} now={show.reserved_percentage} />);
               }
