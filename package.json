@@ -31,7 +31,7 @@
     "qr-image": "^3.2.0",
     "request": "^2.83.0",
     "stream-to-array": "^2.2.0",
-    "underscore": "^1.8.3",
+    "underscore": "^1.12.1",
     "uuid": "^3.2.1",
     "winston": "1.1.2",
     "winston-mailgun": "github:Blizzara/winston-mailgun"
