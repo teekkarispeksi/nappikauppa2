@@ -1,7 +1,7 @@
 # Production dockerfile
 
 # Use alpine as base image instead of debian, as this will result to smaller image size
-FROM alpine:3.10 AS base
+FROM alpine:3.14 AS base
 
 # Install dependencies
 RUN apk add --no-cache libstdc++ \
@@ -10,13 +10,13 @@ RUN apk add --no-cache libstdc++ \
 
 # Install Nodejs 12.13
 
-ENV NODE_VERSION 12.13.1
+ENV NODE_VERSION 16.13.1
 
 RUN ARCH= && alpineArch="$(apk --print-arch)" \
   && case "${alpineArch##*-}" in \
       x86_64) \
         ARCH='x64' \
-        CHECKSUM="cf493d306a6367fb7bcff5608731e1dd44b9ad8d64e7df7706916d8be0f497a1" \
+        CHECKSUM="3b4c47e5554fa466651a767691fc76c09b6a514b49d79bbd0061e549614adedf" \
         ;; \
       * ) ;; \
     esac \
@@ -40,21 +40,20 @@ RUN ARCH= && alpineArch="$(apk --print-arch)" \
         python \
     # gpg keys listed at https://github.com/nodejs/node#release-keys
     && for key in \
-      94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
-      FD3A5288F042B6850C66B31F09FE44734EB7990E \
-      71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
-      DD8F2338BAE7501E3DD5AC78C273792F7D83545D \
-      C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
-      B9AE9905FFD7803F25714661B63B535A4C206CA9 \
-      77984A986EBC2AA786BC0F66B01FBB92821C587A \
-      8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
       4ED778F539E3634C779C87C6D7062848A1AB005C \
+      94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
+      74F12602B6F1C4E913FAA37AD3A89613643B6201 \
+      71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
+      8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
+      C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
+      C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C \
+      DD8F2338BAE7501E3DD5AC78C273792F7D83545D \
       A48C2BEE680E841632CD4E44F07496B3EB3C1762 \
+      108F52B48DB57BB0CC439B2997B01419BD92F80A \
       B9E2F5981AA6E0CD28160D9FF13993A75599653C \
     ; do \
-      gpg --batch --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$key" || \
-      gpg --batch --keyserver hkp://ipv4.pool.sks-keyservers.net --recv-keys "$key" || \
-      gpg --batch --keyserver hkp://pgp.mit.edu:80 --recv-keys "$key" ; \
+      gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
+      gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key" ; \
     done \
     && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION.tar.xz" \
     && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
