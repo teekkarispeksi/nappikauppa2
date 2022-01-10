@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
-        "module": "commonjs"
+        "module": "commonjs",
+        "esModuleInterop": true
     },
     "compileOnSave": false,
     "include": ["app.ts", "typings/index.d.ts"],
