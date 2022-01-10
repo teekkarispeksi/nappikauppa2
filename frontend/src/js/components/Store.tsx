@@ -5,7 +5,7 @@ import Backbone = require('backbone');
 Backbone.emulateHTTP = true; // PATCH's don't work with our mod_rewrites
 import $ = require('jquery');
 import _ = require('underscore');
-import Marked = require('marked');
+import { marked } from 'marked';
 import Moment = require('moment-timezone');
 import Bootstrap = require('react-bootstrap');
 
@@ -385,7 +385,7 @@ export default class Store extends React.Component<IStoreProps, IStoreState> {
       result = (<div className='alert alert-warning'>Keskeytit tilauksesi ja varaamasi paikat on vapautettu myyntiin.</div>);
       event.cancelled('payment');
     }
-    var rawProductionDescriptionMarkup = Marked(this.production.description, {sanitize: true}); // should be safe to inject
+    var rawProductionDescriptionMarkup = marked.parse(this.production.description, {sanitize: true}); // should be safe to inject
     return (
       <div className='shopping-stage help-text'>
         {result}

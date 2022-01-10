@@ -2,7 +2,7 @@
 
 import _ = require('underscore');
 import React = require('react');
-import Marked = require('marked');
+import { marked } from 'marked';
 
 import Seat from './Seat';
 import {IShow} from '../../../../backend/src/show';
@@ -41,7 +41,7 @@ export default class SeatSelector extends React.Component<ISeatSelectorProps, an
     if (!this.props.active) {
       divClass += ' disabled';
     }
-    var rawDescriptionMarkup = Marked(this.props.show.description, {sanitize: true}); // should be safe to inject
+    var rawDescriptionMarkup = marked.parse(this.props.show.description, {sanitize: true}); // should be safe to inject
 
     var prices = _.chain(this.props.show.sections).values().pluck('price').unique().value().sort().reverse();
     var discounts = _.pluck(this.props.show.discount_groups, 'discount');
