@@ -52,7 +52,7 @@ var checkUserSilently: RequestHandler = (req: IRequestWithUser, res: Response, n
     next();
   } else {
     var creds = atob(authHeader.split(' ')[1]).split(':');
-    auth.authenticate(creds[0], creds[1], config.auth.groups.base, (authOk: boolean) => {
+    auth.authenticate(creds[0], creds[1], config.auth.groups.base, (_, authOk: boolean) => {
       if (authOk) {
         req.user = creds[0];
       }

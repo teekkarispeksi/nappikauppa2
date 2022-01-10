@@ -6,7 +6,7 @@ import log = require('../../log');
 
 import _ = require('underscore');
 import moment = require('moment');
-import uuidv4 = require('uuid/v4'); // used for nonce generation
+import { v4 as uuidv4 } from 'uuid';
 import crypto = require('crypto');
 import axios from 'axios';
 import express = require('express');
@@ -48,7 +48,7 @@ interface RequestBodyItem {
 }
 
 interface CheckoutHeaders {
-  'checkout-account': number;
+  'checkout-account': string;
   'checkout-algorithm': 'sha256' | 'sha512';
   'checkout-method': 'GET' | 'POST';
   'checkout-nonce': string;

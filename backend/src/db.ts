@@ -76,7 +76,7 @@ export function query(query: string, params?: {}, connection?: mysql.IConnection
   });
 }
 
-export function commit(connection: mysql.IConnection): Promise<any> {
+export function commit(connection: mysql.IConnection): Promise<void> {
   return new Promise((resolve, reject) => {
     connection.commit((err) => {
       connection.release();
@@ -85,7 +85,7 @@ export function commit(connection: mysql.IConnection): Promise<any> {
   });
 }
 
-export function rollback(connection: mysql.IConnection): Promise<any> {
+export function rollback(connection: mysql.IConnection): Promise<void> {
   return new Promise((resolve, reject) => {
     connection.rollback(resolve);
     connection.release();

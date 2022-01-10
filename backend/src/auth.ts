@@ -10,5 +10,5 @@ export function isAdmin(user: string) {
 }
 
 export function authenticate(user: string, password: string, requiredGroup: string, cb: Function) {
-  return auth.authenticate(user, password, requiredGroup, cb);
+  return auth.authenticate(user, password, requiredGroup, (res) => cb(null, res));
 }

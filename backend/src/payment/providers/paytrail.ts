@@ -18,7 +18,7 @@ const PROVIDER = 'paytrail';
 // Creating https client with custom configuration
 const CLIENT = axios.create({
   baseURL: 'https://payment.paytrail.com/api-payment/',
-  headers: { 'X-Verkkomaksut-Api-Version': 1 },
+  headers: { 'X-Verkkomaksut-Api-Version': '1' },
   auth: {
     username: config.user,
     password: config.password,
