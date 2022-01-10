@@ -8,8 +8,6 @@ var express = require('express');
 var cookies = require('cookie-parser');
 var path = require('path');
 var morgan = require('morgan');
-var compression = require('compression');
-var methodOverride = require('method-override');
 
 import basicAuth from 'express-basic-auth';
 
@@ -34,15 +32,11 @@ function checkerAuth(username, password, cb) {
 var app = express();
 app.enable('trust proxy'); // so that our mod_rewrites doesn't mess up the req.ip address
 
-app.use(methodOverride('X-HTTP-Method-Override'));
-
 app.use(morgan('combined', {stream: {
   write: function(message) { log.info('HTTP: ' + message); }
 }}));
 
 app.use(cookies());
-
-app.use(compression());
 
 app.use('/public/config/', express.static(path.join(__dirname, '/config/public')));
 app.use('/public/', express.static(path.join(__dirname, '/frontend/build/public')));

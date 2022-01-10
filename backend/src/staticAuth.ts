@@ -2,7 +2,7 @@
 
 import log = require('./log');
 import _ = require('underscore');
-import md5 = require('md5');
+import { md5 } from './utils';
 
 var config = require('../../config/config.js');
 

@@ -7,11 +7,11 @@ import log = require('../../log');
 import { Request } from 'express';
 
 import axios from 'axios';
-import md5 = require('md5');
 import _ = require('underscore');
 import request = require('request');
 import jsdom = require('jsdom');
 import fs = require('fs');
+import { md5 } from '../../utils';
 
 const PROVIDER = 'paytrail';
 

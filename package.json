@@ -8,12 +8,9 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "atob": "^2.1.2",
     "axios": "^0.24.0",
     "backbone": "^1.4.0",
     "body-parser": "^1.19.0",
-    "btoa": "^1.2.1",
-    "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "express": "^4.17.2",
     "express-basic-auth": "^1.2.1",
@@ -22,8 +19,6 @@
     "jsdom": "^19.0.0",
     "mailgun.js": "^4.1.4",
     "marked": "^4.0.8",
-    "md5": "^2.2.1",
-    "method-override": "^3.0.0",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "morgan": "^1.10.0",
