@@ -1,11 +1,9 @@
 import payment = require('../index');
 const config = require('../../../config/config').payment['checkout-v3'];
 import order = require('../../order');
-import ticket = require('../../ticket');
 import log = require('../../log');
 
 import _ = require('underscore');
-import moment = require('moment');
 import { v4 as uuidv4 } from 'uuid';
 import crypto = require('crypto');
 import axios from 'axios';
@@ -66,7 +64,7 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
     'checkout-algorithm': SIGNATURE_ALGORITHM,
     'checkout-method': 'POST',
     'checkout-nonce': nonce,
-    'checkout-timestamp': moment().format()
+    'checkout-timestamp': new Date().toISOString(),
   };
 
   const signature = sign(headers, body);
@@ -132,7 +130,7 @@ export async function checkStatus(order_id: number, payment_id: string, payment_
     'checkout-algorithm': SIGNATURE_ALGORITHM,
     'checkout-method': 'GET',
     'checkout-nonce': nonce,
-    'checkout-timestamp': moment().format(),
+    'checkout-timestamp': new Date().toISOString(),
     'checkout-transaction-id': payment_id,
   };
 
@@ -239,7 +237,7 @@ function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs
       units: 1,
       vatPercentage: 0,
       productCode: payment.orderIdToName(order.order_id),
-      deliveryDate: moment().format('YYYY-MM-DD'),
+      deliveryDate: new Date().toISOString().slice(0, 10),
     }],
   }
 }

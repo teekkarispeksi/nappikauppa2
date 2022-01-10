@@ -2,7 +2,6 @@ import payment = require('../index');
 import order = require('../../order');
 import express = require('express');
 
-import moment = require('moment');
 import { sha256 } from '../../utils';
 
 
@@ -10,7 +9,7 @@ const PROVIDER = 'no-provider';
 
 export async function create(order: order.IOrder, args: payment.ICreateArgs): Promise<payment.ICreateResponse> {
 
-  const timestamp = moment().valueOf();
+  const timestamp = Date.now();
   const order_name = payment.orderIdToName(order.order_id)
   const signature = sha256([order_name, timestamp, PROVIDER].join('|')); //simple signature
   return {
