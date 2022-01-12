@@ -1,9 +1,9 @@
 'use strict';
 
-import config = require('../../config/config.js');
 import formData = require('form-data');
 import Mailgun = require('mailgun.js');
 
+const config = require('../../config/config.js');
 const MG_DOMAIN = config.email.mailgun.domain
 
 // Inject form data to mailgun and create singleton
