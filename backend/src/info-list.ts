@@ -1,14 +1,13 @@
 var config = require('../config/config.js');
 
+import { list } from 'pdfkit';
 import log = require('./log');
-import { mailer } from './mail';
+import { mailer, sendMail } from './mail';
 import { IOrder } from './order';
 
 // List address
 const listAddress = `${config.email.info_list.name}@${config.email.mailgun.domain}`;
 
-// Info list
-const list = mailer.lists(listAddress);
 const listFrom = config.email.info_list.from;
 const listTag = config.email.info_list.tag;
 
@@ -42,61 +41,61 @@ export function addOrderToMailingList(order: IOrder) {
 
     log.info(`MAILING LIST: Adding customer to mailing list`, {order_id: order.order_id, email: order.email});
     const user = {
-      subscribed: true,
       address: order.email,
       name: order.name,
     };
 
     // Enquene add to next event loop iteration
-    setImmediate(() => {
-      list.members().create(user, (err, _) => {
-        if (err) {
-           // Check if user is added to mailing list already.
-          // Unfortunately we have to relay only to parsing
-          // of error message.
-          // If user is already added to mailing list, just update user information
-          if (err.message && err.message.includes('Address already exists')) {
-
-            log.info(`MAILING LIST: Updating customer on mailing list`, {order_id: order.order_id, email: order.email});
-
-            // Update subroutine
-            list.members(user.address).update({name: user.name, subscribed: true}, (err2, _) => {
-              if (err2) {
-                log.error(`MAILING LIST: Updating customer on mailing list failed`, {order_id: order.order_id, email: order.email, error: err});
-                return;
-              }
-              log.info(`MAILING LIST: Updated customer on mailing list`, {order_id: order.order_id, email: order.email});
-            });
-
-            // Exit after update is triggered
-            return;
-          }
-
-          // Otherwise just exit on error
-          log.error(`MAILING LIST: Adding customer to mailing list failed`, {order_id: order.order_id, email: order.email, error: err});
-          return;
-        }
+    setImmediate( async () => {
+      try {
+        await mailer.lists.members.createMember(
+          listAddress,
+          {
+            ...user,
+            subscribed: 'yes',
+        });
 
         log.info(`MAILING LIST: Added customer to mailing list`, {order_id: order.order_id, email: order.email});
 
-        // Send welcome message to added user
+        send_welcome_message(order);
 
-        const message = {
-          from: listFrom,
-          to: order.email,
-          subject: WELCOME_SUBJECT,
-          text: getWelcomeMessageText(order),
-        };
+      } catch(error) {
+        // Check if user is added to mailing list already.
+        // Unfortunately we have to relay only to parsing
+        // of error message.
+        // If user is already added to mailing list, just update user information
+        if (error.details && error.details.includes('Address already exists')) {
+          log.info(`MAILING LIST: Updating customer on mailing list`, {order_id: order.order_id, email: order.email});
+          try {
+            await mailer.lists.members.updateMember(listAddress, order.email, {
+                ...user,
+                subscribed: 'yes'
+              });
 
-
-        mailer.messages().send(message, (error, _) => {
-          if (error) {
-            log.error('MAILING LIST: Failed to send welcome message',  {error, order_id: order.order_id, email: order.email});
+            log.info(`MAILING LIST: Updated customer on mailing list`, {order_id: order.order_id, email: order.email});
+          } catch (updateError) {
+            log.error(`MAILING LIST: Update customer on mailing list failed`, {order_id: order.order_id, email: order.email, error: updateError});
           }
-
-          log.info('MAILING LIST: Sent welcome message', {order_id: order.order_id, email: order.email});
-        });
-      });
+        } else {
+          log.error(`MAILING LIST: Adding customer to mailing list failed`, {order_id: order.order_id, email: order.email, error});
+        }
+      }
     });
   }
+}
+
+/**
+ * Send welcome to mailing list message to user
+ * @param order Order
+ */
+function send_welcome_message(order: IOrder): void {
+  const message = {
+    from: listFrom,
+    to: order.email,
+    subject: WELCOME_SUBJECT,
+    text: getWelcomeMessageText(order),
+  };
+  sendMail(message)
+  .then(() => log.info('MAILING LIST: Sent welcome message', {order_id: order.order_id, email: order.email}))
+  .catch(error => log.error('MAILING LIST: Failed to send welcome message',  {error, order_id: order.order_id, email: order.email}));
 }

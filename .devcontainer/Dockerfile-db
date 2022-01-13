@@ -1,4 +1,4 @@
-FROM mariadb:10.4
+FROM mariadb:10.7
 
 ENV MYSQL_ROOT_PASSWORD=nappikauppa2-test MYSQL_DATABASE=nappikauppa2-test
 

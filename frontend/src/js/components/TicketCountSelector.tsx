@@ -3,7 +3,7 @@
 import _ = require('underscore');
 import React = require('react');
 import Bootstrap = require('react-bootstrap');
-import Marked = require('marked');
+import { marked } from 'marked';
 
 import {IShow} from '../../../../backend/src/show';
 import {IVenue} from '../../../../backend/src/venue';
@@ -39,7 +39,7 @@ export default class TicketCountSelector extends React.Component<ITicketCountSel
     if (!this.props.active) {
       divClass += ' disabled';
     }
-    var rawDescriptionMarkup = Marked(this.props.show.description, {sanitize: true}); // should be safe to inject
+    var rawDescriptionMarkup = marked.parse(this.props.show.description, {sanitize: true}); // should be safe to inject
     var discounts = _.pluck(this.props.show.discount_groups, 'discount');
     var title = 'Lisää lippuja ostoskoriin';
     if (_.size(this.props.show.sections) === 0) {

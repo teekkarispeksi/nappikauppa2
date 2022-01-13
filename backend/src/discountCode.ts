@@ -52,12 +52,9 @@ export function createOrUpdate(codes: IDiscountCode[], send: boolean): Promise<I
           to: code.email,
           subject: code.email_subject,
           text: code.email_text.replace('$CODE$', code.code).replace('$EUR$', code.eur.toString()).replace('$URL$', config.public_url)
-        }, (error, info) => {
-          if (error) {
-            log.error('ADMIN: Sending code failed', {error: error, code: code});
-          }
-        });
+        }).catch(error => log.error('ADMIN: Sending code failed', {error, code}));
       });
+
       log.info('ADMIN: Codes sent');
     }
     return getAll();

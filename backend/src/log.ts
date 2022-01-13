@@ -1,37 +1,70 @@
 'use strict';
 
-var winston = require('winston');
-require('winston-mailgun').MailGun; // exposes winston.transports.MailGun
+import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
+import Transport from 'winston-transport';
+import { mailer } from './mail';
+
+interface MailgunTransportOpts extends winston.transport.TransportStreamOptions {
+  targetEmail: string;
+  fromEmail: string;
+  domain: string;
+}
+
+
+/**
+ * Simple transport to send log messages via email
+ * use to
+ */
+class MailgunTransport extends Transport {
+
+  private targetEmail: string;
+  private fromEmail: string;
+  private domain: string;
+
+  constructor(opts: MailgunTransportOpts) {
+    super(opts);
+
+    this.targetEmail = opts.targetEmail;
+    this.domain = opts.domain;
+    this.fromEmail = opts.fromEmail;
+  }
+
+  log(info, cb) {
+    mailer.messages.create(this.domain, {
+      from: this.fromEmail,
+      to: this.targetEmail,
+      subject: 'NK2 - Error',
+      text: `Error: \n\n ${JSON.stringify(info)} \n\n from nappikauppa2`,
+    })
+    .then(() => cb())
+    .catch(() => cb());
+  }
+}
 
 var config = require('../../config/config.js');
 
-var transports = [
-  new (winston.transports.Console)({
-    name: 'console'
-  }),
-  new (winston.transports.DailyRotateFile)({
-    name: 'file',
+var transports: winston.transport[] = [
+  new winston.transports.Console(),
+  new DailyRotateFile({
     filename: 'log/nk2.log'
   }),
-  new (winston.transports.DailyRotateFile)({
-    name: 'file-error',
+  new DailyRotateFile({
     filename: 'log/nk2-error.log',
     level: 'error',
     handleExceptions: true,
-    humanReadableUnhandledException: true
   })
 ];
 
 if (config.email.errors_to) {
-  transports.push(new (winston.transports.MailGun)({
+  transports.push(new MailgunTransport({
     level: 'error',
-    to: config.email.errors_to,
-    from: config.email.errors_from,
-    apiKey: config.email.mailgun.api_key,
+    targetEmail: config.email.errors_to,
+    fromEmail: config.email.errors_from,
     domain: config.email.mailgun.domain
   }));
 }
 
-var logger = new (winston.Logger)({transports: transports});
+var logger = winston.createLogger({level: 'info', transports: transports});
 
 export = logger;

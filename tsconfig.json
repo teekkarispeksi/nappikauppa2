@@ -1,7 +1,8 @@
 {
     "compilerOptions": {
         "jsx": "react",
-        "module": "commonjs"
+        "module": "commonjs",
+        "esModuleInterop": true
     },
     "compileOnSave": false,
     "exclude": ["node_modules", "backend", "frontend/build", "test/output", "app.ts", "app.js"]

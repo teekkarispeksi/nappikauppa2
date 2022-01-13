@@ -7,9 +7,6 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Arguments for devcontainer
-        USERNAME: ${USER}
-        GROUPNAME: ${USER}
         # UID and GID, replace with your own uid and gid
         UID: 1000
         GID: 1000
@@ -24,11 +21,6 @@ services:
       - vscode-server:/server/.vscode-server
       # Mount node-modules cache
       - node-modules:/workspace/node_modules
-      # Mount gitconfig, so git works more nicer
-      - ${HOME}/.gitconfig:/server/.gitconfig
-      # Mount ssh config, so access to git remote works more seamless
-      - ${HOME}/.ssh:/server/.ssh
-      # Add custom configuration mounts such as .bashrc files here
     networks:
       - nappikauppa
     command: sleep infinity # Prevents container from exiting

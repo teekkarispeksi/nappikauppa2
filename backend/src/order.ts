@@ -4,7 +4,7 @@ var config = require('../config/config.js');
 import db = require('./db');
 import log = require('./log');
 import mail = require('./mail');
-import uuidv4 = require('uuid/v4');
+import { v4 as uuidv4 } from 'uuid';
 import _ = require('underscore');
 import ticket =  require('./ticket');
 import auth = require('./auth');
@@ -512,6 +512,8 @@ export function sendTickets(order_id: number): Promise<any> {
     var order_production_title = order.tickets[0].production_title;
     var order_production_performer = order.tickets[0].production_performer;
     var filename = 'lippu_' + order_production_performer.toLowerCase().replace(/[\W]+/g, '') + '.pdf';
+
+
     mail.sendMail({
       from: config.email.from,
       to: order.email,
@@ -520,18 +522,14 @@ export function sendTickets(order_id: number): Promise<any> {
         'Tilaamasi liput ovat tämän viestin liitteenä pdf-muodossa. Esitäthän teatterilla liput joko tulostettuna tai mobiililaitteestasi. Voit kysyä lisätietoja vastaamalla tähän viestiin.\n\n' +
         'Esitys alkaa ' + order_datetime + '. Saavuthan paikalle ajoissa ruuhkien välttämiseksi. Nähdään näytöksessä!\n\n' +
         'Ystävällisin terveisin,\nTeekkarispeksi\n',
-      attachment: new mail.mailer.Attachment({
+      attachment: {
         filename: filename,
         data: pdf,
         contentType: 'application/pdf'
-      })
-    }, (error, info) => {
-      if (error) {
-        log.error('Sending tickets failed', {error: error, order_id: order_id});
-        return;
       }
-      log.info('Tickets sent', {order_id: order_id});
-    });
+    })
+    .then(() => log.info('Tickets sent', {order_id: order_id}))
+    .catch(error => log.error('Sending tickets failed', {error: error, order_id: order_id}));
   });
 }
 

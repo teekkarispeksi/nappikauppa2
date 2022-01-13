@@ -4,9 +4,6 @@ import util = require('util');
 import express = require('express');
 import {RequestHandler} from 'express';
 import bodyParser = require('body-parser');
-import atob = require('atob');
-import btoa = require('btoa');
-import md5 = require('md5');
 
 import auth = require('./auth');
 import discountCode = require('./discountCode');
@@ -16,6 +13,8 @@ import show = require('./show');
 import ticket = require('./ticket');
 import venue = require('./venue');
 import log = require('./log');
+
+import { sha256, fromBase64, toBase64 } from './utils';
 
 var config = require('../config/config.js');
 
@@ -51,8 +50,8 @@ var checkUserSilently: RequestHandler = (req: IRequestWithUser, res: Response, n
   if (!authHeader) {
     next();
   } else {
-    var creds = atob(authHeader.split(' ')[1]).split(':');
-    auth.authenticate(creds[0], creds[1], config.auth.groups.base, (authOk: boolean) => {
+    var creds = fromBase64(authHeader.split(' ')[1]).split(':');
+    auth.authenticate(creds[0], creds[1], config.auth.groups.base, (_, authOk: boolean) => {
       if (authOk) {
         req.user = creds[0];
       }
@@ -97,7 +96,7 @@ router.get('/shows/:showid/reservedSeats', (req: Request, res: Response) => {
 router.post('/shows/:showid/reserveSeats', jsonParser, checkUserSilently, (req: IRequestWithUser, res: Response) => {
   order.reserveSeats(parseInt(req.params.showid), req.body, req.user)
     .then((data) => {
-      res.cookie(COOKIE_NAME, {id: data.order_id, hash: md5(data.order_hash)}, {maxAge: COOKIE_MAX_AGE});
+      res.cookie(COOKIE_NAME, {id: data.order_id, hash: sha256(data.order_hash)}, {maxAge: COOKIE_MAX_AGE});
       res.json(data);
     })
     .catch((error) => { res.status(409); res.json(error); });
@@ -111,7 +110,7 @@ router.get('/orders/continue', (req, res) => {
     return;
   }
   order.get(cookie.id).then((order) => {
-    if (order.order_hash && md5(order.order_hash) === cookie.hash && (order.status === 'seats-reserved')) {
+    if (order.order_hash && sha256(order.order_hash) === cookie.hash && (order.status === 'seats-reserved')) {
       log.info('Order succesfully loaded with cookie', {order_id: order.order_id});
       res.json(order);
     } else {
@@ -139,7 +138,7 @@ router.post('/orders/:orderid/preparePayment', (req: Request, res: Response) => 
 
 router.get('/orders/:orderid/success', (req: Request, res: Response) => {
   order.paymentDone(parseInt(req.params.orderid), req).then((order) => {
-    res.redirect(config.public_url + '#ok/' + order.order_id + '/' + order.order_hash + '/' + btoa('' + order.order_price));
+    res.redirect(config.public_url + '#ok/' + order.order_id + '/' + order.order_hash + '/' + toBase64('' + order.order_price));
   });
 });
 
