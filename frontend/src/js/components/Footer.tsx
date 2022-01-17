@@ -6,7 +6,6 @@ export default class Footer extends React.Component<any, any> {
   render() {
     return (
       <div className='container'>
-
         <h2>Maksupalvelutarjoaja</h2>
         <p>Maksunvälityspalvelun toteuttajana ja maksupalveluntarjoajana toimii Paytrail Oyj (2122839-7)
         yhteistyössä suomalaisten pankkien ja luottolaitosten kanssa.Paytrail Oyj näkyy maksun saajana

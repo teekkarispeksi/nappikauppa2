@@ -28,10 +28,6 @@ module.exports = {
       user: '375917',
       password: 'SAIPPUAKAUPPIAS'
     },
-    paytrail: {
-      user: '13466',
-      password: '6pKF4jkv97zmqBJ3ZL8gUw5DfT2NMQ'
-    }
   },
   auth: {
     method: 'static',
