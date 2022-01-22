@@ -45,7 +45,7 @@ class MailgunTransport extends Transport {
 var config = require('../../config/config.js');
 
 var transports: winston.transport[] = [
-  new winston.transports.Console({level: 'debug'}),
+  new winston.transports.Console(),
   new DailyRotateFile({
     filename: 'log/nk2.log'
   }),
@@ -65,6 +65,6 @@ if (config.email.errors_to) {
   }));
 }
 
-var logger = winston.createLogger({level: 'info', transports: transports});
+var logger = winston.createLogger({level: 'debug', transports: transports});
 
 export = logger;

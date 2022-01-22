@@ -96,7 +96,7 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
       data: body,
       params: headers
     });
-    log.debug('Create payment response', { headers: resp.headers.signature, body: resp.body});
+    log.debug('Create payment response', { headers: resp.headers.signature, body: (resp as any).body});
 
     verify(resp);
 
