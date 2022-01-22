@@ -210,7 +210,7 @@ function sign(headers: {[key: string]: any}, body?: CreateRequestBody): string {
 
 function verifySignature(expectedSignature: string, headers: {[key: string]: any}, body?: CreateRequestBody): boolean {
   var signature = sign(headers, body);
-  log.info('Signature check', {expected: expectedSignature, singature, headers, body});
+  log.info('Signature check', {expected: expectedSignature, signature, headers, body});
   return signature === expectedSignature;
 }
 
