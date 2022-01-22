@@ -65,6 +65,6 @@ if (config.email.errors_to) {
   }));
 }
 
-var logger = winston.createLogger({level: 'info', transports: transports});
+var logger = winston.createLogger({level: 'debug', transports: transports});
 
 export = logger;
