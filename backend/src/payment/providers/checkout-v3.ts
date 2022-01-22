@@ -87,6 +87,7 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
   };
 
   try {
+    log.debug('Create payment request', { httpHeaders, headers, body});
     const resp = await axios({
       baseURL: 'https://api.checkout.fi',
       method: 'post',
@@ -95,6 +96,7 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
       data: body,
       params: headers
     });
+    log.debug('Create payment response', { headers: resp.headers.signature, body: resp.body});
 
     verify(resp);
 
