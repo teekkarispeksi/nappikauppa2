@@ -521,6 +521,7 @@ export function sendTickets(order_id: number): Promise<any> {
       text: 'Kiitos tilauksestasi!\n\n' +
         'Tilaamasi liput ovat tämän viestin liitteenä pdf-muodossa. Esitäthän teatterilla liput joko tulostettuna tai mobiililaitteestasi. Voit kysyä lisätietoja vastaamalla tähän viestiin.\n\n' +
         'Esitys alkaa ' + order_datetime + '. Saavuthan paikalle ajoissa ruuhkien välttämiseksi. Nähdään näytöksessä!\n\n' +
+        'Suosittelemme kasvomaskin käyttöä näytöksissä.\n\n' +
         'Ystävällisin terveisin,\nTeekkarispeksi\n',
       attachment: {
         filename: filename,
