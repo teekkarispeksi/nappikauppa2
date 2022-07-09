@@ -16,6 +16,8 @@ Check that these requirements are installed before proceeding futher
 
 Other project requirements and VSCode extensions are managed by devcontainer system.
 
+It's also possible to run the devcontainer without using VSCode, see section [#developing-without-vscode](Developing without VSCode) for details.
+
 ### Developing
 
 1. Open project folder with VSCode
@@ -23,6 +25,22 @@ Other project requirements and VSCode extensions are managed by devcontainer sys
 3. Reopen project in remote container enviroment. Project installs development database and dependencies automatically.
 4. Use `ctrl+shift+b` to start dev server
 5. Go to [http://localhost:3000/](http://localhost:3000/). For admin site go to [http://localhost:3000/admin](http://localhost:3000/admin). Default username is admin and password nappiadmin5.
+
+### Developing without VSCode
+
+#### Start server
+
+1. Switch to `.devcontainer` directory
+2. Run `docker-compose up -d` to start containers for database and node
+3. Run `docker exec -it devcontainer_nappikauppa_1 /usr/local/bin/entrypoint.sh` to start the web server.
+4. The server should start in [http://localhost:3000/](http://localhost:3000/).
+
+If the `docker exec` command gives an error `No such container`, change `devcontainer_nappikauppa_1` to a correct container name (you can see that in the `docker-compose` command's output).
+
+#### Stop server
+
+To shut down the environment, press Ctrl-C to stop the server.
+Then use command `docker-compose down` to stop containers.
 
 ### Notes
 
