@@ -11,7 +11,7 @@ Project uses Visual Studio Code devcontainers for creating platform independent 
 Check that these requirements are installed before proceeding futher
 
 1. [Docker](https://www.docker.com)
-2. [Visual Studio Code](https://https://code.visualstudio.com/)
+2. [Visual Studio Code](https://code.visualstudio.com/)
 3. [Visual Studio Code Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
 
 Other project requirements and VSCode extensions are managed by devcontainer system.
