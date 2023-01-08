@@ -1,5 +1,5 @@
 import payment = require('../index');
-const config = require('../../../config/config').payment['checkout-v3'];
+const config = require('../../../config/config').payment['paytrail'];
 import order = require('../../order');
 import log = require('../../log');
 
@@ -9,8 +9,10 @@ import crypto = require('crypto');
 import axios from 'axios';
 import express = require('express');
 
-const PROVIDER = 'checkout-v3';
+const PROVIDER = 'paytrail';
 const SIGNATURE_ALGORITHM = 'sha256';
+const API_HOST = 'services.paytrail.com';
+const PROTOCOL = 'https'
 
 // Our database is using int type euros, but checkout is using
 // cents as value type so we need to do some conversion
@@ -22,7 +24,6 @@ interface CreateRequestBody {
   amount: number;
   currency: 'EUR';
   language: 'FI' | 'SV' | 'EN';
-  items: RequestBodyItem[];
   customer: {
     firstName: string;
     email: string;
@@ -35,14 +36,6 @@ interface CreateRequestBody {
     success: string;
     cancel: string;
   }
-}
-
-interface RequestBodyItem {
-  unitPrice: number;
-  units: number;
-  vatPercentage: number;
-  productCode: string;
-  deliveryDate: string; // format yyyy-mm-dd
 }
 
 interface CheckoutHeaders {
@@ -70,7 +63,7 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
   const signature = sign(headers, body);
 
   const httpHeaders = {
-    'content-type': 'application/json',
+    'content-type': 'application/json; charset=utf-8',
     'charset': 'utf-8',
     'signature': signature
   };
@@ -88,7 +81,7 @@ export async function create(order: order.IOrder, args: payment.ICreateArgs): Pr
 
   try {
     const resp = await axios({
-      baseURL: 'https://api.checkout.fi',
+      baseURL: PROTOCOL + '://' + API_HOST ,
       method: 'post',
       url: '/payments',
       headers: httpHeaders,
@@ -232,12 +225,5 @@ function orderToCreateRequestBody(order: order.IOrder, args: payment.ICreateArgs
       success: args.successCallback,
       cancel: args.errorCallback
     },
-    items: [{
-      unitPrice: order.order_price * EUR_TO_CENTS,
-      units: 1,
-      vatPercentage: 0,
-      productCode: payment.orderIdToName(order.order_id),
-      deliveryDate: new Date().toISOString().slice(0, 10),
-    }],
   }
 }
