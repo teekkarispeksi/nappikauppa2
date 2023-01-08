@@ -1,7 +1,7 @@
 'use strict';
 
 import formData = require('form-data');
-import Mailgun = require('mailgun.js');
+import Mailgun from 'mailgun.js';
 
 const config = require('../../config/config.js');
 const MG_DOMAIN = config.email.mailgun.domain

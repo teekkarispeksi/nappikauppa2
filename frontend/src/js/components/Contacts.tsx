@@ -150,16 +150,6 @@ export default class Contacts extends React.Component<IContactsProps, IContactsS
                 value={this.state.discount_code} />
           </Bootstrap.FormGroup>
         </div>
-
-        <div style={{maxWidth: '200px'}}>
-          <Bootstrap.Checkbox
-              type='checkbox'
-              readOnly={!active}
-              onChange={this.onValueChange.bind(this, 'wants_email')}
-              checked={this.state.wants_email} >
-              Haluan liittyä tiedotuslistalle
-          </Bootstrap.Checkbox>
-        </div>
         <div>
           <Button id='saveOrderInfo' className='ok' disabled={!active} onClick={this.onSave.bind(this)}>Tallenna</Button>
           <Button className='cancel' disabled={!active} onClick={this.props.onCancel}>Peru</Button>
